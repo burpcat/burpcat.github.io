@@ -1,0 +1,28 @@
+{
+  "feeds": [
+    {
+      "name": "Paul Graham",
+      "url": "https://paulgraham.com/articles.html",
+      "feed": "http://www.aaronsw.com/2002/feeds/pgessays.rss",
+      "note": "essays on building and startups"
+    },
+    {
+      "name": "Gwern Branwen",
+      "url": "https://gwern.net",
+      "feed": "https://gwern.net/feed.xml",
+      "note": "long-form AI and beyond"
+    },
+    {
+      "name": "Lil'Log (Lilian Weng)",
+      "url": "https://lilianweng.github.io",
+      "feed": "https://lilianweng.github.io/index.xml",
+      "note": "rigorous ML/AI explainers"
+    },
+    {
+      "name": "The Pragmatic Engineer",
+      "url": "https://blog.pragmaticengineer.com",
+      "feed": "https://blog.pragmaticengineer.com/rss/",
+      "note": "how real orgs ship"
+    }
+  ]
+}

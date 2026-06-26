@@ -1,0 +1,50 @@
+{
+  "work": [
+    {
+      "role": "Data Scientist",
+      "company": "SmartPac",
+      "dates": "2026–now",
+      "description": "Sole data function across four pilot customers. Shipped an agentic onboarding agent and the eval harness keeping it honest."
+    },
+    {
+      "role": "Data Scientist",
+      "company": "Mass General Brigham",
+      "dates": "2025",
+      "description": "Fixed a stalled electrophysiology pipeline — 94% faster, $200K saved. Shipped an air-gapped clinical RAG on CPU."
+    },
+    {
+      "role": "Data Software Engineer",
+      "company": "Shiryam Technologies",
+      "dates": "2021–2023",
+      "description": "Three teams' funnel metrics were lying to them. Fixed the tracking, wrote the spec, ran the tests."
+    },
+    {
+      "role": "Junior Engineer",
+      "company": "Aapoon",
+      "dates": "2021",
+      "description": "My first real role. Mapped a funnel, lifted adoption 28%, automated the weekly report nobody enjoyed writing."
+    }
+  ],
+  "projects": [
+    {
+      "name": "MadCP",
+      "description": "Multi-tier AI orchestration MCP server for Claude Code. Routes tickets through agent hierarchies with atomic SQLite assignment.",
+      "url": "https://github.com/burpcat/madcp"
+    },
+    {
+      "name": "shrutz",
+      "description": "macOS wallpaper rotator that counts only active keyboard time. Reverse-engineered the binary plist store across Spaces.",
+      "url": "https://github.com/burpcat/shrutz"
+    },
+    {
+      "name": "Softrifle Market Analytics",
+      "description": "Creator-campaign analytics dashboard. Real YouTube data, 200k-row joins, AI assistant that answers without touching the database.",
+      "url": "https://github.com/burpcat/softrifle-analytics-dashboard"
+    },
+    {
+      "name": "MedPix 2.0 Pythia",
+      "description": "Multimodal clinical decision pipeline. Vision-language model plus GNN re-ranker. Beat the paper on a single V100.",
+      "url": "https://github.com/DhanushAkula/Multimodal-Clinical-Decision-support-system"
+    }
+  ]
+}

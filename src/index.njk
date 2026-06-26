@@ -1,0 +1,88 @@
+---
+layout: base.njk
+title: home
+---
+
+<main id="main" class="main-grid">
+
+  <section class="exp-section" aria-labelledby="exp-heading">
+    <p class="section-label" id="exp-heading">— EXPERIENCE</p>
+
+    {% if experience.work and experience.work.length %}
+      {% for job in experience.work %}
+      <div class="exp-item">
+        <p class="exp-role">{{ job.role }}</p>
+        <p class="exp-meta">{{ job.company }} · {{ job.dates }}</p>
+        <p class="exp-desc">{{ job.description }}</p>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-state">Experience section is empty for now. Edit <code>src/_data/experience.json</code> to add your work history.</p>
+    {% endif %}
+
+    <hr class="col-divider">
+    <p class="section-label">— PROJECTS</p>
+
+    {% if experience.projects and experience.projects.length %}
+      {% for project in experience.projects %}
+      <div class="project-item">
+        <p class="project-name"><a href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }} ↗</a></p>
+        <p class="project-desc">{{ project.description }}</p>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-state">No projects listed yet. Add them in <code>src/_data/experience.json</code>.</p>
+    {% endif %}
+  </section>
+
+  <section class="blog-section" aria-labelledby="writing-heading">
+    <p class="section-label" id="writing-heading">— RECENT WRITING</p>
+
+    {% if collections.posts.length %}
+      {% for post in collections.posts | limit(5) %}
+      <article class="post-item">
+        <div class="post-meta-row">
+          <time class="post-date" datetime="{{ post.date | isoDate }}">{{ post.date | dotDate }}</time>
+          <span class="reading-time">{{ post.templateContent | readingTime }}</span>
+        </div>
+        <h2 class="post-title">
+          {% if post.date | isRecent(14) %}<span class="new-badge" aria-label="New post">NEW</span>{% endif %}
+          <a href="{{ post.url }}">{{ post.data.title | safe }}</a>
+        </h2>
+        {% if post.data.excerpt %}<p class="post-excerpt">{{ post.data.excerpt }}</p>{% endif %}
+        <a class="read-link" href="{{ post.url }}">read →</a>
+      </article>
+      {% endfor %}
+
+      {% if collections.posts.length > 5 %}
+      <a class="see-all" href="/blog/">all writing →</a>
+      {% endif %}
+    {% else %}
+      <p class="empty-state">Nothing published yet. Drop a <code>.md</code> file in <code>src/posts/</code> to get started — see <code>CONTENT.md</code> in the repo root for the format.</p>
+    {% endif %}
+
+    <aside class="guestbook-teaser">
+      <p class="gb-label">★ guestbook</p>
+      <p class="gb-empty">No notes yet — would you like to be the first?</p>
+      <a href="/guestbook/" class="gb-sign">sign the guestbook →</a>
+    </aside>
+  </section>
+
+</main>
+
+{# ── blogroll ── #}
+{% if blogroll.feeds and blogroll.feeds.length %}
+<section class="blogroll" aria-labelledby="reading-heading">
+  <p class="blogroll-label" id="reading-heading">— WHAT I'M READING</p>
+  <p class="blogroll-intro">A handful of feeds I subscribe to.</p>
+  <ul class="blogroll-list">
+    {% for feed in blogroll.feeds %}
+    <li>
+      <a href="{{ feed.url }}" target="_blank" rel="noopener">{{ feed.name }}</a>
+      {% if feed.feed %}<a href="{{ feed.feed }}" class="feed-link">[feed]</a>{% endif %}
+      {% if feed.note %}<span class="feed-note">— {{ feed.note }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}

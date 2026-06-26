@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+
+# eleventy build output (regenerated on deploy)
+_site/
+
+# os / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# logs / env
+*.log
+npm-debug.log*
+.env
+.env.local

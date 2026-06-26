@@ -1,0 +1,39 @@
+---
+layout: base.njk
+title: writing
+permalink: /blog/
+---
+
+<main id="main">
+<section style="max-width: 65ch;">
+  <p class="section-label">— ALL WRITING</p>
+
+  {% if collections.posts.length %}
+    {% for post in collections.posts %}
+    <article class="post-item">
+      <div class="post-meta-row">
+        <time class="post-date" datetime="{{ post.date | isoDate }}">{{ post.date | dotDate }}</time>
+        <span class="reading-time">{{ post.templateContent | readingTime }}</span>
+      </div>
+      <h2 class="post-title">
+        {% if post.date | isRecent(14) %}<span class="new-badge" aria-label="New post">NEW</span>{% endif %}
+        <a href="{{ post.url }}">{{ post.data.title | safe }}</a>
+      </h2>
+      {% if post.data.excerpt %}<p class="post-excerpt">{{ post.data.excerpt }}</p>{% endif %}
+      <a class="read-link" href="{{ post.url }}">read →</a>
+    </article>
+    {% endfor %}
+  {% else %}
+    <p class="empty-state">
+      No posts yet. To write your first one, create a file like <code>src/posts/2025-06-22-my-first-post.md</code> with this frontmatter:
+    </p>
+    <pre style="background:#1A1714;color:#D4C9B4;padding:20px;font-size:13px;line-height:1.6;margin-top:14px;overflow-x:auto;">---
+title: Hello, world
+date: 2025-06-22
+excerpt: A short summary that shows on the listing page.
+---
+
+Your content in Markdown here.</pre>
+  {% endif %}
+</section>
+</main>

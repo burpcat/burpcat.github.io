@@ -1,0 +1,24 @@
+---
+layout: base.njk
+---
+<main id="main">
+<article class="post-full">
+
+  <header>
+    <div class="post-meta-row">
+      <time class="post-date" datetime="{{ page.date | isoDate }}">{{ page.date | dotDate }}</time>
+      <span class="reading-time">{{ content | readingTime }}</span>
+    </div>
+    <h1 class="post-full-title">{{ title }}</h1>
+  </header>
+
+  <div class="post-body">
+    {{ content | safe }}
+  </div>
+
+  <div class="post-footer">
+    <a class="back-link" href="/blog/">← back to all writing</a>
+  </div>
+
+</article>
+</main>

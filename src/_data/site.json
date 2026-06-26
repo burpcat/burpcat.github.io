@@ -1,0 +1,14 @@
+{
+  "name": "burpcat",
+  "nameDisplay": "<em>Avinash</em>",
+  "tagline": "developer with strategy · occasional philosopher · poet",
+  "subTagline": "a personal site of 'Avinash Reddy Arutla' on the open web, circa 2026",
+  "url": "https://burpcat.github.io",
+  "language": "en",
+  "author": {
+    "name": "Avinash Arutla",
+    "email": "avarutla@gmail.com"
+  },
+  "githubUsername": "burpcat",
+  "manualStatus": "still figuring this whole thing out"
+}

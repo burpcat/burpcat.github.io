@@ -1,0 +1,51 @@
+---
+layout: base.njk
+title: guestbook
+permalink: /guestbook/
+---
+
+<main id="main">
+<section style="max-width: 65ch;">
+  <p class="section-label">— GUESTBOOK</p>
+
+  <div style="font-size: 16px; line-height: 1.8; color: var(--body); margin-bottom: 32px;">
+    <p style="margin-bottom: 1.4em;">A page for strangers to say hello. Leave a note about how you found me, what you're working on, or just say hi.</p>
+  </div>
+
+  {# ── Giscus comments ── #}
+  {# To activate: go to https://giscus.app, point it at this repo,
+     enable GitHub Discussions, and replace the four data-* values below.
+     Then delete the placeholder block. #}
+
+  <div class="empty-state" style="border: 1px dashed var(--dash); padding: 24px; background: rgba(217, 164, 39, 0.06);">
+    <p style="margin-bottom: 1em;"><strong style="color: var(--text); font-style: normal;">Setup needed:</strong> the guestbook uses <a href="https://giscus.app" style="color: var(--accent);">Giscus</a> (free, GitHub-backed comments).</p>
+    <ol style="padding-left: 22px; font-style: normal;">
+      <li style="margin-bottom: 6px;">Enable Discussions on your GitHub repo (Settings → Features)</li>
+      <li style="margin-bottom: 6px;">Visit <a href="https://giscus.app" style="color: var(--accent);">giscus.app</a> and configure it for your repo</li>
+      <li style="margin-bottom: 6px;">Copy the four <code>data-*</code> values it gives you into the <code>&lt;script&gt;</code> below in <code>src/guestbook.njk</code></li>
+      <li>Uncomment the script block, delete this notice</li>
+    </ol>
+  </div>
+
+  {# Uncomment and fill in the data-repo-id and data-category-id from giscus.app:
+
+  <script src="https://giscus.app/client.js"
+    data-repo="yourusername/your-repo-name"
+    data-repo-id="REPLACE_ME"
+    data-category="Guestbook"
+    data-category-id="REPLACE_ME"
+    data-mapping="specific"
+    data-term="guestbook"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+  #}
+</section>
+</main>

@@ -1,0 +1,14 @@
+{
+  "name": "my-site",
+  "version": "1.0.0",
+  "description": "Personal site built with Eleventy",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "node scripts/fetch-github.js && eleventy",
+    "fetch": "node scripts/fetch-github.js"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "@11ty/eleventy-plugin-rss": "^2.0.2"
+  }
+}
