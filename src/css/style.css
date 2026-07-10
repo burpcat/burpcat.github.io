@@ -4,34 +4,34 @@
    LIGHT THEME
    ─────────────────────────────────────── */
 :root, [data-theme="light"] {
-  --bg:           #EAEDE3;
-  --bg-elevated:  #F2F4EC;
-  --text:         #26332B;
-  --body:         #33403A;
-  --muted:        #6E7A6E;
-  --faint:        #7C877C;
-  --border:       #C3CBBB;
-  --dash:         #B4BDA9;
-  --accent:       #3E6B54;
-  --accent-hover: #2C5140;
-  --warm-accent:  #C8792E;
-  --rss:          #B5651F;
-  --geo-yellow:   #C89A3C;
-  --geo-pink:     #9A5B5B;
+  --bg:           #E7D3B8;
+  --bg-elevated:  #EEDCC4;
+  --text:         #2A2018;
+  --body:         #3A2E23;
+  --muted:        #6E5C48;
+  --faint:        #82705A;
+  --border:       #C4A883;
+  --dash:         #B69A76;
+  --accent:       #2F6E57;
+  --accent-hover: #245943;
+  --warm-accent:  #C25A2A;
+  --rss:          #B5501F;
+  --geo-yellow:   #D08A2E;
+  --geo-pink:     #A85440;
 
-  --sky-top:      #DDE4D2;
-  --sky-bottom:   #C4D0BA;
-  --ridge-far:    #6E8A72;
-  --ridge-near:   #3F5A47;
-  --ridge-trees:  #26332B;
-  --orb:          #E9A23B;
-  --orb-glow:     rgba(233,162,59,0.30);
-  --spiral-line:  62,107,84;
+  --sky-top:      #F0D9B4;
+  --sky-bottom:   #E0B181;
+  --ridge-far:    #9C8460;
+  --ridge-near:   #5E4A34;
+  --ridge-trees:  #33261A;
+  --orb:          #E8913C;
+  --orb-glow:     rgba(232,145,60,0.34);
+  --spiral-line:  47,110,87;
   --spiral-alpha: 0.42;
 
-  --glass-tint:   rgba(234,237,227,0.55);
-  --glass-solid:  rgba(234,237,227,0.93);
-  --glass-edge:   rgba(38,51,43,0.18);
+  --glass-tint:   rgba(231,211,184,0.52);
+  --glass-solid:  rgba(231,211,184,0.94);
+  --glass-edge:   rgba(42,32,24,0.20);
 
   --max-reading: 65ch;
   --tap-min: 44px;
@@ -110,9 +110,9 @@ html { -webkit-text-size-adjust: 100%; transition: background-color 0.3s; }
 body {
   background: var(--sky-bottom); /* fallback if canvas/JS is unavailable */
   color: var(--text);
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 16px;
-  line-height: 1.7;
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s, color 0.3s;
 }
@@ -222,6 +222,7 @@ body.calm-mode .construction { display: none !important; }
   margin-bottom: 10px;
   flex-wrap: wrap;
   row-gap: 14px;
+  font-family: 'Courier New', Courier, monospace;
 }
 .status {
   font-size: 14px;
@@ -348,7 +349,7 @@ body.calm-mode .construction { display: none !important; }
   background: transparent;
   border: 1px solid var(--border);
   padding: 7px 12px;
-  font-family: inherit;
+  font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
   letter-spacing: 0.05em;
   color: var(--body);
@@ -380,11 +381,11 @@ html.reading-mode .reader-toggle { background: var(--text); color: var(--bg); bo
 header { margin-top: 16px; margin-bottom: 36px; }
 .wrap > header { padding: 24px 28px; }
 h1 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 300;
   font-size: clamp(48px, 7vw, 72px);
   line-height: 1;
-  letter-spacing: -3px;
+  letter-spacing: -1px;
   margin-bottom: 14px;
   color: var(--text);
 }
@@ -417,6 +418,7 @@ nav {
   flex-wrap: wrap;
   flex: 1;
   min-width: 0;
+  font-family: 'Courier New', Courier, monospace;
 }
 nav a {
   font-size: 14px;
@@ -471,7 +473,7 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
    HERO CAPTION (homepage only, floats over the scene)
    ─────────────────────────────────────── */
 .hero-caption {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-style: italic;
   font-size: clamp(13px, 2.6vw, 16px);
   color: var(--text);
@@ -534,6 +536,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .exp-section, .blog-section { padding: 22px 24px; }
 .section-label {
+  font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.1em;
@@ -564,7 +567,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .exp-item:last-of-type { border-bottom: none; }
 .exp-role {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 400;
   font-size: 21px;
   margin-bottom: 5px;
@@ -615,11 +618,12 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 .post-meta-row {
   display: flex; gap: 12px; margin-bottom: 8px;
   font-size: 12px; color: var(--muted); flex-wrap: wrap;
+  font-family: 'Courier New', Courier, monospace;
 }
 .post-date { font-weight: 600; }
 .reading-time::before { content: "·"; margin-right: 8px; }
 .post-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 400; font-size: 23px;
   line-height: 1.3; margin-bottom: 12px;
 }
@@ -660,7 +664,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   margin-bottom: 10px; font-weight: 700;
 }
 .gb-empty {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-style: italic; font-size: 16px;
   color: var(--text); line-height: 1.55;
   margin-bottom: 10px;
@@ -737,7 +741,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   width: 100%;
 }
 .modal h3 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 400;
   font-size: 28px;
   margin-bottom: 8px;
@@ -778,7 +782,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ── single post page ── */
 .post-full { max-width: 65ch; margin: 0 auto; }
 .post-full-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 400;
   font-size: clamp(30px, 5vw, 42px);
   line-height: 1.2;
@@ -788,7 +792,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body { font-size: 16px; color: var(--body); line-height: 1.85; padding: 28px 30px; }
 .post-body p { margin-bottom: 1.4em; }
 .post-body h2 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Instrument Serif', Georgia, serif;
   font-weight: 400; font-size: 26px;
   margin: 2em 0 0.8em; color: var(--text);
 }
