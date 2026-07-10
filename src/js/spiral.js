@@ -13,14 +13,20 @@
   const root = document.documentElement;
 
   // ── tuning knobs ──
-  const SCALE_X = 0.9;           // curve width as a fraction of viewport width
-  const SCALE_Y = 0.72;          // curve height as a fraction of viewport height
-  const CY_FACTOR = 0.52;        // orb's vertical position as a fraction of viewport height
-  const LEG_SECONDS = 14;        // base one-way traverse time (page2 -> spiral)
-  const CALM_LEG_SECONDS = LEG_SECONDS * 25; // calm mode: very slow, meditative
-  const BELL_L = 6 / 7;          // page-8 balanced bell — the resting point of the tempo dip
-  const DIP_DEPTH = 0.86;        // how much the tempo slows at the bell (0..1)
-  const DIP_WIDTH = 0.12;        // sigma of the slowdown, in L-units
+  const SCALE_X = 0.9;            // curve width as a fraction of viewport width
+  const SCALE_Y = 0.72;           // curve height as a fraction of viewport height
+  const CY_FACTOR = 0.52;         // orb's vertical position as a fraction of viewport height
+  const EXT = 0.5;                // how far (normalized units) open ends bleed past the viewport
+
+  const LEG_SECONDS = 14;         // forward travel time (page2 -> spiral), holds excluded
+  const LEG_SECONDS_BACK = 7;     // return leg: fast, flat unwind
+  const HOLD_BELL_S = 0.6;        // brief near-stop breath at the page-8 bell
+  const HOLD_COIL_S = 2.0;        // longer humming drift-hold at the golden coil
+  const CALM_MULT = 25;           // calm mode scales every duration above by this
+
+  const HUM_FREQ_HZ = 0.15;       // the coil's living hum while held, ~0.1-0.2Hz
+  const HUM_SCALE_AMP = 0.015;    // breathing scale, 1.00 <-> 1.015 (sub-2%)
+  const HUM_ROT_AMP = (0.5 * Math.PI) / 180; // +/- 0.5 degrees
 
   // ── traced keyframes — the owner's sketch, pages 2 through 8 ──
   // Each is a y=f(x) profile: 40 samples, x = i/39 across the width,
@@ -35,21 +41,23 @@
     /* page8 — balanced bell  */ [0.413,0.417,0.422,0.430,0.445,0.459,0.475,0.499,0.515,0.544,0.570,0.593,0.630,0.651,0.673,0.696,0.710,0.718,0.720,0.720,0.717,0.711,0.698,0.678,0.660,0.633,0.607,0.578,0.551,0.531,0.515,0.501,0.491,0.482,0.476,0.473,0.472,0.474,0.476,0.480],
   ];
 
-  // The 8th keyframe: the bell's line curls up into a golden coil.
-  // Log spiral, K = ln(phi)/(pi/2) — kept for reference even though the
-  // radius falloff below is the empirical 0.05^f the owner tuned by eye.
-  // cx/cy/base are biased low-right per the reference frame: the coil sits
-  // near the orb, the outer arm runs off toward the bottom-right, and
-  // points are allowed to extend past [0,1] on purpose — do not clamp.
+  // The 8th keyframe: the bell's line winds into a golden coil — at least
+  // three full turns, tightly wound at the eye. index0 is the outer/open
+  // end (extends off-frame); index N-1 is the inner/curled end (never
+  // extrapolated — it's the closed heart of the coil). cx/cy biased
+  // low-left per the reference frame; tune by eye.
   function goldenKeyframe() {
-    const N = 40, cx = 0.40, cy = 0.66, base = 0.5;
-    const K = Math.log(1.6180339887) / (Math.PI / 2);
+    const N = 40, K = Math.log(1.6180339887) / (Math.PI / 2);
+    const cx = 0.40, cy = 0.62;
+    const TURNS = 3.25;
+    const thEnd = TURNS * 2 * Math.PI;
+    const rOuter = 0.85;
     const pts = [];
     for (let i = 0; i < N; i++) {
       const f = i / (N - 1);
-      const th = f * 2.7 * Math.PI + 0.4;
-      const r = base * Math.pow(0.05, f);
-      pts.push([cx + r * Math.cos(th), cy + r * Math.sin(th)]);
+      const th = f * thEnd;
+      const r = rOuter * Math.exp(-K * th);
+      pts.push([cx + r * Math.cos(th + 0.4), cy + r * Math.sin(th + 0.4)]);
     }
     return pts;
   }
@@ -58,8 +66,34 @@
     return curve.map((y, i) => [i / 39, y]);
   }
 
+  // Extend a point list past one end by continuing that end's tangent —
+  // "amount" is how far, in normalized units, past the last real point.
+  // amount=0 just duplicates the endpoint (a closed end — no bleed).
+  function extendEnd(points, atStart, amount) {
+    const n = points.length;
+    const a = atStart ? points[0] : points[n - 1];
+    const b = atStart ? points[1] : points[n - 2];
+    const dx = a[0] - b[0], dy = a[1] - b[1];
+    const len = Math.hypot(dx, dy) || 1e-6;
+    return [a[0] + (dx / len) * amount, a[1] + (dy / len) * amount];
+  }
+  function extendKeyframe(points, extStart, extEnd) {
+    return [extendEnd(points, true, extStart), ...points, extendEnd(points, false, extEnd)];
+  }
+
+  // Every keyframe reads as a fragment of something larger: no loose ends
+  // float mid-screen. Page curves bleed off both edges. The spiral's outer
+  // arm bleeds off one edge (extStart=EXT); its inner/curled eye stays
+  // closed (extEnd=0 — a zero-length duplicate, just to keep point counts
+  // equal across keyframes so morphing can lerp index-for-index).
+  const PREPEND_COUNT = 1;
+  const MID_INDEX = PREPEND_COUNT + 20; // was points[20] pre-extension; shifted by the 1 prepended point
+
+  const pageKeyframes = CURVES.map(toPoints).map((pts) => extendKeyframe(pts, EXT, EXT));
+  const spiralKeyframe = extendKeyframe(goldenKeyframe(), EXT, 0);
+
   // Keyframe order: [page2, page3, page4, page5, page6, page7, page8, SPIRAL] — indices 0..7.
-  const KEYFRAMES = CURVES.map(toPoints).concat([goldenKeyframe()]);
+  const KEYFRAMES = pageKeyframes.concat([spiralKeyframe]);
   const NUM_SEGMENTS = KEYFRAMES.length - 1; // 7
 
   const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -83,35 +117,53 @@
     return lerpPoints(KEYFRAMES[seg], KEYFRAMES[seg + 1], t);
   }
 
-  // Gaussian-dip velocity: ~1 away from the bell, ~(1-DIP_DEPTH) right at
-  // it — fast through the early beats, a deep slow-motion hold at the
-  // page-8 bell, fast again out into the spiral. Same shape on both legs
-  // of the ping-pong, since speed() only depends on position, not direction.
-  function speed(L) {
-    const dip = DIP_DEPTH * Math.exp(-((L - BELL_L) ** 2) / (2 * DIP_WIDTH ** 2));
-    return 1 - dip;
+  const BELL_L = 6 / 7; // page-8 balanced bell
+  // Forward tempo: two slow zones (a brief bell breath, a long curl-up into
+  // the coil), clamped so speed never reaches zero. Backward tempo is flat
+  // and fast — the coil unwinds briskly rather than spinning tighter.
+  function speedFwd(L) {
+    const dipBell = 0.80 * Math.exp(-((L - BELL_L) ** 2) / (2 * 0.05 ** 2));
+    const dipCurl = 0.90 * Math.exp(-((L - 0.95) ** 2) / (2 * 0.10 ** 2));
+    return 1 - Math.min(0.96, dipBell + dipCurl);
+  }
+  function speedBack() {
+    return 1;
   }
 
-  // Calibrate NORM once so a full one-way leg (L: 0->1) takes ~LEG_SECONDS,
+  // Calibrate NORM once per direction so a full leg takes ~LEG_SECONDS(_BACK),
   // by numerically averaging 1/speed(L) over the leg (midpoint rule).
-  const NORM = (() => {
-    const STEPS = 2000;
+  function calibrateNorm(speedFn, steps) {
     let sum = 0;
-    for (let i = 0; i < STEPS; i++) sum += 1 / speed((i + 0.5) / STEPS);
-    return sum / STEPS;
-  })();
+    for (let i = 0; i < steps; i++) sum += 1 / speedFn((i + 0.5) / steps);
+    return sum / steps;
+  }
+  const NORM_FWD = calibrateNorm(speedFwd, 4000);
+  const NORM_BACK = calibrateNorm(speedBack, 200);
 
   // ── state ──
   let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
   let calm = document.body.classList.contains('calm-mode');
   let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let legSeconds = calm ? CALM_LEG_SECONDS : LEG_SECONDS;
   let frozen = reduced;
   let hidden = document.hidden;
   let rafId = null;
-  let L = 0;     // 0 = page 2, 1 = golden spiral
-  let dir = 1;   // +1 forward, -1 backward — flips at either end, ping-pong forever
   let lastTs = null;
+
+  // phase machine: fwd1 (0->bell) -> holdBell -> fwd2 (bell->1) -> holdCoil
+  // (humming) -> back (1->0, fast) -> loop to fwd1. Only the forward pass
+  // holds; the return is a brisk, unbroken unwind.
+  let phase = 'fwd1';
+  let L = 0;
+  let holdElapsed = 0;
+  let legSecondsFwd, legSecondsBack, holdBellS, holdCoilS;
+  function updateTimings() {
+    const mult = calm ? CALM_MULT : 1;
+    legSecondsFwd = LEG_SECONDS * mult;
+    legSecondsBack = LEG_SECONDS_BACK * mult;
+    holdBellS = HOLD_BELL_S * mult;
+    holdCoilS = HOLD_COIL_S * mult;
+  }
+  updateTimings();
 
   // Orb theme crossfade (sun ↔ moon), ~0.6s, matching the CSS theme transition.
   let themeMix = root.getAttribute('data-theme') === 'dark' ? 1 : 0;
@@ -145,15 +197,23 @@
     ctx.globalAlpha = 1;
   }
 
-  // Map the 40 morphed points to screen so the middle sample (index 20)
-  // always sits under the fixed orb — as the curve morphs, yMid shifts and
-  // the whole line slides vertically beneath the pinned orb.
-  function strokeMorph(points) {
-    const yMid = points[20][1];
+  // Map the morphed points to screen so the middle sample always sits
+  // under the fixed orb — as the curve morphs, yMid shifts and the whole
+  // line slides vertically beneath the pinned orb. `hum`, when present,
+  // wraps the stroke in a small breathing scale + rotation around the
+  // orb — used only while the coil is held.
+  function strokeMorph(points, hum) {
+    const yMid = points[MID_INDEX][1];
     const rgb = v('--spiral-line') || '62,107,84';
     const a = parseFloat(v('--spiral-alpha')) || 0.42;
 
     ctx.save();
+    if (hum) {
+      ctx.translate(cx, cy);
+      ctx.rotate(hum.rot);
+      ctx.scale(hum.scale, hum.scale);
+      ctx.translate(-cx, -cy);
+    }
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.beginPath();
@@ -218,20 +278,43 @@
   function frame(ts) {
     if (hidden) return;
     if (lastTs === null) lastTs = ts;
-    const dt = ts - lastTs;
+    const dtSec = (ts - lastTs) / 1000;
     lastTs = ts;
 
     cs = getComputedStyle(root);
     updateThemeMix(ts);
 
-    L += dir * speed(L) * (dt / 1000) / legSeconds * NORM;
-    if (L >= 1) { L = 1; dir = -1; }
-    else if (L <= 0) { L = 0; dir = 1; }
+    let hum = null;
+    switch (phase) {
+      case 'fwd1':
+        L += (speedFwd(L) * dtSec) / legSecondsFwd * NORM_FWD;
+        if (L >= BELL_L) { L = BELL_L; phase = 'holdBell'; holdElapsed = 0; }
+        break;
+      case 'holdBell':
+        holdElapsed += dtSec;
+        if (holdElapsed >= holdBellS) phase = 'fwd2';
+        break;
+      case 'fwd2':
+        L += (speedFwd(L) * dtSec) / legSecondsFwd * NORM_FWD;
+        if (L >= 1) { L = 1; phase = 'holdCoil'; holdElapsed = 0; }
+        break;
+      case 'holdCoil': {
+        holdElapsed += dtSec;
+        const humPhase = holdElapsed * HUM_FREQ_HZ * 2 * Math.PI;
+        hum = { scale: 1 + HUM_SCALE_AMP * Math.sin(humPhase), rot: HUM_ROT_AMP * Math.cos(humPhase) };
+        if (holdElapsed >= holdCoilS) phase = 'back';
+        break;
+      }
+      case 'back':
+        L -= (speedBack(L) * dtSec) / legSecondsBack * NORM_BACK;
+        if (L <= 0) { L = 0; phase = 'fwd1'; }
+        break;
+    }
 
     // don't clear — repaint the sky at partial alpha over the last frame.
-    // fast stretches leave motion-blur streaks; the bell slow-mo resolves crisp.
+    // fast stretches leave motion-blur streaks; slow holds resolve crisp.
     paintSky(0.30);
-    strokeMorph(pointsAtL(L));
+    strokeMorph(pointsAtL(L), hum);
     drawOrb();
 
     rafId = requestAnimationFrame(frame);
@@ -241,7 +324,7 @@
     cs = getComputedStyle(root);
     ctx.clearRect(0, 0, W, H);
     paintSky(1);
-    strokeMorph(KEYFRAMES[6]); // page 8, the balanced bell — exact keyframe, no interpolation
+    strokeMorph(KEYFRAMES[6]); // page 8, the balanced bell — exact keyframe, no interpolation, no hum
     drawOrb();
   }
 
@@ -285,7 +368,7 @@
 
   new MutationObserver(() => {
     calm = document.body.classList.contains('calm-mode');
-    legSeconds = calm ? CALM_LEG_SECONDS : LEG_SECONDS; // L is preserved, so this doesn't jump
+    updateTimings(); // L and phase/holdElapsed are preserved, so this doesn't jump
   }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
   window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
@@ -306,8 +389,8 @@
   });
 
   resize();
-  L = 0;
-  dir = 1; // start on page 2 (uphill), moving forward — where the sketch begins
+  phase = 'fwd1';
+  L = 0; // start on page 2 (uphill), moving forward — where the sketch begins
   if (frozen) drawStatic();
   else start();
 })();
