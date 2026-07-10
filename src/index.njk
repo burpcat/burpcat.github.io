@@ -5,7 +5,7 @@ title: home
 
 <main id="main" class="main-grid">
 
-  <section class="exp-section" aria-labelledby="exp-heading">
+  <section class="exp-section glass-surface" aria-labelledby="exp-heading">
     <p class="section-label" id="exp-heading">— EXPERIENCE</p>
 
     {% if experience.work and experience.work.length %}
@@ -35,7 +35,7 @@ title: home
     {% endif %}
   </section>
 
-  <section class="blog-section" aria-labelledby="writing-heading">
+  <section class="blog-section glass-surface" aria-labelledby="writing-heading">
     <p class="section-label" id="writing-heading">— RECENT WRITING</p>
 
     {% if collections.posts.length %}
@@ -61,7 +61,7 @@ title: home
       <p class="empty-state">Nothing published yet. Drop a <code>.md</code> file in <code>src/posts/</code> to get started — see <code>CONTENT.md</code> in the repo root for the format.</p>
     {% endif %}
 
-    <aside class="guestbook-teaser">
+    <aside class="guestbook-teaser glass-surface">
       <p class="gb-label">★ guestbook</p>
       <p class="gb-empty">No notes yet — would you like to be the first?</p>
       <a href="/guestbook/" class="gb-sign">sign the guestbook →</a>
@@ -72,7 +72,7 @@ title: home
 
 {# ── blogroll ── #}
 {% if blogroll.feeds and blogroll.feeds.length %}
-<section class="blogroll" aria-labelledby="reading-heading">
+<section class="blogroll glass-surface" aria-labelledby="reading-heading">
   <p class="blogroll-label" id="reading-heading">— WHAT I'M READING</p>
   <p class="blogroll-intro">A handful of feeds I subscribe to.</p>
   <ul class="blogroll-list">

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#E8E2D4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1B2330" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#EAEDE3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0C1512" media="(prefers-color-scheme: dark)">
   <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
   <meta name="description" content="{{ description or site.tagline }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.name }} RSS" href="/feed.xml">
@@ -24,12 +24,22 @@
 </head>
 <body>
 
+{# ── BACKGROUND SCENE (fixed, site-wide) ── #}
+<div class="scene" aria-hidden="true">
+  <canvas class="scene-sky" id="sceneSky"></canvas>
+  <div class="scene-ridge">
+    <div class="ridge-far"></div>
+    <div class="ridge-near"></div>
+    <div class="ridge-trees"></div>
+  </div>
+</div>
+
 <a href="#main" class="skip-link">skip to content</a>
 
 <div class="wrap">
 
   {# ── UTILITY STRIP ── #}
-  <div class="utility-strip">
+  <div class="utility-strip glass-surface">
     <div class="status">
       <span class="dot" aria-hidden="true"></span>
       {% if github.configured and github.available %}
@@ -50,12 +60,13 @@
         <span aria-hidden="true">◐</span>
         <span class="calm-label">calm mode</span>
       </button>
+      <button class="mute-toggle" id="muteToggle" type="button" aria-label="Mute background music" hidden>♪</button>
       <span class="construction">★ under construction ★</span>
     </div>
   </div>
 
   {# ── HEADER ── #}
-  <header>
+  <header class="glass-surface">
     <h1><a href="/">{{ site.nameDisplay | safe }}</a></h1>
     <p class="tagline">{{ site.tagline }}</p>
     <p class="sub-tagline"><span class="star" aria-hidden="true">★</span> {{ site.subTagline }} <span class="star" aria-hidden="true">★</span></p>
@@ -79,24 +90,14 @@
     </div>
   </header>
 
-  {# ── HERO BANNER (homepage only) ── #}
+  {# ── HERO CAPTION (homepage only, floats over the scene) ── #}
   {% if page.url == "/" %}
-  <div class="hero" aria-hidden="true">
-    <div class="hero-stars"></div>
-    <div class="hero-orb"></div>
-    <div class="hero-far"></div>
-    <div class="hero-near"></div>
-    <div class="hero-trees"></div>
-    <span class="ember"></span>
-    <span class="ember"></span>
-    <span class="ember"></span>
-    <p class="hero-overlay">a small bright thing in a vast quiet space</p>
-  </div>
+  <p class="hero-caption">a small bright thing in a vast quiet space</p>
   {% endif %}
 
   {{ content | safe }}
 
-  <footer>
+  <footer class="glass-surface">
     <p> coded on aegon · no analytics OR tracking </p>
     <p><a href="/feed.xml">rss</a> · <a href="/guestbook/">guestbook</a></p>
   </footer>
@@ -105,7 +106,7 @@
 
 {# ── auth modal (placeholder) ── #}
 <div class="modal-backdrop" id="authModal" onclick="if(event.target===this)closeModal()" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal">
+  <div class="modal glass-surface">
     <h3 id="modalTitle">log in</h3>
     <p id="modalDesc">Welcome back. Pick up where you left off.</p>
     <input type="email" placeholder="email" aria-label="Email">
@@ -117,6 +118,9 @@
   </div>
 </div>
 
+<audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop preload="none"></audio>
+
 <script src="/js/site.js"></script>
+<script src="/js/spiral.js"></script>
 </body>
 </html>

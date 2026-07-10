@@ -10,7 +10,7 @@ permalink: /blog/
 
   {% if collections.posts.length %}
     {% for post in collections.posts %}
-    <article class="post-item">
+    <article class="post-item glass-surface">
       <div class="post-meta-row">
         <time class="post-date" datetime="{{ post.date | isoDate }}">{{ post.date | dotDate }}</time>
         <span class="reading-time">{{ post.templateContent | readingTime }}</span>

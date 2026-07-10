@@ -8,6 +8,7 @@ module.exports = function (eleventyConfig) {
   // ── pass-throughs ──
   eleventyConfig.addPassthroughCopy("src/css");
   eleventyConfig.addPassthroughCopy("src/js");
+  eleventyConfig.addPassthroughCopy("src/audio");
 
   // ── collections ──
   eleventyConfig.addCollection("posts", (api) =>
