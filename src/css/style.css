@@ -71,6 +71,41 @@
   --glass-edge:   rgba(220,228,214,0.14);
 }
 
+/* ───────────────────────────────────────
+   ABOUT PAGE — scoped warm-clay override, same regardless of light/dark.
+   Hot, watchful, Claude-adjacent clay — not a neon alarm.
+   ─────────────────────────────────────── */
+[data-page="about"] {
+  --bg:           #170D09;
+  --bg-elevated:  #221109;
+  --text:         #F1DBCB;
+  --body:         #E0C3B0;
+  --muted:        #B0846C;
+  --faint:        #966B54;
+  --border:       #4A2416;
+  --dash:         #3A1B10;
+  --accent:       #D9542A;
+  --accent-hover: #C15F3C;
+  --warm-accent:  #FF6A38;
+  --rss:          #E0662E;
+  --geo-yellow:   #E08A3C;
+  --geo-pink:     #C15F3C;
+
+  --sky-top:      #120806;
+  --sky-bottom:   #3A1508;
+  --ridge-far:    #3A1A10;
+  --ridge-near:   #24110A;
+  --ridge-trees:  #150A06;
+  --orb:          #FF5A2C;
+  --orb-glow:     rgba(255,90,44,0.50);
+  --spiral-line:  217,84,42;
+  --spiral-alpha: 0.50;
+
+  --glass-tint:   rgba(23,13,9,0.44);
+  --glass-solid:  rgba(23,13,9,0.90);
+  --glass-edge:   rgba(241,219,203,0.14);
+}
+
 html { -webkit-text-size-adjust: 100%; transition: background-color 0.3s; }
 body {
   background: var(--sky-bottom); /* fallback if canvas/JS is unavailable */
@@ -308,6 +343,22 @@ body.calm-mode .construction { display: none !important; }
 .mute-toggle:hover, .mute-toggle:focus { border-color: var(--text); outline: none; }
 .mute-toggle[aria-pressed="true"] { color: var(--muted); }
 
+/* ── reader view (blog + post pages only) ── */
+.reader-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--body);
+  cursor: pointer;
+  min-height: var(--tap-min);
+  transition: all 0.15s;
+}
+.reader-toggle:hover, .reader-toggle:focus { border-color: var(--text); outline: none; }
+html.reading-mode .reader-toggle { background: var(--text); color: var(--bg); border-color: var(--text); }
+
 /* ── construction sticker ── */
 .construction {
   font-size: 9px;
@@ -450,6 +501,27 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass-surface { background: var(--glass-solid); }
 }
+
+/* ───────────────────────────────────────
+   READER MODE — a calm, solid reading surface (blog + post pages only)
+   ─────────────────────────────────────── */
+html.reading-mode .scene { display: none; }
+html.reading-mode body { background: var(--bg); }
+html.reading-mode .glass-surface {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html.reading-mode .glass-surface::after { display: none; }
+/* the listing/post sections set their own max-width inline — beat it here */
+html.reading-mode section { max-width: 68ch !important; margin-left: auto; margin-right: auto; }
+html.reading-mode .post-full { max-width: 68ch; }
+html.reading-mode .post-body {
+  line-height: 1.9;
+  padding: 34px 36px;
+}
+html.reading-mode .post-excerpt { line-height: 1.85; }
 
 /* ───────────────────────────────────────
    MAIN GRID

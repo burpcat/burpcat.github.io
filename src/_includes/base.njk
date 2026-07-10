@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ site.language }}" data-theme="light">
+<html lang="{{ site.language }}" data-theme="light"{% if page.url == "/about/" %} data-page="about"{% endif %}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +21,19 @@
       } catch(e) {}
     })();
   </script>
+
+  {% if "/blog/" in page.url %}
+  {# Anti-flash script — applies reader mode before paint (blog + post pages only) #}
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('reading-mode') === '1') {
+          document.documentElement.classList.add('reading-mode');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  {% endif %}
 </head>
 <body>
 

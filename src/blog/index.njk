@@ -6,7 +6,10 @@ permalink: /blog/
 
 <main id="main">
 <section style="max-width: 65ch;">
-  <p class="section-label">— ALL WRITING</p>
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 22px;">
+    <p class="section-label" style="margin-bottom: 0;">— ALL WRITING</p>
+    <button class="reader-toggle" id="readerToggle" type="button">reader view</button>
+  </div>
 
   {% if collections.posts.length %}
     {% for post in collections.posts %}

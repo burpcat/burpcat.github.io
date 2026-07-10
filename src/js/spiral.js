@@ -1,17 +1,26 @@
-// ── background scene: golden spiral zoom-out, fixed sun/moon pivot ──
-// One canvas, no dependencies. The pivot at screen-center never moves or
-// scales — the spiral rotates and shrinks around it. Theme and calm-mode
-// are read live via MutationObserver, so this file needs no wiring from
-// site.js. Audio playback lives in site.js instead (autoplay needs a real
-// click gesture, which the calm-toggle handler already has).
+// ── background scene: golden spiral, fixed sun/moon pivot ──
+// One canvas, no dependencies. The orb is pinned to screen center and never
+// moves or scales — the curve pans and scales underneath it (a dolly-zoom,
+// not a rotation). Theme, calm-mode, and reading-mode are read live via
+// MutationObserver, so this file needs no wiring from site.js. Audio
+// playback lives in site.js instead (autoplay needs a real click gesture,
+// which the calm-toggle handler already has).
 (function () {
   const canvas = document.getElementById('sceneSky');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const root = document.documentElement;
 
-  // Golden spiral r(θ) = e^(Kθ): rotating by Δ and scaling by e^(-KΔ) maps
-  // the curve onto itself for any Δ, which is what makes the loop seamless.
+  // ── tuning knobs ──
+  const ROUND_TRIP_MS = 24000;          // one full zoom-in → zoom-out → zoom-in cycle
+  const CALM_ROUND_TRIP_MS = 7 * 60 * 1000; // calm mode: very slow, meditative
+  const SCALE_IN_FACTOR = 0.34;         // × max(W,H): camera scale at u=0 (zoomed in tight)
+  const SCALE_OUT_FACTOR = 0.045;       // × max(W,H): camera scale at u=1 (bell + tail fills frame)
+  const BEATS = 7;                      // matches the wobble's 7-part life-arc shape
+  const FOCUS_BEAT_IN = 1;              // "uphill" beat — where the camera starts, zoomed in
+  const FOCUS_BEAT_OUT = BEATS - 1;     // balanced-arch / bell-apex beat — fully zoomed out
+
+  // Golden spiral r(θ) = e^(Kθ).
   const K = Math.log(1.6180339887) / (Math.PI / 2);
 
   // A 2π-periodic wobble on top of the pure spiral — this is the "life arc"
@@ -21,42 +30,55 @@
     const phi = ((theta % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
     return 0.6 * Math.sin(phi) + 0.25 * Math.sin(2 * phi - 0.6) + 0.15 * Math.sin(3 * phi + 1.1);
   }
+  function curvePoint(theta) {
+    const r = Math.exp(K * theta) * (1 + WOBBLE_AMP * wobble(theta));
+    return [Math.cos(theta) * r, Math.sin(theta) * r];
+  }
 
   // Precompute the polyline once, across many turns, so no end is ever visible.
   // Flat [x0,y0,x1,y1,...] pairs — cheaper to walk than an array of arrays.
   const THETA_MIN = -26, THETA_MAX = 18, THETA_STEP = 0.02;
   const points = [];
   for (let th = THETA_MIN; th <= THETA_MAX; th += THETA_STEP) {
-    const r = Math.exp(K * th) * (1 + WOBBLE_AMP * wobble(th));
-    points.push(Math.cos(th) * r, Math.sin(th) * r);
+    const [x, y] = curvePoint(th);
+    points.push(x, y);
   }
 
-  // Seven beats spread across one 2π loop: hold at each, then whip to the next.
-  // Landing beat 7 exactly at 2π is what makes it loop back onto beat 0 with no cut.
-  const BEATS = 7;
+  // The focus path: a segment of the curve itself, from the "uphill" beat
+  // to the balanced-arch/bell-apex beat. The camera glides along this as u
+  // goes 0→1, so zoom and pan happen together (a dolly-zoom).
   const TARGETS = Array.from({ length: BEATS }, (_, i) => (i / BEATS) * Math.PI * 2);
-  const HOLD_FRAC = 0.62;
+  const FOCUS_THETA_START = TARGETS[FOCUS_BEAT_IN];
+  const FOCUS_THETA_END = TARGETS[FOCUS_BEAT_OUT];
+
   const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  function angleFromPhase(phase) {
-    const seg = phase * BEATS;
-    const i = Math.floor(seg) % BEATS;
-    const frac = seg - Math.floor(seg);
-    const from = TARGETS[i];
-    const to = TARGETS[(i + 1) % BEATS] + (i === BEATS - 1 ? Math.PI * 2 : 0);
-    if (frac < HOLD_FRAC) return from;
-    return from + (to - from) * easeInOutCubic((frac - HOLD_FRAC) / (1 - HOLD_FRAC));
+  // Ping-pong 0→1→0 with zero velocity at both turnarounds (easeInOutCubic's
+  // derivative vanishes at 0 and 1), so the bounce is smooth by construction
+  // — no snap, no special-casing needed at the ends.
+  function pingPongU(phase) {
+    const tri = phase < 0.5 ? phase * 2 : (1 - phase) * 2;
+    return easeInOutCubic(tri);
+  }
+
+  // Camera state at a given u: focus point travels along the curve,
+  // scale interpolates in log-space so the zoom reads as linear to the eye.
+  function stateAt(u) {
+    const theta = FOCUS_THETA_START + (FOCUS_THETA_END - FOCUS_THETA_START) * u;
+    const [fx, fy] = curvePoint(theta);
+    const scale = scaleInPx * Math.pow(scaleOutPx / scaleInPx, u);
+    return { fx, fy, scale };
   }
 
   // ── state ──
-  let W = 0, H = 0, cx = 0, cy = 0, baseScale = 0, dpr = 1;
+  let W = 0, H = 0, cx = 0, cy = 0, scaleInPx = 0, scaleOutPx = 0, dpr = 1;
   let calm = document.body.classList.contains('calm-mode');
   let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let periodMs = calm ? 7 * 60 * 1000 : 18000; // slow+meditative in calm mode, brisk otherwise
+  let roundTripMs = calm ? CALM_ROUND_TRIP_MS : ROUND_TRIP_MS;
   let frozen = reduced;
   let hidden = document.hidden;
   let rafId = null;
-  let phase = 0;     // 0..1 position in the loop — persists across period changes
+  let phase = 0;     // 0..1 position in the round trip — persists across period changes
   let lastTs = null;
 
   // Orb theme crossfade (sun ↔ moon), ~0.6s, matching the CSS theme transition.
@@ -78,7 +100,8 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cx = W / 2;
     cy = H * 0.5;
-    baseScale = Math.max(W, H) * 0.09; // tune by eye — bigger = arms sit further out
+    scaleInPx = Math.max(W, H) * SCALE_IN_FACTOR;
+    scaleOutPx = Math.max(W, H) * SCALE_OUT_FACTOR;
     if (frozen) drawStatic();
   }
 
@@ -92,15 +115,17 @@
     ctx.globalAlpha = 1;
   }
 
-  function strokeSpiral(delta) {
-    const scale = baseScale * Math.exp(-K * delta);
+  function strokeSpiral(state) {
+    const { fx, fy, scale } = state;
     const rgb = v('--spiral-line') || '62,107,84';
     const a = parseFloat(v('--spiral-alpha')) || 0.42;
 
     ctx.save();
+    // translate to screen center → scale → translate by -focus. The focus
+    // point always lands exactly on screen center, under the orb — no rotation.
     ctx.translate(cx, cy);
-    ctx.rotate(-delta);
     ctx.scale(scale, scale);
+    ctx.translate(-fx, -fy);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
 
@@ -166,17 +191,18 @@
   function frame(ts) {
     if (hidden) return;
     if (lastTs === null) lastTs = ts;
-    phase = (phase + (ts - lastTs) / periodMs) % 1;
+    phase = (phase + (ts - lastTs) / roundTripMs) % 1;
     lastTs = ts;
 
     cs = getComputedStyle(root);
     updateThemeMix(ts);
-    const delta = angleFromPhase(phase);
+    const u = pingPongU(phase);
+    const state = stateAt(u);
 
     // don't clear — repaint the sky at partial alpha over the last frame.
-    // holds converge to a crisp image in a few frames; whips leave motion-blur streaks.
+    // slow stretches converge to a crisp image; fast stretches leave motion-blur streaks.
     paintSky(0.30);
-    strokeSpiral(delta);
+    strokeSpiral(state);
     drawOrb();
 
     rafId = requestAnimationFrame(frame);
@@ -186,12 +212,16 @@
     cs = getComputedStyle(root);
     ctx.clearRect(0, 0, W, H);
     paintSky(1);
-    strokeSpiral(TARGETS[BEATS - 1]); // land on the balanced-arch beat
+    strokeSpiral(stateAt(1)); // fully zoomed out: the bell + its golden-spiral tail
     drawOrb();
   }
 
+  function readingMode() {
+    return root.classList.contains('reading-mode');
+  }
+
   function start() {
-    if (rafId || frozen || hidden) return;
+    if (rafId || frozen || hidden || readingMode()) return;
     lastTs = null; // don't count paused/hidden time as elapsed motion
     rafId = requestAnimationFrame(frame);
   }
@@ -218,9 +248,15 @@
     }
   }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 
+  // reader mode hides .scene entirely (CSS) — just pause the loop to save cycles
+  new MutationObserver(() => {
+    if (readingMode()) stop();
+    else if (!frozen) start();
+  }).observe(root, { attributes: true, attributeFilter: ['class'] });
+
   new MutationObserver(() => {
     calm = document.body.classList.contains('calm-mode');
-    periodMs = calm ? 7 * 60 * 1000 : 18000; // phase is preserved, so the speed change doesn't jump
+    roundTripMs = calm ? CALM_ROUND_TRIP_MS : ROUND_TRIP_MS; // phase is preserved, so this doesn't jump
   }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
   window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {

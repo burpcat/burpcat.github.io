@@ -101,3 +101,23 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     });
   }
 })();
+
+// ── reader mode (blog + post pages only) ──
+(function () {
+  const toggle = document.getElementById('readerToggle');
+  if (!toggle) return;
+  const root = document.documentElement;
+  const STORAGE_KEY = 'reading-mode';
+
+  const label = () => {
+    toggle.textContent = root.classList.contains('reading-mode') ? 'exit reader view' : 'reader view';
+  };
+  label(); // the anti-flash script in <head> already applied the saved state
+
+  toggle.addEventListener('click', () => {
+    const on = !root.classList.contains('reading-mode');
+    root.classList.toggle('reading-mode', on);
+    try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
+    label();
+  });
+})();

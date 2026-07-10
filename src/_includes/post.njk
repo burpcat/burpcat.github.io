@@ -5,9 +5,12 @@ layout: base.njk
 <article class="post-full">
 
   <header>
-    <div class="post-meta-row">
-      <time class="post-date" datetime="{{ page.date | isoDate }}">{{ page.date | dotDate }}</time>
-      <span class="reading-time">{{ content | readingTime }}</span>
+    <div class="post-meta-row" style="justify-content: space-between;">
+      <div class="post-meta-row" style="margin-bottom: 0;">
+        <time class="post-date" datetime="{{ page.date | isoDate }}">{{ page.date | dotDate }}</time>
+        <span class="reading-time">{{ content | readingTime }}</span>
+      </div>
+      <button class="reader-toggle" id="readerToggle" type="button">reader view</button>
     </div>
     <h1 class="post-full-title">{{ title }}</h1>
   </header>
