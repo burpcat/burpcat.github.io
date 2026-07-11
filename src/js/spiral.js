@@ -225,6 +225,38 @@
   let cs; // computed style, refreshed once per paint so CSS vars can change live
   const v = (name) => (cs.getPropertyValue(name) || '').trim();
 
+  // ── cross-page continuity ──
+  // Every navigation is a full reload, so without this the canvas would
+  // restart at page 2 and "splash" on every click. Persist just enough of
+  // the phase machine to sessionStorage (per-tab, throttled) and resume
+  // from it on the next page's load instead of starting fresh.
+  const STORE_KEY = 'spiral-phase-v1';
+  const VALID_PHASES = ['fwd1', 'holdBell', 'fwd2', 'holdCoil', 'back'];
+  let lastSaveTs = 0;
+  function saveState(now) {
+    if (now - lastSaveTs < 250) return;
+    lastSaveTs = now;
+    try {
+      sessionStorage.setItem(STORE_KEY, JSON.stringify({ phase, L, Lsmoothed, holdElapsed }));
+    } catch (e) {}
+  }
+  function loadState() {
+    try {
+      const raw = sessionStorage.getItem(STORE_KEY);
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      if (
+        VALID_PHASES.indexOf(s.phase) === -1 ||
+        typeof s.L !== 'number' || !(s.L >= 0 && s.L <= 1) ||
+        typeof s.Lsmoothed !== 'number' || !(s.Lsmoothed >= 0 && s.Lsmoothed <= 1) ||
+        typeof s.holdElapsed !== 'number' || !(s.holdElapsed >= 0)
+      ) return null;
+      return s;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // Light theme reads pale — cap the dreaminess so return-leg text stays
   // legible. The about-page override is always dark/warm regardless of
   // data-theme, so it gets the full dark-mode effect too.
@@ -398,6 +430,8 @@
       }
     }
 
+    saveState(ts);
+
     // don't clear — repaint the sky at partial alpha over the last frame.
     // fast/crisp stretches leave motion-blur streaks; slow holds resolve
     // crisp; the return leg's low trailAlpha smears into long dream-trails.
@@ -479,8 +513,19 @@
   });
 
   resize();
-  phase = 'fwd1';
-  L = 0; Lsmoothed = 0; // start on page 2 (uphill), moving forward — where the sketch begins
+  const restored = loadState();
+  if (restored) {
+    phase = restored.phase;
+    L = restored.L;
+    Lsmoothed = restored.Lsmoothed;
+    holdElapsed = restored.holdElapsed;
+  } else {
+    phase = 'fwd1';
+    L = 0; Lsmoothed = 0; holdElapsed = 0; // start on page 2 (uphill) — where the sketch begins
+  }
   if (frozen) drawStatic();
   else start();
+
+  // Fade-in cloak: even the first paint eases in, no pop on load or nav.
+  requestAnimationFrame(() => canvas.classList.add('ready'));
 })();
