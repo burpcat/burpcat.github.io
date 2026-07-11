@@ -61,7 +61,7 @@
         <span aria-hidden="true">◐</span>
         <span class="calm-label">calm mode</span>
       </button>
-      <button class="mute-toggle" id="muteToggle" type="button" aria-label="Mute background music" hidden>♪</button>
+      <button class="mute-toggle" id="muteToggle" type="button" aria-label="Toggle background music">♪</button>
       <span class="construction">★ under construction ★</span>
     </div>
   </div>
@@ -149,6 +149,27 @@
 </div>
 
 <audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop preload="none"></audio>
+
+
+<div class="welcome-overlay" id="welcome" hidden>
+  <div class="welcome-card glass-surface" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-orb" aria-hidden="true"></div>
+    <h2 id="welcome-title" class="welcome-title">Welcome, wanderer.</h2>
+    <p class="welcome-body">You've found a small bright thing in a vast quiet space. Two things before you explore:</p>
+    <div class="welcome-theme">
+      <span class="welcome-label">this place has a day and a night —</span>
+      <div class="welcome-modes">
+        <button type="button" data-mode="light" id="wm-light">sun</button>
+        <button type="button" data-mode="dark" id="wm-dark">moon</button>
+      </div>
+    </div>
+    <label class="welcome-music">
+      <input type="checkbox" id="welcome-music-check" checked>
+      <span>no one said no to good music, play background music?</span>
+    </label>
+    <button type="button" class="welcome-enter" id="welcome-enter">enter →</button>
+  </div>
+</div>
 
 <script src="/js/site.js"></script>
 <script src="/js/spiral.js"></script>

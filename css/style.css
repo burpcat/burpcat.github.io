@@ -787,6 +787,99 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   font-style: italic;
 }
 
+/* ── first-visit welcome popup — themed entirely off the existing CSS
+   variables, so it recolors automatically in dusk/dawn/about ── */
+.welcome-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+/* [hidden] vs. our own `display: flex` are equal specificity — without this,
+   the author rule wins and the closed popup keeps blocking clicks site-wide */
+.welcome-overlay[hidden] { display: none; }
+.welcome-overlay.open { opacity: 1; }
+.welcome-card {
+  /* .glass-surface already supplies squared corners, tint, grain, ink edge */
+  max-width: 440px;
+  width: calc(100% - 40px);
+  padding: 30px 30px 26px;
+  position: relative;
+  transform: translateY(12px) scale(0.98);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
+}
+.welcome-overlay.open .welcome-card { transform: none; opacity: 1; }
+.welcome-title {
+  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  font-size: 30px;
+  color: var(--text);
+  margin: 6px 0 10px;
+}
+.welcome-body {
+  font-family: 'Open Sans', sans-serif;
+  color: var(--body);
+  line-height: 1.6;
+  font-size: 14px;
+}
+.welcome-theme {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 18px 0 6px;
+}
+.welcome-label {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.welcome-modes { display: flex; gap: 8px; }
+.welcome-modes button {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 0.5px solid var(--glass-edge);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 0;
+  min-height: var(--tap-min);
+}
+.welcome-modes button[aria-pressed="true"] { color: var(--warm-accent); border-color: var(--warm-accent); }
+.welcome-music {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 16px 0 22px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  color: var(--body);
+  cursor: pointer;
+  line-height: 1.5;
+}
+.welcome-music input { accent-color: var(--warm-accent); margin-top: 2px; }
+.welcome-enter {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: var(--bg);
+  background: var(--warm-accent);
+  border: 0;
+  border-radius: 0;
+  padding: 11px 20px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  min-height: var(--tap-min);
+  transition: background 0.2s;
+}
+.welcome-enter:hover, .welcome-enter:focus { background: var(--accent); outline: none; }
+/* a soft themed orb glow accent in the corner of the card */
+.welcome-orb {
+  position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--orb-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
 /* ── single post page ── */
 .post-full { max-width: 65ch; margin: 0 auto; }
 .post-full-title {
