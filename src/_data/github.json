@@ -1,9 +1,9 @@
 {
   "configured": true,
   "available": true,
-  "repoName": "shrutz",
-  "repoUrl": "https://github.com/burpcat/shrutz",
-  "description": "Shrutz : Wallpaper Engine",
+  "repoName": "burpcat.github.io",
+  "repoUrl": "https://github.com/burpcat/burpcat.github.io",
+  "description": "aegon built this",
   "commitMessage": "",
-  "lastPush": "2026-06-23T17:11:11Z"
+  "lastPush": "2026-07-11T01:01:48Z"
 }
