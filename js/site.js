@@ -52,26 +52,72 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   });
 })();
 
-// ── calm mode ──
+// ── calm mode (+ background audio) ──
 (function () {
   const toggle = document.getElementById('calmToggle');
   if (!toggle) return;
   const label = toggle.querySelector('.calm-label');
+  const muteToggle = document.getElementById('muteToggle');
+  const audio = document.getElementById('calmAudio');
   const STORAGE_KEY = 'calm-mode';
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const apply = (on) => {
+  // isGesture: audio only autoplays from a real click — browsers block it
+  // otherwise, and we don't want it firing on page load from a saved state.
+  const apply = (on, isGesture) => {
     document.body.classList.toggle('calm-mode', on);
     toggle.setAttribute('aria-pressed', String(on));
     if (label) label.textContent = on ? 'calm: on' : 'calm mode';
     try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
+
+    if (muteToggle) muteToggle.hidden = !on;
+    if (audio) {
+      if (on && isGesture && !reducedMotion) {
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+      } else if (!on) {
+        audio.pause();
+      }
+    }
   };
 
   let initial = false;
   try { initial = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) initial = true;
-  apply(initial);
+  if (reducedMotion) initial = true;
+  apply(initial, false);
 
   toggle.addEventListener('click', () => {
-    apply(!document.body.classList.contains('calm-mode'));
+    apply(!document.body.classList.contains('calm-mode'), true);
+  });
+
+  if (muteToggle && audio) {
+    muteToggle.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      muteToggle.textContent = audio.muted ? '🔇' : '♪';
+      muteToggle.setAttribute('aria-pressed', String(audio.muted));
+      // the click is itself a gesture — catches the case where autoplay
+      // was blocked because calm mode came from a saved state, not a click
+      if (!audio.muted && audio.paused) audio.play().catch(() => {});
+    });
+  }
+})();
+
+// ── reader mode (blog + post pages only) ──
+(function () {
+  const toggle = document.getElementById('readerToggle');
+  if (!toggle) return;
+  const root = document.documentElement;
+  const STORAGE_KEY = 'reading-mode';
+
+  const label = () => {
+    toggle.textContent = root.classList.contains('reading-mode') ? 'exit reader view' : 'reader view';
+  };
+  label(); // the anti-flash script in <head> already applied the saved state
+
+  toggle.addEventListener('click', () => {
+    const on = !root.classList.contains('reading-mode');
+    root.classList.toggle('reading-mode', on);
+    try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
+    label();
   });
 })();

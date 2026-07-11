@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#E8E2D4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1B2330" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#E7D3B8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0C1512" media="(prefers-color-scheme: dark)">
   <title>writing · burpcat</title>
   <meta name="description" content="developer with strategy · occasional philosopher · poet">
   <link rel="alternate" type="application/rss+xml" title="burpcat RSS" href="/feed.xml">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 
   
@@ -21,15 +21,38 @@
       } catch(e) {}
     })();
   </script>
+
+  
+  
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('reading-mode') === '1') {
+          document.documentElement.classList.add('reading-mode');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  
 </head>
 <body>
+
+
+<div class="scene" aria-hidden="true">
+  <canvas class="scene-sky" id="sceneSky"></canvas>
+  <div class="scene-ridge">
+    <div class="ridge-far"></div>
+    <div class="ridge-near"></div>
+    <div class="ridge-trees"></div>
+  </div>
+</div>
 
 <a href="#main" class="skip-link">skip to content</a>
 
 <div class="wrap">
 
   
-  <div class="utility-strip">
+  <div class="utility-strip glass-surface">
     <div class="status">
       <span class="dot" aria-hidden="true"></span>
       
@@ -48,12 +71,13 @@
         <span aria-hidden="true">◐</span>
         <span class="calm-label">calm mode</span>
       </button>
+      <button class="mute-toggle" id="muteToggle" type="button" aria-label="Mute background music" hidden>♪</button>
       <span class="construction">★ under construction ★</span>
     </div>
   </div>
 
   
-  <header>
+  <header class="glass-surface">
     <h1><a href="/"><em>Avinash</em></a></h1>
     <p class="tagline">developer with strategy · occasional philosopher · poet</p>
     <p class="sub-tagline"><span class="star" aria-hidden="true">★</span> a personal site of &#39;Avinash Reddy Arutla&#39; on the open web, circa 2026 <span class="star" aria-hidden="true">★</span></p>
@@ -83,17 +107,20 @@
   
 <main id="main">
 <section style="max-width: 65ch;">
-  <p class="section-label">— ALL WRITING</p>
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 22px;">
+    <p class="section-label" style="margin-bottom: 0;">— ALL WRITING</p>
+    <button class="reader-toggle" id="readerToggle" type="button">reader view</button>
+  </div>
 
   
     
-    <article class="post-item">
+    <article class="post-item glass-surface">
       <div class="post-meta-row">
         <time class="post-date" datetime="2026-06-26T00:00:00.000Z">2026·06·26</time>
         <span class="reading-time">1 min read</span>
       </div>
       <h2 class="post-title">
-        <span class="new-badge" aria-label="New post">NEW</span>
+        
         <a href="/blog/the-pattern-repeats/">The pattern repeats</a>
       </h2>
       <p class="post-excerpt">A welcome note, and a small argument that today&#39;s expensive AI is just early compute wearing a new coat.</p>
@@ -105,7 +132,7 @@
 </main>
 
 
-  <footer>
+  <footer class="glass-surface">
     <p> coded on aegon · no analytics OR tracking </p>
     <p><a href="/feed.xml">rss</a> · <a href="/guestbook/">guestbook</a></p>
   </footer>
@@ -114,7 +141,7 @@
 
 
 <div class="modal-backdrop" id="authModal" onclick="if(event.target===this)closeModal()" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal">
+  <div class="modal glass-surface">
     <h3 id="modalTitle">log in</h3>
     <p id="modalDesc">Welcome back. Pick up where you left off.</p>
     <input type="email" placeholder="email" aria-label="Email">
@@ -126,6 +153,9 @@
   </div>
 </div>
 
+<audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop preload="none"></audio>
+
 <script src="/js/site.js"></script>
+<script src="/js/spiral.js"></script>
 </body>
 </html>
