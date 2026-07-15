@@ -106,6 +106,13 @@
   --glass-edge:   rgba(241,219,203,0.14);
 }
 
+/* v9: the about tile itself reads darker — ~20% light through — while the
+   root about palette (ink text, clay accents) stays as tuned above. */
+[data-page="about"] .glass-surface {
+  --glass-tint: rgba(12,7,4,0.80);
+  --glass-solid: rgba(12,7,4,0.92);
+}
+
 html { -webkit-text-size-adjust: 100%; transition: background-color 0.3s; }
 body {
   background: var(--sky-bottom); /* fallback if canvas/JS is unavailable */
@@ -515,7 +522,21 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 /* ───────────────────────────────────────
    READER MODE — a calm, solid reading surface (blog + post pages only)
    ─────────────────────────────────────── */
-html.reading-mode .scene { display: none; }
+/* v9: the scene stays visible but drifts into a soft, blurred amber wash —
+   light through thick frosted glass — instead of disappearing outright. */
+html.reading-mode .scene-sky {
+  filter: blur(48px) saturate(1.1);
+  opacity: 0.55;
+  transition: filter 0.8s ease, opacity 0.8s ease;
+}
+html.reading-mode .scene::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 2;
+  background: radial-gradient(60% 50% at 50% 45%, rgba(232,160,70,0.22), transparent 80%),
+              rgba(232,160,70,0.06);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
 html.reading-mode body { background: var(--bg); }
 html.reading-mode .glass-surface {
   background: var(--bg-elevated);
