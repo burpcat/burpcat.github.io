@@ -220,6 +220,10 @@ body.calm-mode .construction { display: none !important; }
 }
 .skip-link:focus { left: 8px; outline: 2px solid var(--accent); }
 
+/* programmatic focus after a soft navigation (nav.js) — not a keyboard
+   focus ring like the skip-link's above, so no visible outline */
+#main:focus { outline: none; }
+
 /* ───────────────────────────────────────
    UTILITY STRIP
    ─────────────────────────────────────── */
