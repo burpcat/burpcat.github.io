@@ -29,6 +29,13 @@
   --spiral-line:  47,110,87;
   --spiral-alpha: 0.42;
 
+  /* Chitra — the reading-mode star's color. Overridden inline in base.njk
+     from src/_data/weather.json (see scripts/fetch-weather.js); these are
+     just the static fallback (a clear-sky gold) for local dev before any
+     fetch has run. */
+  --chitra-color:     #F5D77A;
+  --chitra-color-rgb: 245,215,122;
+
   --glass-tint:   rgba(231,211,184,0.52);
   --glass-solid:  rgba(231,211,184,0.94);
   --glass-edge:   rgba(42,32,24,0.20);
@@ -358,21 +365,27 @@ body.calm-mode .construction { display: none !important; }
 .mute-toggle:hover, .mute-toggle:focus { border-color: var(--text); outline: none; }
 .mute-toggle[aria-pressed="true"] { color: var(--muted); }
 
-/* ── reader view (blog + post pages only) ── */
+/* ── reader view (blog + post pages only) ──
+   .glass-surface (in the markup) supplies the resting-state background/
+   border/backdrop-filter/grain, so this button reads clearly against the
+   moving canvas instead of floating transparently on top of it. */
 .reader-toggle {
-  background: transparent;
-  border: 1px solid var(--border);
   padding: 7px 12px;
   font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
   letter-spacing: 0.05em;
   color: var(--body);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: var(--tap-min);
   transition: all 0.15s;
 }
 .reader-toggle:hover, .reader-toggle:focus { border-color: var(--text); outline: none; }
-html.reading-mode .reader-toggle { background: var(--text); color: var(--bg); border-color: var(--text); }
+/* .reader-toggle.glass-surface (not just .reader-toggle) so this beats the
+   later, equal-specificity html.reading-mode .glass-surface reset below */
+html.reading-mode .reader-toggle.glass-surface { background: var(--text); color: var(--bg); border-color: var(--text); }
 
 /* ── construction sticker ── */
 .construction {
@@ -529,15 +542,15 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 /* v9: the scene stays visible but drifts into a soft, blurred amber wash —
    light through thick frosted glass — instead of disappearing outright. */
 html.reading-mode .scene-sky {
-  filter: blur(48px) saturate(1.1);
-  opacity: 0.55;
+  filter: blur(16px) saturate(1.2);
+  opacity: 0.85;
   transition: filter 0.8s ease, opacity 0.8s ease;
 }
 html.reading-mode .scene::after {
   content: "";
   position: absolute; inset: 0; z-index: 2;
-  background: radial-gradient(60% 50% at 50% 45%, rgba(232,160,70,0.22), transparent 80%),
-              rgba(232,160,70,0.06);
+  background: radial-gradient(60% 50% at 50% 45%, rgba(var(--chitra-color-rgb), 0.16), transparent 80%),
+              rgba(var(--chitra-color-rgb), 0.05);
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
@@ -549,9 +562,11 @@ html.reading-mode .glass-surface {
   -webkit-backdrop-filter: none;
 }
 html.reading-mode .glass-surface::after { display: none; }
-/* the listing/post sections set their own max-width inline — beat it here */
-html.reading-mode section { max-width: 68ch !important; margin-left: auto; margin-right: auto; }
-html.reading-mode .post-full { max-width: 68ch; }
+/* the listing/post sections set their own max-width inline — beat it here.
+   clamp() (not a plain ch cap) lets the column grow fuller on wide monitors
+   and shrink gracefully on narrow ones, instead of a single fixed width. */
+html.reading-mode section { max-width: clamp(46ch, 86vw, 84ch) !important; margin-left: auto; margin-right: auto; }
+html.reading-mode .post-full { max-width: clamp(46ch, 86vw, 84ch); }
 html.reading-mode .post-body {
   line-height: 1.9;
   padding: 34px 36px;
@@ -980,6 +995,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   .auth-buttons { width: 100%; padding: 8px 0; }
   .auth-buttons .btn { flex: 1; }
   .rss-link { margin-left: 0; }
+  html.reading-mode .post-body { padding: 26px 24px; }
 }
 @media (max-width: 560px) {
   .wrap { padding: 18px 18px 40px; }
@@ -993,4 +1009,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   .post-title { font-size: 22px; }
   .exp-role { font-size: 20px; }
   .post-excerpt, .exp-desc { font-size: 16px; line-height: 1.75; }
+  html.reading-mode .post-body { padding: 20px 16px; line-height: 1.8; }
+  html.reading-mode section,
+  html.reading-mode .post-full { max-width: clamp(38ch, 94vw, 84ch) !important; }
 }
