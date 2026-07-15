@@ -6,6 +6,8 @@ on:
   # Rebuild every 6 hours so the "currently building" stays fresh
   schedule:
     - cron: "0 */6 * * *"
+    # Refresh Chitra's weather color each Boston morning (~6-7am ET, DST-dependent)
+    - cron: "0 11 * * *"
   # Allow manual triggers from the Actions tab
   workflow_dispatch:
 

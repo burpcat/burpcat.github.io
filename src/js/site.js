@@ -165,9 +165,10 @@ function bindReaderToggle() {
   if (!toggle) return;
   const root = document.documentElement;
   const STORAGE_KEY = 'reading-mode';
+  const labelEl = toggle.querySelector('.reader-label');
 
   const label = () => {
-    toggle.textContent = root.classList.contains('reading-mode') ? 'exit reader view' : 'reader view';
+    labelEl.textContent = root.classList.contains('reading-mode') ? 'exit reader view' : 'reader view';
   };
   label(); // the anti-flash script in <head> already applied the saved state
 

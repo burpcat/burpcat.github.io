@@ -14,6 +14,9 @@
   const ctx = canvas.getContext('2d');
   const root = document.documentElement;
   const audioEl = document.getElementById('calmAudio'); // safe: base.njk defines it well before this script tag, same as #sceneSky
+  // baked in at build time from collections.posts.length — one dancing
+  // strand per blog post, reading-mode only (see drawStrands below).
+  const POST_COUNT = Math.max(1, parseInt(root.getAttribute('data-post-count'), 10) || 1);
 
   // ── tuning knobs ──
   const SCALE_X = 0.9;            // curve width as a fraction of viewport width
@@ -29,16 +32,25 @@
   const BEAT_SLEW_K = 0.1;        // per-frame correction pulling the free clock toward real audio position
   const BEAT_PULSE_SCALE_AMP = 0.03; // orb's beat pulse, ~3% (within the 2-4% range)
 
-  const LEG_SECONDS = 8 * BAR;    // forward travel time (page2 -> spiral), holds excluded — 8 bars, ~14.2s
-  const LEG_SECONDS_BACK = 4 * BAR; // return leg: fast, flat unwind (before the low-pass lag) — 4 bars, ~7.1s
-  const HOLD_BELL_S = 2 * BEAT;   // brief near-stop breath at the page-8 bell — 2 beats, ~0.89s
-  const HOLD_COIL_S = 4 * BEAT;   // longer humming drift-hold at the golden coil — one bar, ~1.78s
+  const LEG_SECONDS = 10 * BAR;    // forward travel time (page2 -> spiral), holds excluded — 10 bars, ~17.8s
+  const LEG_SECONDS_BACK = 5 * BAR; // return leg: fast, flat unwind (before the low-pass lag) — 5 bars, ~8.9s
+  const HOLD_BELL_S = 2.5 * BEAT;   // brief near-stop breath at the page-8 bell — 2.5 beats, ~1.11s
+  const HOLD_COIL_S = 5 * BEAT;    // longer humming drift-hold at the golden coil — 5 beats, ~2.22s
   const CALM_MULT = 25;           // calm mode / reader mode scales every duration above by this
 
-  const HUM_SCALE_AMP = 0.015;    // breathing scale, 1.00 <-> 1.015 (sub-2%)
-  const HUM_ROT_AMP = (0.5 * Math.PI) / 180; // +/- 0.5 degrees
+  const HUM_SCALE_AMP = 0.012;    // breathing scale, 1.00 <-> 1.012 (mild — softened from the original 1.5%)
+  const HUM_ROT_AMP = (0.4 * Math.PI) / 180; // +/- 0.4 degrees (mild — softened from the original 0.5deg)
 
   const LOWPASS_K = 0.06;         // return-leg lag: smaller = laggier/floatier
+
+  // Reading-mode-only: one strand per blog post, dancing in harmony around
+  // the star (Chitra). IDLE_HUM_* gives strands outside the coil-hold a
+  // faint life of their own instead of sitting dead still; the hue spread
+  // is a subtle fan around Chitra's live weather color, not a rainbow.
+  const IDLE_HUM_SCALE_AMP = 0.006;
+  const IDLE_HUM_ROT_AMP = (0.3 * Math.PI) / 180;
+  const STRAND_HUE_SPREAD_DEG = 40; // +/- 20 degrees across the outermost strands
+  const MAX_STRANDS = 12; // safety cap on draw calls as the blog grows
 
   // ── traced keyframes — the owner's sketch, pages 2 through 8 ──
   // Each is a y=f(x) profile: 40 samples, x = i/39 across the width,
@@ -304,14 +316,58 @@
     ctx.globalAlpha = 1;
   }
 
+  // Chitra: the reading-mode star's live weather color (see fetch-weather.js
+  // + base.njk), a bare "r,g,b" triplet like --spiral-line already is.
+  function chitraRgb() {
+    const raw = v('--chitra-color-rgb') || '245,215,122';
+    return raw.split(',').map(Number);
+  }
+
+  // Standard 0-255 rgb <-> {h:0-360, s:0-1, l:0-1} conversions, used only to
+  // fan reading-mode strands out into subtle hue variants of Chitra's color.
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    if (max === min) return [0, 0, l];
+    const d = max - min;
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    let h;
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    return [h * 60, s, l];
+  }
+  function hslToRgb(h, s, l) {
+    if (s === 0) { const gray = Math.round(l * 255); return [gray, gray, gray]; }
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hn = h / 360;
+    return [
+      Math.round(hue2rgb(p, q, hn + 1 / 3) * 255),
+      Math.round(hue2rgb(p, q, hn) * 255),
+      Math.round(hue2rgb(p, q, hn - 1 / 3) * 255),
+    ];
+  }
+
   // Translate the curve so `anchor` lands exactly under the orb, then
   // stroke it as a smoothed path (quadratic curves through consecutive
   // midpoints — cheap, never overshoots, kills the faceted-chord look).
   // `hum` wraps a small breathing scale + rotation around the orb, used
   // only while the coil is held. `style` carries the return leg's dreamy
-  // trail/opacity ramp (absent = forward defaults).
-  function strokeMorph(points, anchor, hum, style) {
-    const rgb = v('--spiral-line') || '62,107,84';
+  // trail/opacity ramp (absent = forward defaults). `rgbOverride` lets
+  // reading-mode's multiple strands (drawStrands, below) each paint in
+  // their own hue-shifted variant of Chitra's color instead of --spiral-line.
+  function strokeMorph(points, anchor, hum, style, rgbOverride) {
+    const rgb = rgbOverride || v('--spiral-line') || '62,107,84';
     const baseAlpha = parseFloat(v('--spiral-alpha')) || 0.42;
     const crispAlpha = baseAlpha * (style ? style.crispMult : 1);
     const underWidth = 11 + (style ? style.underWidthExtra : 0);
@@ -349,12 +405,42 @@
     ctx.restore();
   }
 
+  // Reading-mode only: one strand per blog post (POST_COUNT), all sharing
+  // the same underlying morph geometry — "synchronous" — but each rotated
+  // an even angle around the star and given its own hum phase offset, so
+  // they read as dancing in harmony rather than one line traced N times.
+  // Each strand is also a subtle hue variant of Chitra's live weather color.
+  function drawStrands(points, anchor, hum, style) {
+    const N = Math.min(POST_COUNT, MAX_STRANDS);
+    const [br, bg, bb] = chitraRgb();
+    const [bh, bs, bl] = rgbToHsl(br, bg, bb);
+
+    for (let i = 0; i < N; i++) {
+      const rotation = (2 * Math.PI * i) / N;
+      const strandPhase = humPhaseAccum + (2 * Math.PI * i) / N;
+      const scaleAmp = hum ? HUM_SCALE_AMP : IDLE_HUM_SCALE_AMP;
+      const rotAmp = hum ? HUM_ROT_AMP : IDLE_HUM_ROT_AMP;
+      const strandHum = {
+        scale: 1 + scaleAmp * Math.sin(strandPhase),
+        rot: rotation + rotAmp * Math.cos(strandPhase),
+      };
+      const hueOffset = N > 1 ? -STRAND_HUE_SPREAD_DEG / 2 + (STRAND_HUE_SPREAD_DEG * i) / (N - 1) : 0;
+      const hue = ((bh + hueOffset) % 360 + 360) % 360;
+      const [r, g, b] = hslToRgb(hue, bs, bl);
+      strokeMorph(points, anchor, strandHum, style, `${r},${g},${b}`);
+    }
+  }
+
   // `pulse` (0..1, default 0) is the beat envelope — a single uniform scale
   // around the orb's own center carries every fixed radius/offset below
   // along for free, so the moon-bite crescent never misaligns as it pulses.
+  // In reading mode the orb is presented as Chitra, a named star the
+  // strands dance around — it takes her live weather color instead of the
+  // sun/moon theming.
   function drawOrb(pulse) {
-    const orbColor = v('--orb') || '#E9A23B';
-    const glow = v('--orb-glow') || 'rgba(233,162,59,0.3)';
+    const star = readingMode();
+    const orbColor = star ? (v('--chitra-color') || '#E9A23B') : (v('--orb') || '#E9A23B');
+    const glow = star ? `rgba(${chitraRgb().join(',')},0.34)` : (v('--orb-glow') || 'rgba(233,162,59,0.3)');
     const shadow = v('--sky-top') || '#0A130F';
 
     ctx.save();
@@ -375,8 +461,9 @@
     ctx.fillStyle = orbColor;
     ctx.fill();
 
-    // moon: a soft darker rim bite, faded in/out with the theme crossfade
-    if (themeMix > 0.01) {
+    // moon: a soft darker rim bite, faded in/out with the theme crossfade —
+    // skipped while presented as Chitra, since a fixed star doesn't wax/wane
+    if (themeMix > 0.01 && !star) {
       ctx.globalAlpha = 0.55 * themeMix;
       ctx.beginPath();
       ctx.arc(cx + 2.4, cy - 1.8, 5.5, 0, Math.PI * 2);
@@ -422,7 +509,7 @@
     // Hum frequency locks to the bar (not the raw beat — a full-speed
     // beat-locked hum reads as a flutter, not a breath); calm/reading mode
     // drops to every 4th bar, close to the original ~0.15Hz slow breathing.
-    const humFreqHz = (calm || readingMode()) ? 1 / (4 * BAR) : 1 / BAR;
+    const humFreqHz = (calm || readingMode()) ? 1 / (4 * BAR) : 3 / (4 * BAR);
     humPhaseAccum = (humPhaseAccum + dtSec * humFreqHz * 2 * Math.PI) % (2 * Math.PI);
 
     let hum = null;
@@ -476,7 +563,9 @@
     // crisp; the return leg's low trailAlpha smears into long dream-trails.
     paintSky(trailAlpha);
     const pts = pointsAtL(Lsmoothed);
-    strokeMorph(pts, anchorPoint(pts, anchorParam(Lsmoothed)), hum, renderStyle);
+    const anchor = anchorPoint(pts, anchorParam(Lsmoothed));
+    if (readingMode()) drawStrands(pts, anchor, hum, renderStyle);
+    else strokeMorph(pts, anchor, hum, renderStyle);
     drawOrb(beatPulse);
 
     rafId = requestAnimationFrame(frame);
@@ -487,7 +576,9 @@
     ctx.clearRect(0, 0, W, H);
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum
-    strokeMorph(pts, anchorPoint(pts, 0.5), null, null);
+    const anchor = anchorPoint(pts, 0.5);
+    if (readingMode()) drawStrands(pts, anchor, null, null);
+    else strokeMorph(pts, anchor, null, null);
     drawOrb();
   }
 
@@ -525,8 +616,13 @@
 
   // v9: reader mode no longer pauses the loop — it only slows it (via
   // updateTimings, above) while CSS blurs/washes the scene into an amber glow.
+  // A quiet easter egg rides along: hovering the scene in reading mode
+  // reveals the star's name via the canvas's native title tooltip (the
+  // .scene wrapper is aria-hidden, so this is a mouse-only nod — the
+  // About page carries the accessible version of this mention).
   new MutationObserver(() => {
     updateTimings();
+    canvas.title = readingMode() ? 'chitra — the star this whole site quietly orbits' : '';
   }).observe(root, { attributes: true, attributeFilter: ['class'] });
 
   new MutationObserver(() => {
@@ -552,6 +648,7 @@
   });
 
   resize();
+  canvas.title = readingMode() ? 'chitra — the star this whole site quietly orbits' : '';
   const restored = loadState();
   if (restored) {
     phase = restored.phase;
