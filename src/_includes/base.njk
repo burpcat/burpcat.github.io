@@ -56,13 +56,15 @@
   <div class="utility-strip glass-surface">
     <div class="status">
       <span class="dot" aria-hidden="true"></span>
-      {% if github.configured and github.available %}
-        <span class="label">currently building</span>
-        <a href="{{ github.repoUrl }}" target="_blank" rel="noopener">{{ github.repoName }}</a>
-        {% if github.description %}<span class="label">— {{ github.description }}</span>{% endif %}
-      {% else %}
-        <span class="label">{{ site.manualStatus }}</span>
-      {% endif %}
+      <span id="statusText" data-username="{{ site.githubUsername }}">
+        {% if github.configured and github.available %}
+          <span class="label">currently building</span>
+          <a href="{{ github.repoUrl }}" target="_blank" rel="noopener">{{ github.repoName }}</a>
+          {% if github.description %}<span class="label">— {{ github.description }}</span>{% endif %}
+        {% else %}
+          <span class="label">{{ site.manualStatus }}</span>
+        {% endif %}
+      </span>
     </div>
     <div class="tools">
       <button class="theme-switch" id="themeSwitch" aria-label="Toggle light and dark theme" type="button">

@@ -255,3 +255,60 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
   open();
 })();
+
+// ── live "currently building" status ──
+// github.json (baked in at build time) is the initial paint and the no-JS
+// fallback. This just asks GitHub directly, client-side, so the status
+// reflects the very latest push within seconds of loading the page, with
+// no rebuild. Any failure — offline, rate-limited, no push found — leaves
+// the server-rendered value alone.
+(function () {
+  const textEl = document.getElementById('statusText');
+  if (!textEl) return;
+  const username = textEl.dataset.username;
+  if (!username || username === 'yourusername') return;
+
+  const CACHE_KEY = 'github-status-cache';
+  const CACHE_MS = 3 * 60 * 1000;
+
+  function render(repo, url) {
+    textEl.textContent = '';
+    const label = document.createElement('span');
+    label.className = 'label';
+    label.textContent = 'currently building';
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = repo;
+    textEl.appendChild(label);
+    textEl.appendChild(document.createTextNode(' '));
+    textEl.appendChild(link);
+  }
+
+  function fromCache() {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+      if (s && typeof s.fetchedAt === 'number' && Date.now() - s.fetchedAt < CACHE_MS) return s;
+    } catch (e) {}
+    return null;
+  }
+  function toCache(repo, url) {
+    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ repo, url, fetchedAt: Date.now() })); } catch (e) {}
+  }
+
+  const cached = fromCache();
+  if (cached) { render(cached.repo, cached.url); return; }
+
+  fetch('https://api.github.com/users/' + username + '/events/public')
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((events) => {
+      const push = events.find((e) => e.type === 'PushEvent');
+      if (!push) return;
+      const repo = push.repo.name.split('/')[1];
+      const url = 'https://github.com/' + push.repo.name;
+      render(repo, url);
+      toCache(repo, url);
+    })
+    .catch(() => { /* keep the baked-in github.json value */ });
+})();

@@ -4,14 +4,16 @@
 // moving anchor point lands under it, and morphs as it goes. There is no
 // parametric spiral camera, no rotation, and no infinite self-similar zoom.
 // Theme, calm-mode, and reading-mode are read live via MutationObserver, so
-// this file needs no wiring from site.js. Audio playback lives in site.js
-// instead (autoplay needs a real click gesture, which the calm-toggle
-// handler already has).
+// this file needs no wiring from site.js for those. Audio *playback* (play/
+// pause/volume) lives in site.js (autoplay needs a real click gesture, which
+// the calm-toggle handler already has) — this file only ever *reads*
+// #calmAudio's currentTime/paused state, to lock the beat/hum to the track.
 (function () {
   const canvas = document.getElementById('sceneSky');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const root = document.documentElement;
+  const audioEl = document.getElementById('calmAudio'); // safe: base.njk defines it well before this script tag, same as #sceneSky
 
   // ── tuning knobs ──
   const SCALE_X = 0.9;            // curve width as a fraction of viewport width
@@ -20,13 +22,19 @@
   const EXT = 0.5;                // how far (normalized units) open ends bleed past the viewport
   const P = 256;                  // resampled point count shared by every keyframe
 
-  const LEG_SECONDS = 14;         // forward travel time (page2 -> spiral), holds excluded
-  const LEG_SECONDS_BACK = 7;     // return leg: fast, flat unwind (before the low-pass lag)
-  const HOLD_BELL_S = 0.6;        // brief near-stop breath at the page-8 bell
-  const HOLD_COIL_S = 2.0;        // longer humming drift-hold at the golden coil
-  const CALM_MULT = 25;           // calm mode scales every duration above by this
+  // Tempo data for the background track: E-flat major, Camelot 5B, 135 BPM.
+  const BPM = 135;
+  const BEAT = 60 / BPM;          // ~0.444s
+  const BAR = BEAT * 4;           // ~1.778s (4/4)
+  const BEAT_SLEW_K = 0.1;        // per-frame correction pulling the free clock toward real audio position
+  const BEAT_PULSE_SCALE_AMP = 0.03; // orb's beat pulse, ~3% (within the 2-4% range)
 
-  const HUM_FREQ_HZ = 0.15;       // the coil's living hum while held, ~0.1-0.2Hz
+  const LEG_SECONDS = 8 * BAR;    // forward travel time (page2 -> spiral), holds excluded — 8 bars, ~14.2s
+  const LEG_SECONDS_BACK = 4 * BAR; // return leg: fast, flat unwind (before the low-pass lag) — 4 bars, ~7.1s
+  const HOLD_BELL_S = 2 * BEAT;   // brief near-stop breath at the page-8 bell — 2 beats, ~0.89s
+  const HOLD_COIL_S = 4 * BEAT;   // longer humming drift-hold at the golden coil — one bar, ~1.78s
+  const CALM_MULT = 25;           // calm mode / reader mode scales every duration above by this
+
   const HUM_SCALE_AMP = 0.015;    // breathing scale, 1.00 <-> 1.015 (sub-2%)
   const HUM_ROT_AMP = (0.5 * Math.PI) / 180; // +/- 0.5 degrees
 
@@ -208,8 +216,16 @@
   let Lsmoothed = 0; // what's actually rendered — lags behind L only during 'back'
   let holdElapsed = 0;
   let legSecondsFwd, legSecondsBack, holdBellS, holdCoilS;
+
+  // Beat clock: continuously accumulated (never hard-switched), gently
+  // slewed toward real audio position when #calmAudio is playing — a
+  // source-switch on every play/pause would snap discontinuously.
+  let freeBeatClock = 0;
+  // Hum phase: accumulated by delta each frame so a mid-hold frequency
+  // change (calm/reading toggling) changes its rate, not its value.
+  let humPhaseAccum = 0;
   function updateTimings() {
-    const mult = calm ? CALM_MULT : 1;
+    const mult = (calm || readingMode()) ? CALM_MULT : 1; // v9: reading mode drifts slowly too, not just calm mode
     legSecondsFwd = LEG_SECONDS * mult;
     legSecondsBack = LEG_SECONDS_BACK * mult;
     holdBellS = HOLD_BELL_S * mult;
@@ -333,12 +349,19 @@
     ctx.restore();
   }
 
-  function drawOrb() {
+  // `pulse` (0..1, default 0) is the beat envelope — a single uniform scale
+  // around the orb's own center carries every fixed radius/offset below
+  // along for free, so the moon-bite crescent never misaligns as it pulses.
+  function drawOrb(pulse) {
     const orbColor = v('--orb') || '#E9A23B';
     const glow = v('--orb-glow') || 'rgba(233,162,59,0.3)';
     const shadow = v('--sky-top') || '#0A130F';
 
     ctx.save();
+    const beatScale = 1 + BEAT_PULSE_SCALE_AMP * (pulse || 0);
+    ctx.translate(cx, cy);
+    ctx.scale(beatScale, beatScale);
+    ctx.translate(-cx, -cy);
     const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 30);
     rg.addColorStop(0, glow);
     rg.addColorStop(1, 'rgba(0,0,0,0)');
@@ -385,6 +408,23 @@
     cs = getComputedStyle(root);
     updateThemeMix(ts);
 
+    // Beat clock: always advances by real elapsed time, then — only while
+    // #calmAudio is actually playing — gently corrected toward its real
+    // currentTime. Correcting rather than replacing means a play/pause
+    // toggle never snaps the phase; it just changes how the clock is fed.
+    freeBeatClock += dtSec;
+    if (audioEl && !audioEl.paused) {
+      freeBeatClock += (audioEl.currentTime - freeBeatClock) * BEAT_SLEW_K;
+    }
+    const beatPhase = (freeBeatClock / BEAT) % 1;
+    const beatPulse = 0.5 * (1 + Math.cos(2 * Math.PI * beatPhase)); // peaks on the downbeat
+
+    // Hum frequency locks to the bar (not the raw beat — a full-speed
+    // beat-locked hum reads as a flutter, not a breath); calm/reading mode
+    // drops to every 4th bar, close to the original ~0.15Hz slow breathing.
+    const humFreqHz = (calm || readingMode()) ? 1 / (4 * BAR) : 1 / BAR;
+    humPhaseAccum = (humPhaseAccum + dtSec * humFreqHz * 2 * Math.PI) % (2 * Math.PI);
+
     let hum = null;
     let trailAlpha = 0.30;
     let renderStyle = null;
@@ -407,8 +447,7 @@
         break;
       case 'holdCoil': {
         holdElapsed += dtSec;
-        const humPhase = holdElapsed * HUM_FREQ_HZ * 2 * Math.PI;
-        hum = { scale: 1 + HUM_SCALE_AMP * Math.sin(humPhase), rot: HUM_ROT_AMP * Math.cos(humPhase) };
+        hum = { scale: 1 + HUM_SCALE_AMP * Math.sin(humPhaseAccum), rot: HUM_ROT_AMP * Math.cos(humPhaseAccum) };
         if (holdElapsed >= holdCoilS) phase = 'back';
         Lsmoothed = L;
         break;
@@ -438,7 +477,7 @@
     paintSky(trailAlpha);
     const pts = pointsAtL(Lsmoothed);
     strokeMorph(pts, anchorPoint(pts, anchorParam(Lsmoothed)), hum, renderStyle);
-    drawOrb();
+    drawOrb(beatPulse);
 
     rafId = requestAnimationFrame(frame);
   }
@@ -457,7 +496,7 @@
   }
 
   function start() {
-    if (rafId || frozen || hidden || readingMode()) return;
+    if (rafId || frozen || hidden) return;
     lastTs = null; // don't count paused/hidden time as elapsed motion
     rafId = requestAnimationFrame(frame);
   }
@@ -484,10 +523,10 @@
     }
   }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 
-  // reader mode hides .scene entirely (CSS) — just pause the loop to save cycles
+  // v9: reader mode no longer pauses the loop — it only slows it (via
+  // updateTimings, above) while CSS blurs/washes the scene into an amber glow.
   new MutationObserver(() => {
-    if (readingMode()) stop();
-    else if (!frozen) start();
+    updateTimings();
   }).observe(root, { attributes: true, attributeFilter: ['class'] });
 
   new MutationObserver(() => {
