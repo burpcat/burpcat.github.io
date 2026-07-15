@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <style>
+    .tile{fill:#10201A}.cat{fill:#E9A23B}.inner{fill:#87682C}.stroke{stroke:#10201A}.solid{fill:#10201A}
+    @media (prefers-color-scheme: light){
+      .tile{fill:#E7D3B8}.cat{fill:#2F6E57}.inner{fill:#24503C}.stroke{stroke:#E7D3B8}.solid{fill:#E7D3B8}
+    }
+  </style>
+  <rect class="tile" x="0" y="0" width="64" height="64"/>
+  <path class="cat" d="M15 27 L21 11 L29 25 Z"/>
+  <path class="cat" d="M49 27 L43 11 L35 25 Z"/>
+  <circle class="cat" cx="32" cy="38" r="15"/>
+  <path class="inner" d="M18 23 L21 15 L25 22 Z"/>
+  <path class="inner" d="M46 23 L43 15 L39 22 Z"/>
+  <path class="stroke" d="M23 36 q3.5 4 7 0" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path class="stroke" d="M34 36 q3.5 4 7 0" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path class="solid" d="M30 41 L34 41 L32 44 Z"/>
+  <path class="stroke" d="M32 44 q2 2 4 0.5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path class="stroke" d="M32 44 q-2 2 -4 0.5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+</svg>
