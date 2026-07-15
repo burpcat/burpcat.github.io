@@ -156,7 +156,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 })();
 
 // ── reader mode (blog + post pages only) ──
-(function () {
+// Re-invokable (see window.__site.bindReaderToggle below) because soft
+// navigation (nav.js) can swap in a fresh #readerToggle node on a page that
+// didn't have one at initial load — each swap discards any previous button
+// (and its listener) entirely, so there's no double-binding risk.
+function bindReaderToggle() {
   const toggle = document.getElementById('readerToggle');
   if (!toggle) return;
   const root = document.documentElement;
@@ -173,7 +177,11 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
     label();
   });
-})();
+}
+bindReaderToggle();
+
+window.__site = window.__site || {};
+window.__site.bindReaderToggle = bindReaderToggle;
 
 // ── first-visit welcome popup ──
 (function () {
