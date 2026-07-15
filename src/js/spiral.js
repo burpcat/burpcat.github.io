@@ -31,12 +31,14 @@
   const BAR = BEAT * 4;           // ~1.778s (4/4)
   const BEAT_SLEW_K = 0.1;        // per-frame correction pulling the free clock toward real audio position
   const BEAT_PULSE_SCALE_AMP = 0.03; // orb's beat pulse, ~3% (within the 2-4% range)
+  const BEAT_PULSE_SCALE_AMP_READING = 0.06; // reading-mode-only boost — the star's clearest "synced to real audio" cue
 
   const LEG_SECONDS = 10 * BAR;    // forward travel time (page2 -> spiral), holds excluded — 10 bars, ~17.8s
   const LEG_SECONDS_BACK = 5 * BAR; // return leg: fast, flat unwind (before the low-pass lag) — 5 bars, ~8.9s
   const HOLD_BELL_S = 2.5 * BEAT;   // brief near-stop breath at the page-8 bell — 2.5 beats, ~1.11s
   const HOLD_COIL_S = 5 * BEAT;    // longer humming drift-hold at the golden coil — 5 beats, ~2.22s
-  const CALM_MULT = 25;           // calm mode / reader mode scales every duration above by this
+  const CALM_MULT = 25;           // calm mode scales every duration above by this
+  const READING_MULT = 10;        // reader mode's own (gentler) slowdown — dreamy but visibly moving, not near-frozen like calm mode
 
   const HUM_SCALE_AMP = 0.012;    // breathing scale, 1.00 <-> 1.012 (mild — softened from the original 1.5%)
   const HUM_ROT_AMP = (0.4 * Math.PI) / 180; // +/- 0.4 degrees (mild — softened from the original 0.5deg)
@@ -236,8 +238,16 @@
   // Hum phase: accumulated by delta each frame so a mid-hold frequency
   // change (calm/reading toggling) changes its rate, not its value.
   let humPhaseAccum = 0;
+  // Music gate: how much of reading-mode's "dancing" (strand wobble, boosted
+  // star pulse) should show, 0..1. Slewed rather than snapped so muting mid-
+  // read fades the motion out instead of freezing it instantly.
+  const MUSIC_GATE_SLEW_K = 0.04;
+  let musicGate = 0;
   function updateTimings() {
-    const mult = (calm || readingMode()) ? CALM_MULT : 1; // v9: reading mode drifts slowly too, not just calm mode
+    // calm mode is an explicit "make everything as slow as possible" toggle,
+    // so it wins if both are active; reading mode alone gets its own gentler
+    // (but still slow) pace — dreamy and visibly moving, not near-frozen.
+    const mult = calm ? CALM_MULT : (readingMode() ? READING_MULT : 1);
     legSecondsFwd = LEG_SECONDS * mult;
     legSecondsBack = LEG_SECONDS_BACK * mult;
     holdBellS = HOLD_BELL_S * mult;
@@ -418,8 +428,10 @@
     for (let i = 0; i < N; i++) {
       const rotation = (2 * Math.PI * i) / N;
       const strandPhase = humPhaseAccum + (2 * Math.PI * i) / N;
-      const scaleAmp = hum ? HUM_SCALE_AMP : IDLE_HUM_SCALE_AMP;
-      const rotAmp = hum ? HUM_ROT_AMP : IDLE_HUM_ROT_AMP;
+      // wobble amplitude (not the base fan-out angle above) is gated by
+      // musicGate — strands go still when music isn't audible
+      const scaleAmp = (hum ? HUM_SCALE_AMP : IDLE_HUM_SCALE_AMP) * musicGate;
+      const rotAmp = (hum ? HUM_ROT_AMP : IDLE_HUM_ROT_AMP) * musicGate;
       const strandHum = {
         scale: 1 + scaleAmp * Math.sin(strandPhase),
         rot: rotation + rotAmp * Math.cos(strandPhase),
@@ -444,7 +456,12 @@
     const shadow = v('--sky-top') || '#0A130F';
 
     ctx.save();
-    const beatScale = 1 + BEAT_PULSE_SCALE_AMP * (pulse || 0);
+    // Reading mode's pulse boost is itself gated by musicGate — it fades to
+    // fully still when music isn't audible, rather than settling back to the
+    // sitewide default, since the boost exists specifically to say "this is
+    // synced to real, currently-playing audio."
+    const pulseAmp = star ? BEAT_PULSE_SCALE_AMP_READING * musicGate : BEAT_PULSE_SCALE_AMP;
+    const beatScale = 1 + pulseAmp * (pulse || 0);
     ctx.translate(cx, cy);
     ctx.scale(beatScale, beatScale);
     ctx.translate(-cx, -cy);
@@ -505,6 +522,12 @@
     }
     const beatPhase = (freeBeatClock / BEAT) % 1;
     const beatPulse = 0.5 * (1 + Math.cos(2 * Math.PI * beatPhase)); // peaks on the downbeat
+
+    // Reading mode's "dancing" (strand wobble, boosted star pulse) should
+    // only show while music is actually audible — slewed so muting/resuming
+    // mid-read fades the motion rather than snapping it.
+    const musicPlaying = !!(audioEl && !audioEl.paused);
+    musicGate += ((musicPlaying ? 1 : 0) - musicGate) * MUSIC_GATE_SLEW_K;
 
     // Hum frequency locks to the bar (not the raw beat — a full-speed
     // beat-locked hum reads as a flutter, not a breath); calm/reading mode
