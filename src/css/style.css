@@ -19,6 +19,15 @@
   --geo-yellow:   #D08A2E;
   --geo-pink:     #A85440;
 
+  /* calm mode icon — "on" tuned for contrast against the toggle's filled
+     pressed state (var(--text)); "off" matches this theme's --muted value
+     (already proven legible at rest), copied literally rather than
+     `var(--muted)` so the icon keeps one consistent identity everywhere,
+     including pages (About) that locally override --muted for their own
+     palette. */
+  --calm-on:      #6FE3B4;
+  --calm-off:     #6E5C48;
+
   --sky-top:      #F0D9B4;
   --sky-bottom:   #E0B181;
   --ridge-far:    #9C8460;
@@ -62,6 +71,10 @@
   --rss:          #E0975A;
   --geo-yellow:   #E9A23B;
   --geo-pink:     #B98090;
+
+  /* calm mode icon — see light theme above for the rationale */
+  --calm-on:      #1D6B4A;
+  --calm-off:     #93A08E;
 
   --sky-top:      #0A130F;
   --sky-bottom:   #1C3A34;
@@ -141,6 +154,18 @@ body {
 body.calm-mode .new-badge,
 body.calm-mode .dot { animation: none !important; }
 body.calm-mode .construction { display: none !important; }
+/* de-frost every glassy panel, site-wide — each page keeps its own colors
+   (light/dark/About), this only removes the blur/translucency. Reading
+   mode (blog + post pages only) is a derived subset of calm mode, so this
+   already covers what reading mode used to flatten on its own. */
+body.calm-mode { background: var(--bg); }
+body.calm-mode .glass-surface {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.calm-mode .glass-surface::after { display: none; }
 
 /* ───────────────────────────────────────
    BACKGROUND SCENE — fixed sky/spiral/ridge behind everything
@@ -346,6 +371,13 @@ body.calm-mode .construction { display: none !important; }
   border-color: var(--text);
 }
 
+/* calm icon — shared by the header calm-toggle and the blog's reader-toggle
+   (same underlying switch, see site.js); "on" tuned for contrast against
+   each button's own pressed-state fill above. */
+.calm-icon { color: var(--calm-off); transition: color 0.2s; }
+.calm-toggle[aria-pressed="true"] .calm-icon,
+.reader-toggle[aria-pressed="true"] .calm-icon { color: var(--calm-on); }
+
 /* ── mute (calm-mode audio) ── */
 .mute-toggle {
   background: transparent;
@@ -537,7 +569,10 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 }
 
 /* ───────────────────────────────────────
-   READER MODE — a calm, solid reading surface (blog + post pages only)
+   READER MODE — blog + post pages only. Derived from calm mode (see
+   body.calm-mode above, which already de-frosts glass site-wide) plus
+   being in the blog section — this block only layers on the extra,
+   blog-exclusive "immersive reading" atmosphere on top of that.
    ─────────────────────────────────────── */
 /* v9: the scene stays visible but drifts into a soft, blurred amber wash —
    light through thick frosted glass — instead of disappearing outright. */
@@ -554,14 +589,6 @@ html.reading-mode .scene::after {
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
-html.reading-mode body { background: var(--bg); }
-html.reading-mode .glass-surface {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-html.reading-mode .glass-surface::after { display: none; }
 /* the listing/post sections set their own max-width inline — beat it here.
    clamp() (not a plain ch cap) lets the column grow fuller on wide monitors
    and shrink gracefully on narrow ones, instead of a single fixed width. */
@@ -887,6 +914,10 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   min-height: var(--tap-min);
 }
 .welcome-modes button[aria-pressed="true"] { color: var(--warm-accent); border-color: var(--warm-accent); }
+/* the calm button gets its own color (matching the header/reader-toggle
+   icon) rather than --warm-accent, to read as a distinct concept from the
+   day/night choice above it */
+#wm-calm[aria-pressed="true"] { color: var(--calm-on); border-color: var(--calm-on); }
 .welcome-music {
   display: flex; align-items: flex-start; gap: 10px;
   margin: 16px 0 22px;

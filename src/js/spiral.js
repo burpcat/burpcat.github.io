@@ -244,10 +244,12 @@
   const MUSIC_GATE_SLEW_K = 0.04;
   let musicGate = 0;
   function updateTimings() {
-    // calm mode is an explicit "make everything as slow as possible" toggle,
-    // so it wins if both are active; reading mode alone gets its own gentler
-    // (but still slow) pace — dreamy and visibly moving, not near-frozen.
-    const mult = calm ? CALM_MULT : (readingMode() ? READING_MULT : 1);
+    // reading mode is now derived from calm mode (calm + blog section), so
+    // it's always a subset of calm — it wins first here to keep its own
+    // tuned, gentler pace (dreamy and visibly moving, not near-frozen)
+    // reachable; calm mode outside the blog section still gets the harsher
+    // near-freeze on its own.
+    const mult = readingMode() ? READING_MULT : (calm ? CALM_MULT : 1);
     legSecondsFwd = LEG_SECONDS * mult;
     legSecondsBack = LEG_SECONDS_BACK * mult;
     holdBellS = HOLD_BELL_S * mult;
