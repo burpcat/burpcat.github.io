@@ -37,11 +37,13 @@
   </script>
 
   {% if "/blog/" in page.url %}
-  {# Anti-flash script — applies reader mode before paint (blog + post pages only) #}
+  {# Anti-flash script — applies reader mode before paint (blog + post pages
+     only). Reader mode is derived from calm mode + being in the blog
+     section, so it reads the same 'calm-mode' key calm mode itself uses. #}
   <script>
     (function() {
       try {
-        if (localStorage.getItem('reading-mode') === '1') {
+        if (localStorage.getItem('calm-mode') === '1') {
           document.documentElement.classList.add('reading-mode');
         }
       } catch(e) {}
@@ -86,7 +88,7 @@
         </span>
       </button>
       <button class="calm-toggle" id="calmToggle" aria-pressed="false" aria-label="Toggle calm mode" type="button">
-        <span aria-hidden="true">◐</span>
+        <span class="calm-icon" aria-hidden="true">◐</span>
         <span class="calm-label">calm mode</span>
       </button>
       <button class="mute-toggle" id="muteToggle" type="button" aria-label="Toggle background music">♪</button>
@@ -154,12 +156,18 @@
   <div class="welcome-card glass-surface" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
     <div class="welcome-orb" aria-hidden="true"></div>
     <h2 id="welcome-title" class="welcome-title">Welcome, wanderer.</h2>
-    <p class="welcome-body">You've found a small bright thing in a vast quiet space. Two things before you explore:</p>
+    <p class="welcome-body">You've found a small bright thing in a vast quiet space. A few things before you explore:</p>
     <div class="welcome-theme">
       <span class="welcome-label">this place has a day and a night —</span>
       <div class="welcome-modes">
         <button type="button" data-mode="light" id="wm-light">sun</button>
         <button type="button" data-mode="dark" id="wm-dark">moon</button>
+      </div>
+    </div>
+    <div class="welcome-theme">
+      <span class="welcome-label">prefer stillness? —</span>
+      <div class="welcome-modes">
+        <button type="button" id="wm-calm" aria-pressed="false">calm mode</button>
       </div>
     </div>
     <label class="welcome-music">

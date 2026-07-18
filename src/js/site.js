@@ -55,10 +55,16 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   });
 })();
 
-// ── calm mode (animation tempo only) ──
+// ── calm mode (site-wide: tempo + de-frosted glass; reading-mode is
+// derived from this, see below) ──
 // v8 supersedes the v1 coupling: calm mode used to force-start/stop the
 // background track. Music is now its own independent thing — see the
-// music module below — calm mode here only ever touches tempo (v4/v5).
+// music module below — calm mode here only ever touches tempo/visuals (v4/v5).
+// v14: calm mode and reader mode (blog + post pages only) are now one
+// shared switch. Reader mode is just "calm mode, while in the blog
+// section" — html.reading-mode is toggled here alongside body.calm-mode,
+// recomputed on every change since soft-navigation can move the user in
+// or out of the blog section without a full page load.
 (function () {
   const toggle = document.getElementById('calmToggle');
   if (!toggle) return;
@@ -71,6 +77,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     toggle.setAttribute('aria-pressed', String(on));
     if (label) label.textContent = on ? 'calm: on' : 'calm mode';
     try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
+    const isBlogSection = location.pathname.indexOf('/blog/') !== -1;
+    document.documentElement.classList.toggle('reading-mode', on && isBlogSection);
   };
 
   let initial = false;
@@ -81,6 +89,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   toggle.addEventListener('click', () => {
     apply(!document.body.classList.contains('calm-mode'));
   });
+
+  window.__site = window.__site || {};
+  window.__site.setCalmMode = apply; // bridge for the reader-toggle button and the welcome popup
 })();
 
 // ── background music (independent of calm mode; persists across pages) ──
@@ -156,28 +167,43 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 })();
 
 // ── reader mode (blog + post pages only) ──
+// Reader mode is just calm mode's derived state while in the blog section
+// (see the calm-mode module above) — this button is a second switch on the
+// same shared state, not its own flag. Because the header calm-toggle is
+// simultaneously visible and clickable on every blog page, this can't just
+// sync itself on its own click the way the welcome popup's day/night
+// buttons do (those are never on-screen at the same time as the header
+// switch) — it has to react live to changes made from *either* control, so
+// it observes html's class list instead.
 // Re-invokable (see window.__site.bindReaderToggle below) because soft
 // navigation (nav.js) can swap in a fresh #readerToggle node on a page that
 // didn't have one at initial load — each swap discards any previous button
-// (and its listener) entirely, so there's no double-binding risk.
+// (and its listener) entirely, so there's no double-binding risk. The old
+// observer is disconnected first so repeated re-binds don't accumulate.
+let readerModeObserver = null;
 function bindReaderToggle() {
+  if (readerModeObserver) { readerModeObserver.disconnect(); readerModeObserver = null; }
+
   const toggle = document.getElementById('readerToggle');
   if (!toggle) return;
   const root = document.documentElement;
-  const STORAGE_KEY = 'reading-mode';
   const labelEl = toggle.querySelector('.reader-label');
 
-  const label = () => {
-    labelEl.textContent = root.classList.contains('reading-mode') ? 'exit reader view' : 'reader view';
+  const sync = () => {
+    const on = root.classList.contains('reading-mode');
+    toggle.setAttribute('aria-pressed', String(on));
+    labelEl.textContent = on ? 'exit reader view' : 'reader view';
   };
-  label(); // the anti-flash script in <head> already applied the saved state
+  sync(); // the anti-flash script in <head> already applied the saved state
 
   toggle.addEventListener('click', () => {
-    const on = !root.classList.contains('reading-mode');
-    root.classList.toggle('reading-mode', on);
-    try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
-    label();
+    if (window.__site && window.__site.setCalmMode) {
+      window.__site.setCalmMode(!document.body.classList.contains('calm-mode'));
+    }
   });
+
+  readerModeObserver = new MutationObserver(sync);
+  readerModeObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
 }
 bindReaderToggle();
 
@@ -197,6 +223,7 @@ window.__site.bindReaderToggle = bindReaderToggle;
   const root = document.documentElement;
   const lightBtn = document.getElementById('wm-light');
   const darkBtn = document.getElementById('wm-dark');
+  const calmBtn = document.getElementById('wm-calm');
   const musicCheck = document.getElementById('welcome-music-check');
   const enterBtn = document.getElementById('welcome-enter');
 
@@ -207,6 +234,11 @@ window.__site.bindReaderToggle = bindReaderToggle;
   }
   syncModeButtons();
 
+  function syncCalmButton() {
+    if (calmBtn) calmBtn.setAttribute('aria-pressed', String(document.body.classList.contains('calm-mode')));
+  }
+  syncCalmButton();
+
   if (lightBtn) lightBtn.addEventListener('click', () => {
     if (window.__site && window.__site.setTheme) window.__site.setTheme('light');
     syncModeButtons();
@@ -215,9 +247,13 @@ window.__site.bindReaderToggle = bindReaderToggle;
     if (window.__site && window.__site.setTheme) window.__site.setTheme('dark');
     syncModeButtons();
   });
+  if (calmBtn) calmBtn.addEventListener('click', () => {
+    if (window.__site && window.__site.setCalmMode) window.__site.setCalmMode(!document.body.classList.contains('calm-mode'));
+    syncCalmButton();
+  });
 
   function getFocusable() {
-    return [lightBtn, darkBtn, musicCheck, enterBtn].filter(Boolean);
+    return [lightBtn, darkBtn, calmBtn, musicCheck, enterBtn].filter(Boolean);
   }
 
   function trapKeydown(e) {
