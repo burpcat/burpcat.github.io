@@ -16,7 +16,18 @@ layout: base.njk
       </button>
     </div>
     <h1 class="post-full-title">{{ title }}</h1>
+    {% if tags and (tags | displayTags).length %}
+    <div class="post-tags">
+      {% for tag in tags | displayTags %}<span class="tag-pill">{{ tag }}</span>{% endfor %}
+    </div>
+    {% endif %}
   </header>
+
+  {% if coverImage %}
+  <figure class="post-cover">
+    <img src="{{ coverImage }}" alt="{{ coverImageAlt or title }}">
+  </figure>
+  {% endif %}
 
   <div class="post-body glass-surface">
     {{ content | safe }}

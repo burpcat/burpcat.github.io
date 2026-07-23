@@ -16,3 +16,6 @@ Thumbs.db
 npm-debug.log*
 .env
 .env.local
+
+# blogpub draft staging area (scratch space, not published content)
+/drafts/

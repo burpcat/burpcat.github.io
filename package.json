@@ -6,10 +6,19 @@
     "start": "eleventy --serve",
     "build": "node scripts/fetch-github.js && node scripts/fetch-weather.js && eleventy",
     "fetch": "node scripts/fetch-github.js",
-    "fetch:weather": "node scripts/fetch-weather.js"
+    "fetch:weather": "node scripts/fetch-weather.js",
+    "blog:new": "node tools/blogpub/cli.js new",
+    "blog:publish": "node tools/blogpub/cli.js publish",
+    "blog:syndicate": "node tools/blogpub/cli.js syndicate"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",
-    "@11ty/eleventy-plugin-rss": "^2.0.2"
+    "@11ty/eleventy-img": "^6.0.4",
+    "@11ty/eleventy-plugin-rss": "^2.0.2",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.2",
+    "sharp": "^0.35.3"
+  },
+  "overrides": {
+    "sharp": "^0.35.3"
   }
 }

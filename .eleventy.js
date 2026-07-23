@@ -1,14 +1,34 @@
 const rssPlugin = require("@11ty/eleventy-plugin-rss");
+const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
+const { eleventyImageTransformPlugin } = require("@11ty/eleventy-img");
 
 module.exports = function (eleventyConfig) {
 
   // ── plugins ──
   eleventyConfig.addPlugin(rssPlugin);
+  eleventyConfig.addPlugin(syntaxHighlight);
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+    extensions: "html",
+    formats: ["webp", "jpeg"],
+    widths: [400, 800, 1300, "auto"],
+    htmlOptions: {
+      imgAttributes: {
+        loading: "lazy",
+        decoding: "async",
+        sizes: "(max-width: 700px) 100vw, 700px",
+      },
+    },
+    transformOnRequest: process.env.ELEVENTY_RUN_MODE === "serve",
+  });
 
   // ── pass-throughs ──
   eleventyConfig.addPassthroughCopy("src/css");
   eleventyConfig.addPassthroughCopy("src/js");
   eleventyConfig.addPassthroughCopy("src/audio");
+  // Raw source images, kept alongside eleventy-img's optimized derivatives
+  // (in a separate /img/ tree) so posts.json/blogpub can rely on a stable,
+  // predictable URL for syndication instead of eleventy-img's hashed paths.
+  eleventyConfig.addPassthroughCopy("src/images");
 
   // ── favicon / app icons ──
   ["favicon.ico", "favicon.svg", "favicon-16.png", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "site.webmanifest"]
@@ -50,6 +70,13 @@ module.exports = function (eleventyConfig) {
   // ISO date for RSS
   eleventyConfig.addFilter("isoDate", (dateObj) =>
     new Date(dateObj).toISOString()
+  );
+
+  // posts.json applies a blanket tags:["posts"] default that Eleventy merges
+  // (not replaces) with a post's own front-matter tags — strip it back out
+  // wherever tags are actually displayed to a reader.
+  eleventyConfig.addFilter("displayTags", (tags) =>
+    (tags || []).filter((t) => t !== "posts")
   );
 
   return {

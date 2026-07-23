@@ -26,6 +26,11 @@ permalink: /blog/
         <a href="{{ post.url }}">{{ post.data.title | safe }}</a>
       </h2>
       {% if post.data.excerpt %}<p class="post-excerpt">{{ post.data.excerpt }}</p>{% endif %}
+      {% if post.data.tags and (post.data.tags | displayTags).length %}
+      <div class="post-tags">
+        {% for tag in post.data.tags | displayTags %}<span class="tag-pill">{{ tag }}</span>{% endfor %}
+      </div>
+      {% endif %}
       <a class="read-link" href="{{ post.url }}">read →</a>
     </article>
     {% endfor %}
