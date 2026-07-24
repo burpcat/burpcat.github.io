@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ site.language }}" data-theme="light" data-post-count="{{ collections.posts.length }}"{% if page.url == "/about/" %} data-page="about"{% endif %}>
+<html lang="{{ site.language }}" data-theme="light" data-post-count="{{ collections.posts.length }}"{% if page.url == "/about/" %} data-page="about"{% endif %}{% if "/blog/" in page.url %} class="reading-mode"{% endif %}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,21 +35,6 @@
       } catch(e) {}
     })();
   </script>
-
-  {% if "/blog/" in page.url %}
-  {# Anti-flash script — applies reader mode before paint (blog + post pages
-     only). Reader mode is derived from calm mode + being in the blog
-     section, so it reads the same 'calm-mode' key calm mode itself uses. #}
-  <script>
-    (function() {
-      try {
-        if (localStorage.getItem('calm-mode') === '1') {
-          document.documentElement.classList.add('reading-mode');
-        }
-      } catch(e) {}
-    })();
-  </script>
-  {% endif %}
 </head>
 <body>
 

@@ -84,15 +84,12 @@
     newMain.setAttribute('tabindex', '-1');
     reviveScripts(newMain);
 
-    // reading-mode is derived (calm mode + being in the blog section) and
+    // reading-mode is a permanent attribute of being in the blog section and
     // must be recomputed for the destination page — location.pathname isn't
     // updated yet here (pushState happens after applySwap returns), so use
     // the url this navigation is going to, not the current location.
     const isBlog = new URL(url, location.href).pathname.indexOf('/blog/') !== -1;
-    document.documentElement.classList.toggle('reading-mode',
-      document.body.classList.contains('calm-mode') && isBlog);
-
-    if (window.__site && window.__site.bindReaderToggle) window.__site.bindReaderToggle();
+    document.documentElement.classList.toggle('reading-mode', isBlog);
 
     const hash = url.includes('#') ? url.slice(url.indexOf('#') + 1) : '';
     const hashTarget = hash && document.getElementById(hash);
