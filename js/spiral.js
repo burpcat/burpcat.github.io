@@ -244,11 +244,10 @@
   const MUSIC_GATE_SLEW_K = 0.04;
   let musicGate = 0;
   function updateTimings() {
-    // reading mode is now derived from calm mode (calm + blog section), so
-    // it's always a subset of calm — it wins first here to keep its own
-    // tuned, gentler pace (dreamy and visibly moving, not near-frozen)
-    // reachable; calm mode outside the blog section still gets the harsher
-    // near-freeze on its own.
+    // reading mode (permanently on for the blog section) wins first here to
+    // keep its own tuned, gentler pace (dreamy and visibly moving, not
+    // near-frozen) reachable even when calm mode is also on; calm mode
+    // outside the blog section still gets the harsher near-freeze on its own.
     const mult = readingMode() ? READING_MULT : (calm ? CALM_MULT : 1);
     legSecondsFwd = LEG_SECONDS * mult;
     legSecondsBack = LEG_SECONDS_BACK * mult;
@@ -304,6 +303,12 @@
     return root.getAttribute('data-theme') !== 'dark' && root.getAttribute('data-page') !== 'about';
   }
 
+  // About keeps its own fixed warm-clay palette (--orb/--spiral-line) —
+  // every other page presents the orb + curve as Chitra, weather-hued.
+  function isAboutPage() {
+    return root.getAttribute('data-page') === 'about';
+  }
+
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth;
@@ -328,8 +333,9 @@
     ctx.globalAlpha = 1;
   }
 
-  // Chitra: the reading-mode star's live weather color (see fetch-weather.js
-  // + base.njk), a bare "r,g,b" triplet like --spiral-line already is.
+  // Chitra: the star's live weather color, shown everywhere except the About
+  // page (see fetch-weather.js + base.njk), a bare "r,g,b" triplet like
+  // --spiral-line already is.
   function chitraRgb() {
     const raw = v('--chitra-color-rgb') || '245,215,122';
     return raw.split(',').map(Number);
@@ -448,11 +454,11 @@
   // `pulse` (0..1, default 0) is the beat envelope — a single uniform scale
   // around the orb's own center carries every fixed radius/offset below
   // along for free, so the moon-bite crescent never misaligns as it pulses.
-  // In reading mode the orb is presented as Chitra, a named star the
-  // strands dance around — it takes her live weather color instead of the
-  // sun/moon theming.
+  // Everywhere except the About page, the orb is presented as Chitra, a
+  // named star (the one the blog's strands dance around, in reading mode)
+  // — it takes her live weather color instead of the sun/moon theming.
   function drawOrb(pulse) {
-    const star = readingMode();
+    const star = !isAboutPage();
     const orbColor = star ? (v('--chitra-color') || '#E9A23B') : (v('--orb') || '#E9A23B');
     const glow = star ? `rgba(${chitraRgb().join(',')},0.34)` : (v('--orb-glow') || 'rgba(233,162,59,0.3)');
     const shadow = v('--sky-top') || '#0A130F';
@@ -589,8 +595,14 @@
     paintSky(trailAlpha);
     const pts = pointsAtL(Lsmoothed);
     const anchor = anchorPoint(pts, anchorParam(Lsmoothed));
-    if (readingMode()) drawStrands(pts, anchor, hum, renderStyle);
-    else strokeMorph(pts, anchor, hum, renderStyle);
+    if (readingMode()) {
+      drawStrands(pts, anchor, hum, renderStyle);
+    } else if (!isAboutPage()) {
+      const [r, g, b] = chitraRgb();
+      strokeMorph(pts, anchor, hum, renderStyle, `${r},${g},${b}`);
+    } else {
+      strokeMorph(pts, anchor, hum, renderStyle);
+    }
     drawOrb(beatPulse);
 
     rafId = requestAnimationFrame(frame);
@@ -602,8 +614,14 @@
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum
     const anchor = anchorPoint(pts, 0.5);
-    if (readingMode()) drawStrands(pts, anchor, null, null);
-    else strokeMorph(pts, anchor, null, null);
+    if (readingMode()) {
+      drawStrands(pts, anchor, null, null);
+    } else if (!isAboutPage()) {
+      const [r, g, b] = chitraRgb();
+      strokeMorph(pts, anchor, null, null, `${r},${g},${b}`);
+    } else {
+      strokeMorph(pts, anchor, null, null);
+    }
     drawOrb();
   }
 
