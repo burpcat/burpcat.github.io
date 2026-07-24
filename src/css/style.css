@@ -1028,6 +1028,20 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body pre .token.bold { font-weight: 700; }
 .post-body pre .token.italic { font-style: italic; }
 
+/* Mermaid diagrams — rendered client-side (see /js/mermaid-init.js) into a
+   plain <div class="mermaid">, so this styles the container the same way
+   .post-body pre is styled above; it doesn't need the [data-theme] toggle
+   since Mermaid is initialized once with this same fixed dark palette. */
+.post-body .mermaid {
+  background: #1A1714;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+.post-body .mermaid svg { max-width: 100%; }
+
 .post-body blockquote {
   border-left: 3px solid var(--accent);
   padding-left: 18px;

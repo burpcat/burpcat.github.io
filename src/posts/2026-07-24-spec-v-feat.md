@@ -1,48 +1,89 @@
 ---
-title: "Spec-driven, feature-driven, and the thing that actually predicted quality"
+title: "What drives quality agentic code?"
 date: 2026-07-24
-excerpt: "I built two projects a few weeks apart, one spec-first and one feature-first, to see which discipline held up better. By the end the labels had almost swapped — and neither one was what predicted where the effort paid off."
+excerpt: "I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did."
 tags: ["engineering","ai","process"]
 crosspost: {"devto":true}
 ---
 
-*I built two projects a few weeks apart, one spec-first and one feature-first, to see which discipline held up better. By the end the labels had almost swapped — and neither one was what predicted where the effort paid off.*
+*I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.*
 
-Over about three weeks I shipped two unrelated tools. The first, `shrutz`, is a macOS wallpaper rotator with an unusual twist: it advances based on your *active* keyboard-and-mouse time, not the wall clock, so the picture only changes while you're actually at the machine. It's a ~2,300-line bash daemon with a Swift menu-bar companion. The second, `slap`, is a cold-outreach CLI built on the GMass API — ~7,000 lines of Python across nineteen modules with a local dashboard.
+`shrutz` is a macOS wallpaper rotator that advances on active input time instead of the wall clock: about 2,300 lines of bash daemon plus a Swift menu-bar app. `slap` is a cold-outreach CLI over the GMass API: about 7,165 lines of Python across 19 modules, 796 test functions, a local dashboard. I built the first spec-driven and the second feature-driven. That was the plan.
 
-I built `shrutz` "spec-driven": the plan was to write the spec first and let it drive everything. I built `slap` "feature-driven": scope a feature, build it, ship it, move to the next. That was the intent. The git history tells a more honest and more useful story.
+## The labels inverted
 
-## The labels inverted almost immediately
+`slap`, the feature-driven one, opened against a 468-line numbered build brief (sections 0 to 14, ending in a literal Build Order) with a read-only review pass gating every commit from hour one. `shrutz`, the spec-driven one, spent two weeks as direct-to-master commits titled things like `FULL POWER`; its only spec-like document was written *after* the engine, weather, gallery, and JSON API had already shipped.
 
-`slap`, my *feature-driven* project, is the one that actually got a spec. Day one opened against a 468-line numbered build brief — sections 0 through 14, ending in a literal "Build Order" — and every step in that order went through a review pass before it was allowed to commit. In its first five commits it laid down about 28% of all the code the project would ever contain. If you squint, that's the most spec-driven day of either project.
+```mermaid
+gantt
+    dateFormat YYYY-MM-DD
+    title Both projects drifted off their labels
+    section shrutz (spec-driven?)
+    Organic, no spec, direct to master    :2026-06-05, 18d
+    Worktrees, PRs, visual audit loop      :2026-07-14, 10d
+    section slap (feature-driven?)
+    468-line brief, review before commit   :2026-07-02, 12d
+    Branch + PR per feature                :2026-07-14, 10d
+```
 
-`shrutz`, my *spec-driven* project, spent its first two weeks as pure organic growth: direct-to-master commits with messages like `FULL POWER`, no branches, no pull requests, no spec. The one document that reads like a spec — a project-context file establishing invariants and design rules — was written *after* the rotation engine, the weather feature, the gallery, and the JSON API had already shipped. It's a description of what existed, not a plan for what to build. A single genuine spec-conformance loop does appear in `shrutz`, but only in one place, and that place is the tell.
+So the label decided little. One question decided a lot: can this result be verified any other way?
 
-## What actually predicted where rigor paid off: verifiability
+```mermaid
+flowchart TD
+    A[New surface to build] --> B{Can a normal test<br/>verify the result?}
+    B -->|Yes| C[Iterate. Tests + review suffice.<br/>A spec just adds docs to keep in sync.]
+    B -->|No| D[Build the verification harness FIRST:<br/>screenshot audit, API probe, fault injection]
+    D --> E[Then build the feature against it]
+```
 
-The `shrutz` spec loop shows up exclusively around the menu-bar app's *visual design*. There's a folder of human-approved mockups, and each build was checked against them by capturing a real screenshot from the live window server and writing a conformance report comparing pixel dimensions and source-code constants to the reference. Nothing else in `shrutz` got that treatment. The daemon logic — idle detection, the two-path wallpaper apply, shuffle-state persistence — grew by feel and was mostly fine.
+Both projects, independently, aimed their heaviest upfront rigor at the surfaces where the answer was *no*.
 
-`slap` did the exact same thing on a completely different surface. Its heaviest upfront rigor went into verifying the *external API contract* it couldn't see into. Before any dependent code was written, probe scripts hit the real GMass API and caught three places where the documentation was wrong: stop-on-reply is configured per-stage, not with one global flag; the send endpoint wants the campaign ID in the URL path, not the body (the documented form returns HTTP 400); attachments are JSON-only and reject multipart with a 415. Those findings were pinned in a control sheet that also lists, explicitly, the things that *can never* be verified from code — for instance, whether GMass actually honors a stop-on-reply is write-only, with no read-back, so a 200 on send is the strongest signal obtainable.
+## Rigor concentrated on the unverifiable surfaces
 
-Two projects, two methodologies, and both independently concentrated their most disciplined, spec-like work on exactly the surface where correctness cannot be checked any other way — a rendered pixel, a third party's live behavior. Everywhere the result *was* verifiable — core logic you can exercise with a test — both projects grew by accretion and did fine. `slap`'s core files have a churn ratio near 1.0 (almost every line ever written is still there) and the entire history contains zero real reverts. The methodology label didn't predict quality. Verifiability did.
+In `shrutz` that surface was the rendered UI. The repo's only real spec-conformance loop drove the menu-bar app's visual design: approved mockups, a live screenshot captured from the window server, then a written audit diffing pixel dimensions and source constants against the reference. It caught a class of bug tests structurally cannot. Version 2.5 shipped a redesign that still rendered as a flat, dusty taupe. Two compounding color-math bugs: the wallpaper sampler averaged raw RGB per region (which collapses toward grey when saturated and desaturated pixels mix), and five ambient blobs composited with ordinary alpha blending under `.ultraThinMaterial` (which regresses further toward grey on overlap). The fix was saturation-weighted HSB extraction with *circular* hue averaging:
 
-## Where it broke, and what the failures had in common
+```swift
+// simplified: circular mean hue, so reds near 0°/360° don't average to cyan
+func meanHue(_ hues: [Double]) -> Double {
+    let x = hues.map { cos($0 * .pi / 180) }.reduce(0, +)
+    let y = hues.map { sin($0 * .pi / 180) }.reduce(0, +)
+    return atan2(y, x) * 180 / .pi   // naive (350 + 10) / 2 = 180° (cyan); this gives ~0° (red)
+}
+// plus compositing: .compositingGroup().blendMode(.plusLighter) then .saturation(1.3)
+```
 
-**Specs go stale, and your process can lose even a written fix.** `slap`'s main context doc still says a major feature isn't built yet. The frustrating part: a complete fix for that staleness exists — a full rewrite on a branch named `docs/sync-living-docs`. It was written, then never merged, so the correction has sat one `git merge` away from reality for the life of the project. The doc isn't stale because nobody noticed; it's stale because iteration outran its own paperwork. `shrutz` has the mirror-image fossil: a CI config that still auto-merges a branch straight to master with no review gate, left over from a same-day commit literally titled "removed PR necessity," contradicted by every reviewed merge since. In both cases a written artifact outlived the reality it described. Prose that has to be kept in sync by hand won't be.
+In `slap` the unverifiable surface was a third party's live behavior. Before any dependent code existed, probe scripts hit the real GMass API and found the docs wrong three ways:
 
-**Diff-scoped review has one structural blind spot: invariants that span call sites.** `slap`'s worst bug is a bug that came back. GMass rewrites `<a href>` links for click tracking, so a plain-text email — with no anchor tag to rewrite — silently defeats `clickTracking: true`. I fixed it once in the draft-creation path by converting to minimal HTML. Three weeks later the identical root cause surfaced in the follow-up-message path, a different function carrying the same invariant that never got the conversion. No review of either diff could have caught the second one, because the defect isn't *in* the diff — it's in a call site the diff doesn't touch. `shrutz` learned the same lesson from a naming-drift crash: the installer created a wallpaper set at one path but seeded state with a different default string, so the daemon looked for a directory that didn't exist and `launchd` cheerfully restarted it into a crash loop. The fix wasn't to correct the string — it was to make the two values *derive from one source* so they can't drift:
+```text
+# probes/, run 2026-07-02, pinned in CONTROL_SHEET.md
+stop-on-reply : per-stage (stageOneAction..stageEightAction), NOT one global flag
+send endpoint : POST /api/campaigns/{campaignDraftId}   # ID in path; body-field form -> HTTP 400
+attachments   : JSON {fileName, contentType, base64Content} only  # multipart -> HTTP 415
+```
+
+The same sheet records what can *never* be verified: stop-on-reply is write-only, no read-back, so a 200 on send is the strongest signal obtainable. Naming that limit explicitly is the spec doing its actual job.
+
+Everywhere the result *was* testable, both codebases grew by accretion. `slap`'s core files show churn ratios near 1.0 (nearly every line ever written is still present) and zero reverts in the entire history.
+
+## Where it broke: invariants across call sites
+
+GMass rewrites `<a href>` targets for click tracking. A plain-text body has no anchor to rewrite, so `clickTracking: true` is inert. I fixed it once in the draft path by converting to minimal HTML. Three weeks later the identical root cause resurfaced in the follow-up-message path, a different function carrying the same invariant that never got the conversion.
+
+`shrutz` hit the same shape as a naming drift: the installer created the set at `wallpapers/hassan/` but seeded state with `ACTIVE_SET=default`, so the daemon searched a directory that never existed, and `launchd`'s `KeepAlive` turned that into a crash loop on every fresh install. The fix removes the ability to drift by deriving both from one source:
 
 ```diff
  WALLS_DEFAULT="$LIB/wallpapers/hassan"
-+ACTIVE_SET_DEFAULT="$(basename "$WALLS_DEFAULT")"   # keep state in sync with the dir we actually create
++ACTIVE_SET_DEFAULT="$(basename "$WALLS_DEFAULT")"   # state's ACTIVE_SET can't diverge from the dir we create
  ...
 -    printf 'CURRENT_INDEX=0\nACTIVE_SECONDS=0\nACTIVE_SET=default\n'      > "$LIB/state"
 +    printf 'CURRENT_INDEX=0\nACTIVE_SECONDS=0\nACTIVE_SET=%s\n' "$ACTIVE_SET_DEFAULT" > "$LIB/state"
 ```
 
-**Review before commit is worth more than fixing after.** `slap`'s rework looks alarming by one measure and trivial by another: 17.5% of commits were post-hoc fixes to already-shipped behavior, but those fixes were only ~4.3% of all lines changed. The gap is the whole point. A read-only review pass ran over every diff before it was allowed to commit, and the bugs it caught never became separate fix commits — they were folded into the commit that introduced the feature. One migration commit quietly notes that three distinct bugs, including an uncaught error path and a resurface edge case, were fixed inside it before it ever entered history. The rework that *did* leak through was small and concentrated in core logic, not in the largest module.
+Diff-scoped review, human or automated, is blind to a rule that must hold across call sites: the defect isn't *in* the diff. The durable fix is structural. One source of truth, or a written invariant with a grep over every site that touches it.
 
-That review pass earned its keep most on a bug that would never have shown up in a test written by someone who didn't already know the trap. `slap` needed to add a value to a SQLite `CHECK` constraint, which means rebuilding the table. The first attempt used `executescript()` — which force-commits any pending transaction before it runs, *including the `BEGIN` the same function just opened*. A crash between the rename and the drop would have permanently stranded the append-only event log, the app's single source of truth. The fix is boring; the test is not:
+## Where it broke: atomicity
+
+`slap` needed a new value in a SQLite `CHECK` constraint, which means rebuilding the table. The first attempt used `executescript()`, which force-commits any pending transaction before it runs, *including the `BEGIN` the same function just opened*. A crash between the rename and the drop would permanently strand the append-only event log, the app's single source of truth.
 
 ```python
 def _migrate_events_check_constraint(conn: sqlite3.Connection) -> None:
@@ -54,7 +95,7 @@ def _migrate_events_check_constraint(conn: sqlite3.Connection) -> None:
     conn.execute("BEGIN")
     try:
         conn.execute("ALTER TABLE events RENAME TO events_pre_stopped_migration")
-        conn.execute(_EVENTS_TABLE_SQL)          # execute(), never executescript()
+        conn.execute(_EVENTS_TABLE_SQL)          # execute(), NEVER executescript()
         conn.execute("INSERT INTO events (...) SELECT ... FROM events_pre_stopped_migration")
         conn.execute("DROP TABLE events_pre_stopped_migration")
         conn.commit()
@@ -63,29 +104,83 @@ def _migrate_events_check_constraint(conn: sqlite3.Connection) -> None:
         raise
 ```
 
-The regression test injects a crash immediately after the rename (a `Connection` subclass that raises on one specific statement) and asserts the database lands back in its original, unmigrated state. That's a correctness *guarantee*, not a happy-path check — and it only exists because someone reviewed the migration before it shipped, not after it corrupted something.
-
-**Manual verification catches what tests can't — in both methodologies.** The tidy story would be "spec-driven means verified, feature-driven means you catch bugs by hand later." It isn't true. `slap`'s most spec-driven day shipped a real concurrency bug — the dashboard closed over one SQLite connection at startup, and SQLite connections are only usable on their creating thread, so every request after the first, dispatched on a fresh thread by the real server, blew up. No test caught it. A human clicking around a browser did. The regression test written afterward has to spin up a real threaded server on a real socket, because the synchronous test client structurally cannot reach the bug:
+The regression test (simplified) injects a crash right after the rename and asserts the DB is left in its original, unmigrated state:
 
 ```python
-@pytest.mark.slow
-def test_dashboard_survives_real_concurrent_request_threads(tmp_path, monkeypatch):
-    # Flask's test_client() runs requests synchronously on the calling thread,
-    # so it can't reproduce this. A real WSGI server dispatches each request on
-    # its own thread, and sqlite3 connections are only usable on the thread
-    # that opened them. This spins up a real server on a real socket to prove
-    # requests from different threads all succeed.
-    ...
+class _FlakyConnection(sqlite3.Connection):
+    _armed = False
+    def execute(self, sql, *a):
+        if sql.startswith("ALTER TABLE events RENAME"):
+            self._armed = True                       # arm on the rename
+        elif self._armed:
+            raise sqlite3.OperationalError("injected crash")  # blow up on the next statement
+        return super().execute(sql, *a)
+
+def test_migration_rolls_back_cleanly_on_a_mid_migration_failure(tmp_path):
+    conn = sqlite3.connect(tmp_path / "e.db", factory=_FlakyConnection)
+    # ...seed the old schema, run the migration, expect the raise...
+    # assert the live `events` table is intact and still unmigrated
 ```
 
-## What I'd actually take to the next project
+That is a correctness *guarantee*, not a happy-path check, and it exists only because the migration was reviewed before it shipped, not after it corrupted something.
 
-The methodology name was the least useful thing I decided. Here's what I'd keep.
+## Where it broke: the platform underneath
 
-Find the surfaces you can't verify with an ordinary test — a rendered UI, a third party's real behavior, hardware sleep/wake — and spend your specification budget *there*, up front, building the verification harness before the feature. That's where "spec-driven" earned its keep in both projects, and it earned nothing extra anywhere else. On verifiable core logic, iterating with good tests was plenty, and trying to over-specify it would have just produced more prose to keep in sync.
+`shrutz`'s daemon blocked on a foreground `sleep`. Bash defers trap handling until the foreground command returns, so `next`, `pause`, and `resume` could take up to `CHECK_EVERY` seconds (30 by default) to apply. Backgrounding the sleep and `wait`-ing on it lets a signal interrupt immediately:
 
-Don't write documentation you have to maintain by hand; it will lie, and it will lie fastest exactly when the code is moving fastest. Prefer a spec that verifies itself — a screenshot audit, an API probe, a failing test — over a paragraph that depends on your discipline. If a doc can't be executed, assume it's already wrong.
+```bash
+# before: SIGUSR1 is queued until sleep returns (up to CHECK_EVERY seconds later)
+while :; do tick; sleep "$CHECK_EVERY"; done
 
-Review before the commit, not after. Folding a fix into the commit that introduced the problem is worth more than a clean revert history, and it's the single reason my "feature-driven" project's rework stayed at 4% of lines instead of ballooning.
+# after: wait is interruptible, so the trap fires the instant the signal lands
+trap 'apply_now' USR1
+while :; do
+    tick
+    sleep "$CHECK_EVERY" &
+    wait "$!"
+done
+```
 
-And treat cross-call-site invariants as their own thing to review. Diff-scoped review — human or automated — is structurally blind to "this rule must hold everywhere," and that blindness is where my most annoying bug hid for three weeks. When a rule has to hold in more than one place, make the places derive from one source, or write down the invariant and grep for every site that touches it. That, more than any methodology, is what "spec-driven" should have meant all along.
+And one fix spawned the next: a Redis lock added around dashboard GMass polling left the old direct-poll path live for the case where Redis was *unreachable*, so a Redis outage with concurrent dashboard loads could fire multiple uncoordinated GMass sweeps, discovered three days later. Iteration fixes the failure in front of you and leaves the adjacent one running.
+
+## The verifiable side is only as good as its adversary
+
+On surfaces you *can* test, both projects earned trust by testing adversarially rather than happily. `shrutz`'s gallery installer is proven against a real zip-slip payload:
+
+```python
+# guard, shrutz:1938: resolve every member and reject anything escaping the set dir
+dest_real = os.path.realpath(dest_dir)
+target    = os.path.realpath(os.path.join(dest_real, rel))
+if os.path.commonpath([dest_real, target]) != dest_real:
+    print(f"error: unsafe path in zip: {member}", file=sys.stderr); sys.exit(1)
+```
+```bash
+@test "gallery install: rejects a zip-slip attempt and writes nothing outside the set dir" {
+    run "$SHRUTZ" gallery install evilset          # zip contains ../../../../tmp/pwned.txt
+    [ "$status" -ne 0 ] && [ ! -f "/tmp/shrutz-zipslip-pwned.txt" ]
+}
+```
+
+Some architecture only exists to keep a surface testable at all. `shrutz` splits wallpaper application into a correct-but-expensive path and a fast-but-partial one, and the daemon picks per event:
+
+```mermaid
+flowchart TD
+    T[Daemon tick / manual skip] --> Q{advance rotation<br/>or cheap correction?}
+    Q -->|advance| F[Rewrite Index.plist:<br/>every Space, per-display override, default]
+    F --> FR[Restart wallpaper agent]
+    FR --> FC[Fully correct, expensive]
+    Q -->|per-tick| A[AppleScript: what does the<br/>visible Space think it shows?]
+    A --> AC{stale?}
+    AC -->|yes| AF[Fix just this Space, instantly]
+    AC -->|no| AN[Do nothing]
+```
+
+## What I'm keeping
+
+Spend spec effort only where the result resists a normal test: rendered pixels, a third party's live API, hardware behavior. Build the check *before* the feature. Everywhere else, tests plus review beat more prose.
+
+Don't hand-maintain docs; they go stale fastest exactly when the code moves fastest. `slap`'s context doc still claims a shipped feature isn't built, and the fix for that staleness sits on a branch that was never merged. `shrutz` still carries a CI config that auto-merges to master with no review gate, a fossil of a commit titled "removed PR necessity." Prefer a spec that verifies itself: a screenshot audit, an API probe, a failing test.
+
+Review before the commit, not after. Folding a fix into the commit that introduced the problem is why `slap`'s rework was only 4.3% of lines changed despite being 17.5% of commits.
+
+Treat cross-call-site invariants as first-class: one source of truth, or a documented rule plus a grep over every site. That, more than any methodology name, is what "spec-driven" should have meant all along.
