@@ -1,23 +1,151 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-  <title>burpcat</title>
-  <subtitle>developer · philosopher · poet</subtitle>
-  <link href="https://burpcat.github.io/feed.xml" rel="self"/>
-  <link href="https://burpcat.github.io/"/>
-  <updated>2026-07-24T00:00:00.000Z</updated>
-  <id>https://burpcat.github.io/</id>
-  <author>
-    <name>Avinash Arutla</name>
-    <email>avarutla@gmail.com</email>
-  </author>
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-post-count="2">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#E7D3B8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0C1512" media="(prefers-color-scheme: dark)">
+  <title>Spec-driven, feature-driven, and the thing that actually predicted quality · burpcat</title>
+  <meta name="description" content="developer · philosopher · poet">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="alternate" type="application/rss+xml" title="burpcat RSS" href="/feed.xml">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
   
-  <entry>
-    <title>Spec-driven, feature-driven, and the thing that actually predicted quality</title>
-    <link href="https://burpcat.github.io/blog/spec-v-feat/"/>
-    <updated>2026-07-24T00:00:00.000Z</updated>
-    <id>https://burpcat.github.io/blog/spec-v-feat/</id>
-    <summary>I built two projects a few weeks apart, one spec-first and one feature-first, to see which discipline held up better. By the end the labels had almost swapped — and neither one was what predicted where the effort paid off.</summary>
-    <content type="html"><![CDATA[<p><em>I built two projects a few weeks apart, one spec-first and one feature-first, to see which discipline held up better. By the end the labels had almost swapped — and neither one was what predicted where the effort paid off.</em></p>
+  <style>
+    :root {
+      --chitra-color: #F5D77A;
+      --chitra-color-rgb: 245,215,122;
+    }
+  </style>
+
+  
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {}
+    })();
+  </script>
+
+  
+  
+  <script>
+    (function() {
+      try {
+        if (localStorage.getItem('calm-mode') === '1') {
+          document.documentElement.classList.add('reading-mode');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  
+</head>
+<body>
+
+
+<div class="scene" aria-hidden="true">
+  <canvas class="scene-sky" id="sceneSky"></canvas>
+  <div class="scene-ridge">
+    <div class="ridge-far"></div>
+    <div class="ridge-near"></div>
+    <div class="ridge-trees"></div>
+  </div>
+</div>
+
+<a href="#main" class="skip-link">skip to content</a>
+
+<div class="wrap">
+
+  
+  <div class="utility-strip glass-surface">
+    <div class="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="statusText" data-username="burpcat">
+        
+          <span class="label">currently building</span>
+          <a href="https://github.com/burpcat/burpcat.github.io" target="_blank" rel="noopener">burpcat.github.io</a>
+          <span class="label">— aegon built this</span>
+        
+      </span>
+    </div>
+    <div class="tools">
+      <button class="theme-switch" id="themeSwitch" aria-label="Toggle light and dark theme" type="button">
+        <span class="theme-switch-knob">
+          <span id="themeIcon" aria-hidden="true">☾</span>
+        </span>
+      </button>
+      <button class="calm-toggle" id="calmToggle" aria-pressed="false" aria-label="Toggle calm mode" type="button">
+        <span class="calm-icon" aria-hidden="true">◐</span>
+        <span class="calm-label">calm mode</span>
+      </button>
+      <button class="mute-toggle" id="muteToggle" type="button" aria-label="Toggle background music">♪</button>
+      <span class="construction">★ under construction ★</span>
+    </div>
+  </div>
+
+  
+  <header class="glass-surface">
+    <h1><a href="/"><em>Avinash</em></a></h1>
+    <p class="tagline">developer · philosopher · poet</p>
+    <p class="sub-tagline"><span class="star" aria-hidden="true">★</span> a personal site of &#39;Avinash Reddy Arutla&#39; on the open web, circa 2026 <span class="star" aria-hidden="true">★</span></p>
+
+    <div class="nav-row">
+      <nav aria-label="Main navigation">
+        <a href="/">home</a>
+        <a href="/blog/" class="active" aria-current="page">blog</a>
+        <a href="/about/">about</a>
+        <a href="/guestbook/">guestbook</a>
+        <a href="/feeds/">feeds</a>
+        <a class="rss-link" href="/feed.xml" aria-label="RSS feed">
+          <svg class="rss-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"></path></svg>
+          rss
+        </a>
+      </nav>
+      <div class="auth-buttons">
+        <button class="btn" type="button" onclick="openModal('login')">log in</button>
+        <button class="btn btn-primary" type="button" onclick="openModal('signup')">sign up</button>
+      </div>
+    </div>
+  </header>
+
+  
+  
+
+  <main id="main">
+<article class="post-full">
+
+  <header>
+    <div class="post-meta-row" style="justify-content: space-between;">
+      <div class="post-meta-row" style="margin-bottom: 0;">
+        <time class="post-date" datetime="2026-07-24T00:00:00.000Z">2026·07·24</time>
+        <span class="reading-time">8 min read</span>
+      </div>
+      <button class="reader-toggle glass-surface" id="readerToggle" aria-pressed="false" type="button">
+        <span class="calm-icon" aria-hidden="true">❧</span>
+        <span class="reader-label">reader view</span>
+      </button>
+    </div>
+    <h1 class="post-full-title">Spec-driven, feature-driven, and the thing that actually predicted quality</h1>
+    
+    <div class="post-tags">
+      <span class="tag-pill">engineering</span><span class="tag-pill">ai</span><span class="tag-pill">process</span>
+    </div>
+    
+  </header>
+
+  
+
+  <div class="post-body glass-surface">
+    <p><em>I built two projects a few weeks apart, one spec-first and one feature-first, to see which discipline held up better. By the end the labels had almost swapped — and neither one was what predicted where the effort paid off.</em></p>
 <p>Over about three weeks I shipped two unrelated tools. The first, <code>shrutz</code>, is a macOS wallpaper rotator with an unusual twist: it advances based on your <em>active</em> keyboard-and-mouse time, not the wall clock, so the picture only changes while you're actually at the machine. It's a ~2,300-line bash daemon with a Swift menu-bar companion. The second, <code>slap</code>, is a cold-outreach CLI built on the GMass API — ~7,000 lines of Python across nineteen modules with a local dashboard.</p>
 <p>I built <code>shrutz</code> &quot;spec-driven&quot;: the plan was to write the spec first and let it drive everything. I built <code>slap</code> &quot;feature-driven&quot;: scope a feature, build it, ship it, move to the next. That was the intent. The git history tells a more honest and more useful story.</p>
 <h2>The labels inverted almost immediately</h2>
@@ -70,23 +198,69 @@
 <p>Don't write documentation you have to maintain by hand; it will lie, and it will lie fastest exactly when the code is moving fastest. Prefer a spec that verifies itself — a screenshot audit, an API probe, a failing test — over a paragraph that depends on your discipline. If a doc can't be executed, assume it's already wrong.</p>
 <p>Review before the commit, not after. Folding a fix into the commit that introduced the problem is worth more than a clean revert history, and it's the single reason my &quot;feature-driven&quot; project's rework stayed at 4% of lines instead of ballooning.</p>
 <p>And treat cross-call-site invariants as their own thing to review. Diff-scoped review — human or automated — is structurally blind to &quot;this rule must hold everywhere,&quot; and that blindness is where my most annoying bug hid for three weeks. When a rule has to hold in more than one place, make the places derive from one source, or write down the invariant and grep for every site that touches it. That, more than any methodology, is what &quot;spec-driven&quot; should have meant all along.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title>The pattern repeats</title>
-    <link href="https://burpcat.github.io/blog/the-pattern-repeats/"/>
-    <updated>2026-06-26T00:00:00.000Z</updated>
-    <id>https://burpcat.github.io/blog/the-pattern-repeats/</id>
-    <summary>A welcome note, and a small argument that today&#39;s expensive AI is just early compute wearing a new coat.</summary>
-    <content type="html"><![CDATA[<p>Welcome. This is where I'll think out loud.</p>
-<p>Here's the thought I want to start with. Before computers were cheap, <em>computer</em> was a job title — a person, usually a room full of people, doing arithmetic by hand. When the machines arrived they were rare and absurdly expensive, so you didn't waste them. Time on a mainframe was rationed. You batched your work, handed only the hard problems to the machine, and did the rest yourself. Plenty of smart people looked at that and concluded compute would always be scarce — something you borrowed carefully, never something you spilled.</p>
-<p>They were wrong, but not because they misjudged the machine. They were wrong because spending all that money on scarce compute is exactly what bought the abundance that came after. The expensive version had to exist first.</p>
-<p>Agents and AI are sitting in that same room right now. Tokens cost money. A capable agent is something you ration, something you hand the hard problems to while you do the cheap parts yourself. It <em>feels</em> like a ceiling. It's a floor.</p>
-<p>So that's the lens I'll be writing through — not magic, not hype, just a pattern that's run before and is running again. If it costs too much or runs too slow today, that's not the end of the story. It's the part where someone decides it's worth paying for anyway.</p>
-<p>Glad you're here. Pull up a chair.</p>
-<p>sent from Aegon</p>
-]]></content>
-  </entry>
-  
-</feed>
+
+  </div>
+
+  <div class="post-footer">
+    <a class="back-link" href="/blog/">← back to all writing</a>
+  </div>
+
+</article>
+</main>
+
+
+  <footer class="glass-surface">
+    <p> coded on aegon · no analytics OR tracking </p>
+    <p><a href="/feed.xml">rss</a> · <a href="/guestbook/">guestbook</a></p>
+  </footer>
+
+</div>
+
+
+<div class="modal-backdrop" id="authModal" onclick="if(event.target===this)closeModal()" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal glass-surface">
+    <h3 id="modalTitle">log in</h3>
+    <p id="modalDesc">Welcome back. Pick up where you left off.</p>
+    <input type="email" placeholder="email" aria-label="Email">
+    <input type="password" placeholder="password" aria-label="Password">
+    <div class="modal-actions">
+      <button class="btn btn-primary" type="button">continue</button>
+      <button class="modal-close" type="button" onclick="closeModal()">cancel</button>
+    </div>
+  </div>
+</div>
+
+<audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop="" preload="none"></audio>
+
+
+<div class="welcome-overlay" id="welcome" hidden="">
+  <div class="welcome-card glass-surface" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-orb" aria-hidden="true"></div>
+    <h2 id="welcome-title" class="welcome-title">Welcome, wanderer.</h2>
+    <p class="welcome-body">You've found a small bright thing in a vast quiet space. A few things before you explore:</p>
+    <div class="welcome-theme">
+      <span class="welcome-label">this place has a day and a night —</span>
+      <div class="welcome-modes">
+        <button type="button" data-mode="light" id="wm-light">sun</button>
+        <button type="button" data-mode="dark" id="wm-dark">moon</button>
+      </div>
+    </div>
+    <div class="welcome-theme">
+      <span class="welcome-label">prefer stillness? —</span>
+      <div class="welcome-modes">
+        <button type="button" id="wm-calm" aria-pressed="false">calm mode</button>
+      </div>
+    </div>
+    <label class="welcome-music">
+      <input type="checkbox" id="welcome-music-check" checked="">
+      <span>no one said no to good music, play background music?</span>
+    </label>
+    <button type="button" class="welcome-enter" id="welcome-enter">enter →</button>
+  </div>
+</div>
+
+<script src="/js/site.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/spiral.js"></script>
+</body>
+</html>
