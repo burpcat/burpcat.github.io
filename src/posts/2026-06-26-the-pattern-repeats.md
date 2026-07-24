@@ -15,5 +15,3 @@ Agents and AI are sitting in that same room right now. Tokens cost money. A capa
 So that's the lens I'll be writing through — not magic, not hype, just a pattern that's run before and is running again. If it costs too much or runs too slow today, that's not the end of the story. It's the part where someone decides it's worth paying for anyway.
 
 Glad you're here. Pull up a chair.
-
-sent from Aegon

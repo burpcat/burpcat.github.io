@@ -371,12 +371,10 @@ body.calm-mode .glass-surface::after { display: none; }
   border-color: var(--text);
 }
 
-/* calm icon — shared by the header calm-toggle and the blog's reader-toggle
-   (same underlying switch, see site.js); "on" tuned for contrast against
-   each button's own pressed-state fill above. */
+/* calm icon — the header calm-toggle's icon; "on" tuned for contrast
+   against the toggle's own pressed-state fill above. */
 .calm-icon { color: var(--calm-off); transition: color 0.2s; }
-.calm-toggle[aria-pressed="true"] .calm-icon,
-.reader-toggle[aria-pressed="true"] .calm-icon { color: var(--calm-on); }
+.calm-toggle[aria-pressed="true"] .calm-icon { color: var(--calm-on); }
 
 /* ── mute (calm-mode audio) ── */
 .mute-toggle {
@@ -396,28 +394,6 @@ body.calm-mode .glass-surface::after { display: none; }
 }
 .mute-toggle:hover, .mute-toggle:focus { border-color: var(--text); outline: none; }
 .mute-toggle[aria-pressed="true"] { color: var(--muted); }
-
-/* ── reader view (blog + post pages only) ──
-   .glass-surface (in the markup) supplies the resting-state background/
-   border/backdrop-filter/grain, so this button reads clearly against the
-   moving canvas instead of floating transparently on top of it. */
-.reader-toggle {
-  padding: 7px 12px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  color: var(--body);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: var(--tap-min);
-  transition: all 0.15s;
-}
-.reader-toggle:hover, .reader-toggle:focus { border-color: var(--text); outline: none; }
-/* .reader-toggle.glass-surface (not just .reader-toggle) so this beats the
-   later, equal-specificity html.reading-mode .glass-surface reset below */
-html.reading-mode .reader-toggle.glass-surface { background: var(--text); color: var(--bg); border-color: var(--text); }
 
 /* ── construction sticker ── */
 .construction {
@@ -569,10 +545,10 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 }
 
 /* ───────────────────────────────────────
-   READER MODE — blog + post pages only. Derived from calm mode (see
-   body.calm-mode above, which already de-frosts glass site-wide) plus
-   being in the blog section — this block only layers on the extra,
-   blog-exclusive "immersive reading" atmosphere on top of that.
+   READER MODE — blog + post pages only. Permanent for the blog section
+   (html.reading-mode is baked in at build time, see base.njk) — this is
+   just how the blog looks, not a toggled state. Calm mode (see
+   body.calm-mode above) remains its own separate, site-wide switch.
    ─────────────────────────────────────── */
 /* v9: the scene stays visible but drifts into a soft, blurred amber wash —
    light through thick frosted glass — instead of disappearing outright. */
@@ -914,7 +890,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   min-height: var(--tap-min);
 }
 .welcome-modes button[aria-pressed="true"] { color: var(--warm-accent); border-color: var(--warm-accent); }
-/* the calm button gets its own color (matching the header/reader-toggle
+/* the calm button gets its own color (matching the header calm-toggle
    icon) rather than --warm-accent, to read as a distinct concept from the
    day/night choice above it */
 #wm-calm[aria-pressed="true"] { color: var(--calm-on); border-color: var(--calm-on); }
@@ -1071,6 +1047,8 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 }
 .post-cover { margin: 0 0 30px; }
 .post-cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+
+.post-signature { margin-top: 2.4em; color: var(--muted); font-size: 14px; font-style: italic; }
 
 .post-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
 .tag-pill {
