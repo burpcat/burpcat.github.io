@@ -1094,6 +1094,11 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   .utility-strip { flex-direction: column; align-items: stretch; gap: 10px; row-gap: 10px; }
   .utility-strip .status { flex: 1 1 100%; }
   .utility-strip .tools { justify-content: flex-start; flex-wrap: wrap; }
+  /* visually (not in DOM/tab order) put the badge back at the end here —
+     .tools is a fixed-width, flex-start-packed row at this breakpoint, so
+     hiding a *trailing* item never reflows the buttons before it (unlike
+     the shrink-wrapped desktop layout above, where it has to lead instead) */
+  .utility-strip .tools .construction { order: 1; }
   .construction { font-size: 8px; padding: 5px 8px; }
   .post-title { font-size: 22px; }
   .exp-role { font-size: 20px; }
