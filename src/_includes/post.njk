@@ -23,6 +23,8 @@ layout: base.njk
   </figure>
   {% endif %}
 
+  {{ content | toc | safe }}
+
   <div class="post-body glass-surface">
     {{ content | safe }}
     <p class="post-signature">sent from Aegon</p>

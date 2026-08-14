@@ -17,6 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  {# KaTeX stylesheet — only on blog pages, the only place math renders #}
+  {% if "/blog/" in page.url %}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">{% endif %}
   {# Chitra's weather color, baked in at build time (see scripts/fetch-weather.js) #}
   <style>
     :root {

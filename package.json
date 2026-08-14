@@ -20,5 +20,15 @@
   },
   "overrides": {
     "sharp": "^0.35.3"
+  },
+  "dependencies": {
+    "katex": "^0.18.4",
+    "markdown-it-anchor": "^9.2.1",
+    "markdown-it-container": "^4.0.0",
+    "markdown-it-deflist": "^4.0.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-katex": "^2.0.3",
+    "markdown-it-task-lists": "^2.1.1",
+    "markdown-it-toc-done-right": "^4.2.0"
   }
 }
