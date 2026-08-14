@@ -160,6 +160,13 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addFilter("slug", slugify);
 
+  // Posts carrying a given tag (newest first). Drives /tags/<tag>/ pages —
+  // explicit rather than Eleventy's auto per-tag collections so the blanket
+  // "posts" tag never leaks in.
+  eleventyConfig.addFilter("selectByTag", (posts, tag) =>
+    (posts || []).filter((p) => (p.data.tags || []).includes(tag))
+  );
+
   // posts.json applies a blanket tags:["posts"] default that Eleventy merges
   // (not replaces) with a post's own front-matter tags — strip it back out
   // wherever tags are actually displayed to a reader.
@@ -191,13 +198,15 @@ module.exports = function (eleventyConfig) {
     return html;
   });
 
-  // Posts sharing at least one tag with the given post, most-overlap first,
-  // excluding the post itself. Used for the "related reading" block.
-  eleventyConfig.addFilter("relatedPosts", function (posts, current, n = 3) {
-    const curTags = new Set((current.data.tags || []).filter((t) => t !== "posts"));
+  // Posts sharing at least one tag with the current post, most-overlap first,
+  // excluding the post itself. Used for the "related reading" block. Takes the
+  // current post's raw tag list and url (the template `page` object has no
+  // `.data`, so tags are passed in explicitly).
+  eleventyConfig.addFilter("relatedPosts", function (posts, curTagsRaw, curUrl, n = 3) {
+    const curTags = new Set((curTagsRaw || []).filter((t) => t !== "posts"));
     if (!curTags.size) return [];
     return posts
-      .filter((p) => p.url !== current.url)
+      .filter((p) => p.url !== curUrl)
       .map((p) => ({
         post: p,
         score: (p.data.tags || []).filter((t) => curTags.has(t)).length,

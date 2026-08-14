@@ -17,7 +17,7 @@ layout: base.njk
 }
 </script>
 <main id="main">
-<article class="post-full">
+<article class="post-full" data-pagefind-body>
 
   <header>
     <div class="post-meta-row">
@@ -44,6 +44,32 @@ layout: base.njk
     {{ content | safe }}
     <p class="post-signature">sent from Aegon</p>
   </div>
+
+  {%- if series and collections.seriesMap[series] -%}
+  {%- set parts = collections.seriesMap[series] -%}
+  <nav class="series-nav" aria-label="Series navigation">
+    <p class="series-nav-label">Part of the series <strong>{{ series }}</strong></p>
+    <ol>
+      {%- for part in parts %}
+      <li{% if part.url == page.url %} class="series-current" aria-current="page"{% endif %}>
+        {% if part.url == page.url %}{{ part.data.title }}{% else %}<a href="{{ part.url }}">{{ part.data.title }}</a>{% endif %}
+      </li>
+      {%- endfor %}
+    </ol>
+  </nav>
+  {%- endif -%}
+
+  {%- set related = collections.posts | relatedPosts(tags, page.url, 3) -%}
+  {%- if related.length -%}
+  <section class="related-posts" aria-label="Related posts">
+    <p class="related-label">Related reading</p>
+    <ul>
+      {%- for post in related %}
+      <li><a href="{{ post.url }}">{{ post.data.title }}</a> <span class="related-date">{{ post.date | dotDate }}</span></li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endif -%}
 
   <div class="post-footer">
     <a class="back-link" href="/blog/">← back to all writing</a>

@@ -1277,6 +1277,66 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 }
 
 /* ───────────────────────────────────────
+   NAVIGATION — search, pagination, tags, series, related, thumbnails
+   ─────────────────────────────────────── */
+.post-search { margin: 0 0 28px; }
+.post-thumb { display: block; margin: -4px 0 14px; }
+.post-thumb img {
+  width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+  border-radius: 8px; border: 1px solid var(--border);
+}
+.series-badge {
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--border);
+  border-radius: 999px; padding: 1px 8px;
+}
+a.tag-pill { text-decoration: none; transition: background 0.15s ease; }
+a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
+
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; margin: 32px 0 8px; font-size: 14px;
+}
+.pagination a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.pagination a:hover { text-decoration: underline; }
+.pagination .page-count { color: var(--muted); font-size: 13px; }
+.browse-tags { margin-top: 24px; font-size: 14px; }
+.browse-tags a { color: var(--accent); text-decoration: none; }
+.browse-tags a:hover { text-decoration: underline; }
+
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 20px; }
+.tag-cloud-item { font-size: 14px; padding: 5px 12px; }
+.tag-count { color: var(--muted); font-size: 12px; }
+
+.series-nav {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 20px; margin: 40px 0 0; background: rgba(45, 84, 72, 0.03);
+}
+.series-nav-label { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.series-nav ol { margin: 0; padding-left: 20px; font-size: 14px; }
+.series-nav li { margin: 4px 0; }
+.series-nav a { color: var(--accent); text-decoration: none; }
+.series-nav a:hover { text-decoration: underline; }
+.series-nav .series-current { font-weight: 600; }
+
+.related-posts { margin: 40px 0 0; }
+.related-label {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 10px;
+}
+.related-posts ul { list-style: none; padding: 0; margin: 0; }
+.related-posts li {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 8px 0; border-top: 1px solid var(--border); font-size: 15px;
+}
+.related-posts a { color: var(--accent); text-decoration: none; }
+.related-posts a:hover { text-decoration: underline; }
+.related-date { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+/* Pagefind UI — nudge its accent to the site palette */
+:root { --pagefind-ui-primary: var(--accent); --pagefind-ui-font: inherit; }
+
+/* ───────────────────────────────────────
    RESPONSIVE
    ─────────────────────────────────────── */
 @media (max-width: 860px) {
