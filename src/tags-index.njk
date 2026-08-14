@@ -1,0 +1,18 @@
+---
+layout: base.njk
+title: tags
+permalink: /tags/
+---
+
+<main id="main">
+<section style="max-width: 65ch;">
+  <p class="section-label">— ALL TAGS</p>
+  <div class="tag-cloud">
+    {% for tag in collections.tagList %}
+    {% set count = (collections.posts | selectByTag(tag)).length %}
+    <a class="tag-pill tag-cloud-item" href="/tags/{{ tag | slug }}/">{{ tag }} <span class="tag-count">{{ count }}</span></a>
+    {% endfor %}
+  </div>
+  <p class="browse-tags"><a href="/blog/">← all writing</a></p>
+</section>
+</main>

@@ -1,0 +1,31 @@
+---
+layout: base.njk
+pagination:
+  data: collections.tagList
+  size: 1
+  alias: tag
+permalink: "/tags/{{ tag | slug }}/"
+eleventyComputed:
+  title: "Tag: {{ tag }}"
+---
+
+<main id="main">
+<section style="max-width: 65ch;">
+  <p class="section-label">— TAGGED “{{ tag }}”</p>
+
+  {% set taggedPosts = collections.posts | selectByTag(tag) %}
+  {% for post in taggedPosts %}
+  <article class="post-item glass-surface">
+    <div class="post-meta-row">
+      <time class="post-date" datetime="{{ post.date | isoDate }}">{{ post.date | dotDate }}</time>
+      <span class="reading-time">{{ post.templateContent | readingTime }}</span>
+    </div>
+    <h2 class="post-title"><a href="{{ post.url }}">{{ post.data.title | safe }}</a></h2>
+    {% if post.data.excerpt %}<p class="post-excerpt">{{ post.data.excerpt }}</p>{% endif %}
+    <a class="read-link" href="{{ post.url }}">read →</a>
+  </article>
+  {% endfor %}
+
+  <p class="browse-tags"><a href="/tags/">← all tags</a></p>
+</section>
+</main>
