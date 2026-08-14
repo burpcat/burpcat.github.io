@@ -6,7 +6,25 @@
   <meta name="theme-color" content="#E7D3B8" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0C1512" media="(prefers-color-scheme: dark)">
   <title>What drives quality agentic code? · burpcat</title>
-  <meta name="description" content="developer · philosopher · poet">
+  <meta name="description" content="I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.">
+
+  <link rel="canonical" href="https://burpcat.github.io/blog/spec-v-feat/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="burpcat">
+  <meta property="og:title" content="What drives quality agentic code?">
+  <meta property="og:description" content="I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.">
+  <meta property="og:url" content="https://burpcat.github.io/blog/spec-v-feat/">
+  <meta property="og:image" content="https://burpcat.github.io/og/spec-v-feat.png">
+  <meta property="article:published_time" content="2026-07-24T00:00:00.000Z">
+  <meta property="article:author" content="Avinash Arutla">
+  <meta property="article:tag" content="engineering">
+  <meta property="article:tag" content="ai">
+  <meta property="article:tag" content="process">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What drives quality agentic code?">
+  <meta name="twitter:description" content="I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.">
+  <meta name="twitter:image" content="https://burpcat.github.io/og/spec-v-feat.png">
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -17,6 +35,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   
   <style>
     :root {
@@ -59,8 +79,8 @@
       <span id="statusText" data-username="burpcat">
         
           <span class="label">currently building</span>
-          <a href="https://github.com/burpcat/slap" target="_blank" rel="noopener">slap</a>
-          <span class="label">— mingite job ravali</span>
+          <a href="https://github.com/burpcat/burpcat.github.io" target="_blank" rel="noopener">burpcat.github.io</a>
+          <span class="label">— aegon built this</span>
         
       </span>
     </div>
@@ -107,13 +127,30 @@
   
   
 
-  <main id="main">
-<article class="post-full">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What drives quality agentic code?",
+  "description": "I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.",
+  "datePublished": "2026-07-24T00:00:00.000Z",
+  "dateModified": "2026-07-24T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Avinash Arutla" },
+  "publisher": { "@type": "Person", "name": "Avinash Arutla" },
+  "url": "https://burpcat.github.io/blog/spec-v-feat/",
+  "mainEntityOfPage": "https://burpcat.github.io/blog/spec-v-feat/"
+}
+</script>
+<main id="main">
+<article class="post-full" data-pagefind-body="">
 
   <header>
     <div class="post-meta-row">
       <time class="post-date" datetime="2026-07-24T00:00:00.000Z">2026·07·24</time>
       <span class="reading-time">7 min read</span>
+      <button class="bookmark-btn" type="button" data-bookmark="" data-url="/blog/spec-v-feat/" data-title="What drives quality agentic code?" aria-pressed="false" aria-label="Save this post">
+        <span class="bm-icon" aria-hidden="true">☆</span><span class="bm-label">save</span>
+      </button>
     </div>
     <h1 class="post-full-title">What drives quality agentic code?</h1>
     
@@ -125,10 +162,12 @@
 
   
 
+  <nav class="post-toc" aria-label="Table of contents"><p class="post-toc-label">On this page</p><ul><li class="toc-h2"><a href="#the-labels-inverted">The labels inverted</a></li><li class="toc-h2"><a href="#rigor-concentrated-on-the-unverifiable-surfaces">Rigor concentrated on the unverifiable surfaces</a></li><li class="toc-h2"><a href="#where-it-broke-invariants-across-call-sites">Where it broke: invariants across call sites</a></li><li class="toc-h2"><a href="#where-it-broke-atomicity">Where it broke: atomicity</a></li><li class="toc-h2"><a href="#where-it-broke-the-platform-underneath">Where it broke: the platform underneath</a></li><li class="toc-h2"><a href="#the-verifiable-side-is-only-as-good-as-its-adversary">The verifiable side is only as good as its adversary</a></li><li class="toc-h2"><a href="#what-i’m-keeping">What I’m keeping</a></li></ul></nav>
+
   <div class="post-body glass-surface">
     <p><em>I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.</em></p>
 <p><code>shrutz</code> is a macOS wallpaper rotator that advances on active input time instead of the wall clock: about 2,300 lines of bash daemon plus a Swift menu-bar app. <code>slap</code> is a cold-outreach CLI over the GMass API: about 7,165 lines of Python across 19 modules, 796 test functions, a local dashboard. I built the first spec-driven and the second feature-driven. That was the plan.</p>
-<h2>The labels inverted</h2>
+<h2 id="the-labels-inverted" tabindex="-1">The labels inverted <a class="header-anchor" href="#the-labels-inverted" aria-hidden="true">#</a></h2>
 <p><code>slap</code>, the feature-driven one, opened against a 468-line numbered build brief (sections 0 to 14, ending in a literal Build Order) with a read-only review pass gating every commit from hour one. <code>shrutz</code>, the spec-driven one, spent two weeks as direct-to-master commits titled things like <code>FULL POWER</code>; its only spec-like document was written <em>after</em> the engine, weather, gallery, and JSON API had already shipped.</p>
 <pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">gantt</span>
     dateFormat YYYY-MM-DD
@@ -146,8 +185,8 @@
     B <span class="token arrow operator">--></span><span class="token label property">|No|</span> D<span class="token text string">[Build the verification harness FIRST:&lt;br/>screenshot audit, API probe, fault injection]</span>
     D <span class="token arrow operator">--></span> E<span class="token text string">[Then build the feature against it]</span></code></pre>
 <p>Both projects, independently, aimed their heaviest upfront rigor at the surfaces where the answer was <em>no</em>.</p>
-<h2>Rigor concentrated on the unverifiable surfaces</h2>
-<p>In <code>shrutz</code> that surface was the rendered UI. The repo's only real spec-conformance loop drove the menu-bar app's visual design: approved mockups, a live screenshot captured from the window server, then a written audit diffing pixel dimensions and source constants against the reference. It caught a class of bug tests structurally cannot. Version 2.5 shipped a redesign that still rendered as a flat, dusty taupe. Two compounding color-math bugs: the wallpaper sampler averaged raw RGB per region (which collapses toward grey when saturated and desaturated pixels mix), and five ambient blobs composited with ordinary alpha blending under <code>.ultraThinMaterial</code> (which regresses further toward grey on overlap). The fix was saturation-weighted HSB extraction with <em>circular</em> hue averaging:</p>
+<h2 id="rigor-concentrated-on-the-unverifiable-surfaces" tabindex="-1">Rigor concentrated on the unverifiable surfaces <a class="header-anchor" href="#rigor-concentrated-on-the-unverifiable-surfaces" aria-hidden="true">#</a></h2>
+<p>In <code>shrutz</code> that surface was the rendered UI. The repo’s only real spec-conformance loop drove the menu-bar app’s visual design: approved mockups, a live screenshot captured from the window server, then a written audit diffing pixel dimensions and source constants against the reference. It caught a class of bug tests structurally cannot. Version 2.5 shipped a redesign that still rendered as a flat, dusty taupe. Two compounding color-math bugs: the wallpaper sampler averaged raw RGB per region (which collapses toward grey when saturated and desaturated pixels mix), and five ambient blobs composited with ordinary alpha blending under <code>.ultraThinMaterial</code> (which regresses further toward grey on overlap). The fix was saturation-weighted HSB extraction with <em>circular</em> hue averaging:</p>
 <pre class="language-swift"><code class="language-swift"><span class="token comment">// simplified: circular mean hue, so reds near 0°/360° don't average to cyan</span>
 <span class="token keyword">func</span> <span class="token function-definition function">meanHue</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> hues<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Double</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token class-name">Double</span> <span class="token punctuation">{</span>
     <span class="token keyword">let</span> x <span class="token operator">=</span> hues<span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token function">cos</span><span class="token punctuation">(</span><span class="token short-argument">$0</span> <span class="token operator">*</span> <span class="token punctuation">.</span>pi <span class="token operator">/</span> <span class="token number">180</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">+</span><span class="token punctuation">)</span>
@@ -155,25 +194,25 @@
     <span class="token keyword">return</span> <span class="token function">atan2</span><span class="token punctuation">(</span>y<span class="token punctuation">,</span> x<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">180</span> <span class="token operator">/</span> <span class="token punctuation">.</span>pi   <span class="token comment">// naive (350 + 10) / 2 = 180° (cyan); this gives ~0° (red)</span>
 <span class="token punctuation">}</span>
 <span class="token comment">// plus compositing: .compositingGroup().blendMode(.plusLighter) then .saturation(1.3)</span></code></pre>
-<p>In <code>slap</code> the unverifiable surface was a third party's live behavior. Before any dependent code existed, probe scripts hit the real GMass API and found the docs wrong three ways:</p>
+<p>In <code>slap</code> the unverifiable surface was a third party’s live behavior. Before any dependent code existed, probe scripts hit the real GMass API and found the docs wrong three ways:</p>
 <pre class="language-text"><code class="language-text"># probes/, run 2026-07-02, pinned in CONTROL_SHEET.md
 stop-on-reply : per-stage (stageOneAction..stageEightAction), NOT one global flag
 send endpoint : POST /api/campaigns/{campaignDraftId}   # ID in path; body-field form -> HTTP 400
 attachments   : JSON {fileName, contentType, base64Content} only  # multipart -> HTTP 415</code></pre>
 <p>The same sheet records what can <em>never</em> be verified: stop-on-reply is write-only, no read-back, so a 200 on send is the strongest signal obtainable. Naming that limit explicitly is the spec doing its actual job.</p>
-<p>Everywhere the result <em>was</em> testable, both codebases grew by accretion. <code>slap</code>'s core files show churn ratios near 1.0 (nearly every line ever written is still present) and zero reverts in the entire history.</p>
-<h2>Where it broke: invariants across call sites</h2>
+<p>Everywhere the result <em>was</em> testable, both codebases grew by accretion. <code>slap</code>’s core files show churn ratios near 1.0 (nearly every line ever written is still present) and zero reverts in the entire history.</p>
+<h2 id="where-it-broke-invariants-across-call-sites" tabindex="-1">Where it broke: invariants across call sites <a class="header-anchor" href="#where-it-broke-invariants-across-call-sites" aria-hidden="true">#</a></h2>
 <p>GMass rewrites <code>&lt;a href&gt;</code> targets for click tracking. A plain-text body has no anchor to rewrite, so <code>clickTracking: true</code> is inert. I fixed it once in the draft path by converting to minimal HTML. Three weeks later the identical root cause resurfaced in the follow-up-message path, a different function carrying the same invariant that never got the conversion.</p>
-<p><code>shrutz</code> hit the same shape as a naming drift: the installer created the set at <code>wallpapers/hassan/</code> but seeded state with <code>ACTIVE_SET=default</code>, so the daemon searched a directory that never existed, and <code>launchd</code>'s <code>KeepAlive</code> turned that into a crash loop on every fresh install. The fix removes the ability to drift by deriving both from one source:</p>
+<p><code>shrutz</code> hit the same shape as a naming drift: the installer created the set at <code>wallpapers/hassan/</code> but seeded state with <code>ACTIVE_SET=default</code>, so the daemon searched a directory that never existed, and <code>launchd</code>’s <code>KeepAlive</code> turned that into a crash loop on every fresh install. The fix removes the ability to drift by deriving both from one source:</p>
 <pre class="language-diff"><code class="language-diff"><span class="token unchanged"><span class="token prefix unchanged"> </span>WALLS_DEFAULT="$LIB/wallpapers/hassan"
 </span><span class="token inserted-sign inserted"><span class="token prefix inserted">+</span>ACTIVE_SET_DEFAULT="$(basename "$WALLS_DEFAULT")"   # state's ACTIVE_SET can't diverge from the dir we create
 </span><span class="token unchanged"><span class="token prefix unchanged"> </span>...
 </span><span class="token deleted-sign deleted"><span class="token prefix deleted">-</span>    printf 'CURRENT_INDEX=0\nACTIVE_SECONDS=0\nACTIVE_SET=default\n'      > "$LIB/state"
 </span><span class="token inserted-sign inserted"><span class="token prefix inserted">+</span>    printf 'CURRENT_INDEX=0\nACTIVE_SECONDS=0\nACTIVE_SET=%s\n' "$ACTIVE_SET_DEFAULT" > "$LIB/state"
 </span></code></pre>
-<p>Diff-scoped review, human or automated, is blind to a rule that must hold across call sites: the defect isn't <em>in</em> the diff. The durable fix is structural. One source of truth, or a written invariant with a grep over every site that touches it.</p>
-<h2>Where it broke: atomicity</h2>
-<p><code>slap</code> needed a new value in a SQLite <code>CHECK</code> constraint, which means rebuilding the table. The first attempt used <code>executescript()</code>, which force-commits any pending transaction before it runs, <em>including the <code>BEGIN</code> the same function just opened</em>. A crash between the rename and the drop would permanently strand the append-only event log, the app's single source of truth.</p>
+<p>Diff-scoped review, human or automated, is blind to a rule that must hold across call sites: the defect isn’t <em>in</em> the diff. The durable fix is structural. One source of truth, or a written invariant with a grep over every site that touches it.</p>
+<h2 id="where-it-broke-atomicity" tabindex="-1">Where it broke: atomicity <a class="header-anchor" href="#where-it-broke-atomicity" aria-hidden="true">#</a></h2>
+<p><code>slap</code> needed a new value in a SQLite <code>CHECK</code> constraint, which means rebuilding the table. The first attempt used <code>executescript()</code>, which force-commits any pending transaction before it runs, <em>including the <code>BEGIN</code> the same function just opened</em>. A crash between the rename and the drop would permanently strand the append-only event log, the app’s single source of truth.</p>
 <pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">_migrate_events_check_constraint</span><span class="token punctuation">(</span>conn<span class="token punctuation">:</span> sqlite3<span class="token punctuation">.</span>Connection<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token boolean">None</span><span class="token punctuation">:</span>
     row <span class="token operator">=</span> conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>
         <span class="token string">"SELECT sql FROM sqlite_master WHERE type='table' AND name='events'"</span>
@@ -205,8 +244,8 @@ attachments   : JSON {fileName, contentType, base64Content} only  # multipart ->
     <span class="token comment"># ...seed the old schema, run the migration, expect the raise...</span>
     <span class="token comment"># assert the live `events` table is intact and still unmigrated</span></code></pre>
 <p>That is a correctness <em>guarantee</em>, not a happy-path check, and it exists only because the migration was reviewed before it shipped, not after it corrupted something.</p>
-<h2>Where it broke: the platform underneath</h2>
-<p><code>shrutz</code>'s daemon blocked on a foreground <code>sleep</code>. Bash defers trap handling until the foreground command returns, so <code>next</code>, <code>pause</code>, and <code>resume</code> could take up to <code>CHECK_EVERY</code> seconds (30 by default) to apply. Backgrounding the sleep and <code>wait</code>-ing on it lets a signal interrupt immediately:</p>
+<h2 id="where-it-broke-the-platform-underneath" tabindex="-1">Where it broke: the platform underneath <a class="header-anchor" href="#where-it-broke-the-platform-underneath" aria-hidden="true">#</a></h2>
+<p><code>shrutz</code>’s daemon blocked on a foreground <code>sleep</code>. Bash defers trap handling until the foreground command returns, so <code>next</code>, <code>pause</code>, and <code>resume</code> could take up to <code>CHECK_EVERY</code> seconds (30 by default) to apply. Backgrounding the sleep and <code>wait</code>-ing on it lets a signal interrupt immediately:</p>
 <pre class="language-bash"><code class="language-bash"><span class="token comment"># before: SIGUSR1 is queued until sleep returns (up to CHECK_EVERY seconds later)</span>
 <span class="token keyword">while</span> <span class="token builtin class-name">:</span><span class="token punctuation">;</span> <span class="token keyword">do</span> tick<span class="token punctuation">;</span> <span class="token function">sleep</span> <span class="token string">"<span class="token variable">$CHECK_EVERY</span>"</span><span class="token punctuation">;</span> <span class="token keyword">done</span>
 
@@ -218,8 +257,8 @@ attachments   : JSON {fileName, contentType, base64Content} only  # multipart ->
     <span class="token function">wait</span> <span class="token string">"<span class="token variable">$!</span>"</span>
 <span class="token keyword">done</span></code></pre>
 <p>And one fix spawned the next: a Redis lock added around dashboard GMass polling left the old direct-poll path live for the case where Redis was <em>unreachable</em>, so a Redis outage with concurrent dashboard loads could fire multiple uncoordinated GMass sweeps, discovered three days later. Iteration fixes the failure in front of you and leaves the adjacent one running.</p>
-<h2>The verifiable side is only as good as its adversary</h2>
-<p>On surfaces you <em>can</em> test, both projects earned trust by testing adversarially rather than happily. <code>shrutz</code>'s gallery installer is proven against a real zip-slip payload:</p>
+<h2 id="the-verifiable-side-is-only-as-good-as-its-adversary" tabindex="-1">The verifiable side is only as good as its adversary <a class="header-anchor" href="#the-verifiable-side-is-only-as-good-as-its-adversary" aria-hidden="true">#</a></h2>
+<p>On surfaces you <em>can</em> test, both projects earned trust by testing adversarially rather than happily. <code>shrutz</code>’s gallery installer is proven against a real zip-slip payload:</p>
 <pre class="language-python"><code class="language-python"><span class="token comment"># guard, shrutz:1938: resolve every member and reject anything escaping the set dir</span>
 dest_real <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>realpath<span class="token punctuation">(</span>dest_dir<span class="token punctuation">)</span>
 target    <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>realpath<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>dest_real<span class="token punctuation">,</span> rel<span class="token punctuation">)</span><span class="token punctuation">)</span>
@@ -239,16 +278,18 @@ target    <span class="token operator">=</span> os<span class="token punctuation
     A <span class="token arrow operator">--></span> AC<span class="token text string">{stale?}</span>
     AC <span class="token arrow operator">--></span><span class="token label property">|yes|</span> AF<span class="token text string">[Fix just this Space, instantly]</span>
     AC <span class="token arrow operator">--></span><span class="token label property">|no|</span> AN<span class="token text string">[Do nothing]</span></code></pre>
-<h2>What I'm keeping</h2>
-<p>Spend spec effort only where the result resists a normal test: rendered pixels, a third party's live API, hardware behavior. Build the check <em>before</em> the feature. Everywhere else, tests plus review beat more prose.</p>
-<p>Don't hand-maintain docs; they go stale fastest exactly when the code moves fastest. <code>slap</code>'s context doc still claims a shipped feature isn't built, and the fix for that staleness sits on a branch that was never merged. <code>shrutz</code> still carries a CI config that auto-merges to master with no review gate, a fossil of a commit titled &quot;removed PR necessity.&quot; Prefer a spec that verifies itself: a screenshot audit, an API probe, a failing test.</p>
-<p>Review before the commit, not after. Folding a fix into the commit that introduced the problem is why <code>slap</code>'s rework was only 4.3% of lines changed despite being 17.5% of commits.</p>
-<p>Treat cross-call-site invariants as first-class: one source of truth, or a documented rule plus a grep over every site. That, more than any methodology name, is what &quot;spec-driven&quot; should have meant all along.</p>
+<h2 id="what-i’m-keeping" tabindex="-1">What I’m keeping <a class="header-anchor" href="#what-i’m-keeping" aria-hidden="true">#</a></h2>
+<p>Spend spec effort only where the result resists a normal test: rendered pixels, a third party’s live API, hardware behavior. Build the check <em>before</em> the feature. Everywhere else, tests plus review beat more prose.</p>
+<p>Don’t hand-maintain docs; they go stale fastest exactly when the code moves fastest. <code>slap</code>’s context doc still claims a shipped feature isn’t built, and the fix for that staleness sits on a branch that was never merged. <code>shrutz</code> still carries a CI config that auto-merges to master with no review gate, a fossil of a commit titled “removed PR necessity.” Prefer a spec that verifies itself: a screenshot audit, an API probe, a failing test.</p>
+<p>Review before the commit, not after. Folding a fix into the commit that introduced the problem is why <code>slap</code>’s rework was only 4.3% of lines changed despite being 17.5% of commits.</p>
+<p>Treat cross-call-site invariants as first-class: one source of truth, or a documented rule plus a grep over every site. That, more than any methodology name, is what “spec-driven” should have meant all along.</p>
 
     <p class="post-signature">sent from Aegon</p>
-  </div>
-
-  <div class="post-footer">
+  </div><section class="post-comments" aria-label="Comments">
+    <p class="comments-label">Comments &amp; reactions</p>
+    <script src="https://giscus.app/client.js" data-repo="burpcat/burpcat.github.io" data-repo-id="R_kgDOTEg8ug" data-category="Guestbook" data-category-id="DIC_kwDOTEg8us4C_6kx" data-mapping="pathname" data-strict="1" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="preferred_color_scheme" data-lang="en" crossorigin="anonymous" async="">
+    </script>
+  </section><div class="post-footer">
     <a class="back-link" href="/blog/">← back to all writing</a>
   </div>
 
@@ -310,5 +351,8 @@ target    <span class="token operator">=</span> os<span class="token punctuation
 <script src="/js/nav.js"></script>
 <script src="/js/spiral.js"></script>
 <script src="/js/mermaid-init.js"></script>
+<script src="/js/embeds.js" defer=""></script>
+<script src="/js/lightbox.js" defer=""></script>
+<script src="/js/bookmarks.js" defer=""></script>
 </body>
 </html>

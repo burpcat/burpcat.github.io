@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://burpcat.github.io/sitemap.xml
