@@ -155,6 +155,45 @@ already been syndicated creates a *new* Dev.to draft rather than updating
 the old one. There's no de-duplication yet — if you need to fix a syndicated
 post, edit it directly on Dev.to.
 
+## Rich content in a post body
+
+Post bodies are pure markdown (no longer run through Nunjucks — so `{{ }}` and
+`{% %}` in prose or code render literally, no `{% raw %}` needed). On top of
+plain markdown you get:
+
+- **Heading anchors + a table of contents** — automatic from your `##`/`###`.
+- **Footnotes** — `text[^1]` … `[^1]: the note`.
+- **Task lists** — `- [ ]` / `- [x]`.
+- **Definition lists** — a term line, then `: definition`.
+- **Callouts** — fenced with colons:
+  ```
+  :::note
+  Body of the note. Also :::tip, :::warn, :::info.
+  :::
+  ```
+- **Math** — inline `$E=mc^2$` and block `$$ … $$` (KaTeX).
+- **Tables** — standard markdown tables, now fully styled.
+- **Mermaid** — a ```` ```mermaid ```` fenced block (unchanged).
+- **Embeds** — a line on its own of the form `@[provider](arg)`:
+
+  | Provider | Example |
+  |---|---|
+  | `youtube` / `vimeo` / `loom` | `@[youtube](dQw4w9WgXcQ)` |
+  | `codepen` | `@[codepen](user/pen/abcdef)` |
+  | `codesandbox` / `stackblitz` | `@[codesandbox](id)` |
+  | `replit` | `@[replit](@user/slug)` |
+  | `spotify` | `@[spotify](track/ID)` |
+  | `tweet` | `@[tweet](1234567890)` |
+  | `gist` | `@[gist](user/id)` |
+  | `github` | `@[github](owner/repo)` |
+
+Post images are click-to-zoom (lightbox) automatically.
+
+## Series
+
+Add `series: "My Series Name"` to a post's front matter (or `post.json`).
+Posts sharing a series string get numbered part-N-of-M navigation on each post.
+
 ## Editing an already-published post
 
 Just hand-edit the file directly in `src/posts/*.md` — it's a normal
