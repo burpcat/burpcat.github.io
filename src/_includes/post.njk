@@ -23,6 +23,9 @@ layout: base.njk
     <div class="post-meta-row">
       <time class="post-date" datetime="{{ page.date | isoDate }}">{{ page.date | dotDate }}</time>
       <span class="reading-time">{{ content | readingTime }}</span>
+      <button class="bookmark-btn" type="button" data-bookmark data-url="{{ page.url }}" data-title="{{ title }}" aria-pressed="false" aria-label="Save this post">
+        <span class="bm-icon" aria-hidden="true">☆</span><span class="bm-label">save</span>
+      </button>
     </div>
     <h1 class="post-full-title">{{ title }}</h1>
     {% if tags and (tags | displayTags).length %}
@@ -68,6 +71,37 @@ layout: base.njk
       <li><a href="{{ post.url }}">{{ post.data.title }}</a> <span class="related-date">{{ post.date | dotDate }}</span></li>
       {%- endfor %}
     </ul>
+  </section>
+  {%- endif -%}
+
+  {%- if site.newsletter.action -%}
+  <section class="newsletter" aria-label="Newsletter signup">
+    <p class="newsletter-label">Get new posts by email</p>
+    <form class="newsletter-form" action="{{ site.newsletter.action }}" method="post" target="_blank">
+      <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
+      <button type="submit">subscribe</button>
+    </form>
+  </section>
+  {%- endif -%}
+
+  {%- if comments !== false and site.comments.repo -%}
+  <section class="post-comments" aria-label="Comments">
+    <p class="comments-label">Comments &amp; reactions</p>
+    <script src="https://giscus.app/client.js"
+      data-repo="{{ site.comments.repo }}"
+      data-repo-id="{{ site.comments.repoId }}"
+      data-category="{{ site.comments.category }}"
+      data-category-id="{{ site.comments.categoryId }}"
+      data-mapping="pathname"
+      data-strict="1"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      crossorigin="anonymous"
+      async>
+    </script>
   </section>
   {%- endif -%}
 

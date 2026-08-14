@@ -1337,6 +1337,49 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 :root { --pagefind-ui-primary: var(--accent); --pagefind-ui-font: inherit; }
 
 /* ───────────────────────────────────────
+   ENGAGEMENT — bookmarks, newsletter, comments
+   ─────────────────────────────────────── */
+.bookmark-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid var(--border); border-radius: 999px;
+  padding: 2px 12px; margin-left: auto; cursor: pointer;
+  font: inherit; font-size: 12px; color: var(--muted);
+}
+.bookmark-btn:hover { border-color: var(--accent); color: var(--accent); }
+.bookmark-btn.is-saved { color: var(--warm-accent, #E0975A); border-color: currentColor; }
+.bookmark-btn .bm-icon { font-size: 14px; line-height: 1; }
+
+.saved-posts:empty { display: none; }
+.saved-list { list-style: none; padding: 0; margin: 0 0 24px; }
+.saved-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
+.saved-list a { color: var(--accent); text-decoration: none; }
+.saved-list a:hover { text-decoration: underline; }
+
+.newsletter {
+  margin: 40px 0 0; padding: 20px 24px;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: rgba(45, 84, 72, 0.03);
+}
+.newsletter-label { font-weight: 600; margin: 0 0 12px; }
+.newsletter-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.newsletter-form input {
+  flex: 1 1 220px; padding: 9px 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font: inherit; background: var(--bg, #fff); color: var(--text);
+}
+.newsletter-form button {
+  padding: 9px 20px; border: none; border-radius: 8px; cursor: pointer;
+  font: inherit; font-weight: 600; background: var(--accent); color: #fff;
+}
+.newsletter-form button:hover { opacity: 0.9; }
+
+.post-comments { margin: 48px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
+.comments-label {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 16px;
+}
+
+/* ───────────────────────────────────────
    RESPONSIVE
    ─────────────────────────────────────── */
 @media (max-width: 860px) {
