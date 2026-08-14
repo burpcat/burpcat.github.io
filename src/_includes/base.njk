@@ -6,7 +6,35 @@
   <meta name="theme-color" content="#E7D3B8" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0C1512" media="(prefers-color-scheme: dark)">
   <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
-  <meta name="description" content="{{ description or site.tagline }}">
+  <meta name="description" content="{{ description or excerpt or site.tagline }}">
+
+  {# ── canonical + social cards ── #}
+  {%- set canonicalUrl = site.url + page.url -%}
+  {%- set ogTitle = title or site.name -%}
+  {%- set ogDesc = description or excerpt or site.tagline -%}
+  {%- set isPost = "/blog/" in page.url and page.url != "/blog/" -%}
+  {%- if coverImage -%}{%- set ogImage = site.url + coverImage -%}
+  {%- elif isPost -%}{%- set ogImage = site.url + "/og/" + page.fileSlug + ".png" -%}
+  {%- else -%}{%- set ogImage = site.url + "/og-default.png" -%}{%- endif -%}
+  <link rel="canonical" href="{{ canonicalUrl }}">
+  <meta property="og:type" content="{% if isPost %}article{% else %}website{% endif %}">
+  <meta property="og:site_name" content="{{ site.name }}">
+  <meta property="og:title" content="{{ ogTitle }}">
+  <meta property="og:description" content="{{ ogDesc }}">
+  <meta property="og:url" content="{{ canonicalUrl }}">
+  <meta property="og:image" content="{{ ogImage }}">
+  {%- if isPost %}
+  <meta property="article:published_time" content="{{ page.date | isoDate }}">
+  <meta property="article:author" content="{{ site.author.name }}">
+  {%- for tag in tags | displayTags %}
+  <meta property="article:tag" content="{{ tag }}">
+  {%- endfor %}
+  {%- endif %}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ ogTitle }}">
+  <meta name="twitter:description" content="{{ ogDesc }}">
+  <meta name="twitter:image" content="{{ ogImage }}">
+
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">

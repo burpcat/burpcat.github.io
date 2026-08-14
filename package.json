@@ -4,7 +4,7 @@
   "description": "Personal site built with Eleventy",
   "scripts": {
     "start": "eleventy --serve",
-    "build": "node scripts/fetch-github.js && node scripts/fetch-weather.js && eleventy",
+    "build": "node scripts/fetch-github.js && node scripts/fetch-weather.js && eleventy && node scripts/og-images.js && pagefind --site _site",
     "fetch": "node scripts/fetch-github.js",
     "fetch:weather": "node scripts/fetch-weather.js",
     "blog:new": "node tools/blogpub/cli.js new",
@@ -16,6 +16,7 @@
     "@11ty/eleventy-img": "^6.0.4",
     "@11ty/eleventy-plugin-rss": "^2.0.2",
     "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.2",
+    "pagefind": "^1.5.2",
     "sharp": "^0.35.3"
   },
   "overrides": {
@@ -29,6 +30,7 @@
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-katex": "^2.0.3",
     "markdown-it-task-lists": "^2.1.1",
-    "markdown-it-toc-done-right": "^4.2.0"
+    "markdown-it-toc-done-right": "^4.2.0",
+    "satori": "^0.29.0"
   }
 }

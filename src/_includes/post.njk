@@ -1,6 +1,21 @@
 ---
 layout: base.njk
 ---
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ title | dump | safe }},
+  "description": {{ (description or excerpt or "") | dump | safe }},
+  "datePublished": "{{ page.date | isoDate }}",
+  "dateModified": "{{ page.date | isoDate }}",
+  "author": { "@type": "Person", "name": {{ site.author.name | dump | safe }} },
+  "publisher": { "@type": "Person", "name": {{ site.author.name | dump | safe }} },
+  "url": "{{ site.url }}{{ page.url }}",
+  "mainEntityOfPage": "{{ site.url }}{{ page.url }}"{% if coverImage %},
+  "image": "{{ site.url }}{{ coverImage }}"{% endif %}
+}
+</script>
 <main id="main">
 <article class="post-full">
 
