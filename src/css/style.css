@@ -548,6 +548,16 @@ html.reading-mode .scene::after {
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
+
+/* Calm mode (repurposed): the straightened, scroll-driven strands (see
+   spiral.js) are washed into desaturated, low-brightness bands of light
+   behind a thick frosted glass. Placed after the reading-mode wash so it
+   wins on blog pages too — calm behaves the same everywhere. */
+body.calm-mode .scene-sky {
+  filter: blur(22px) saturate(0.3) brightness(0.55);
+  opacity: 0.9;
+  transition: filter 0.8s ease, opacity 0.8s ease;
+}
 /* Blog pages get a wider, laptop-oriented container so the listing cards and
    reading column line up flush with the header/utility bar (which span .wrap)
    instead of sitting narrower and centered. ~1.5x the old ~84ch column. */
