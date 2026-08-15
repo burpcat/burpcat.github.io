@@ -190,7 +190,7 @@ module.exports = function (eleventyConfig) {
         .trim(),
     }));
     if (headings.length < 2) return "";
-    let html = '<nav class="post-toc" aria-label="Table of contents"><p class="post-toc-label">On this page</p><ul>';
+    let html = '<nav class="post-toc" aria-label="Table of contents" data-pagefind-ignore><p class="post-toc-label">On this page</p><ul>';
     for (const h of headings) {
       html += `<li class="toc-h${h.level}"><a href="#${h.id}">${h.text}</a></li>`;
     }
@@ -215,6 +215,16 @@ module.exports = function (eleventyConfig) {
       .sort((a, b) => b.score - a.score || b.post.date - a.post.date)
       .slice(0, n)
       .map((x) => x.post);
+  });
+
+  // Keep code blocks out of the Pagefind search index — mermaid diagram source
+  // and code snippets otherwise leak into search excerpts as noise.
+  eleventyConfig.addTransform("pagefindIgnorePre", function (content) {
+    const out = this.page && this.page.outputPath;
+    if (typeof out === "string" && out.endsWith(".html")) {
+      return content.replace(/<pre(?=[\s>])/g, "<pre data-pagefind-ignore");
+    }
+    return content;
   });
 
   return {

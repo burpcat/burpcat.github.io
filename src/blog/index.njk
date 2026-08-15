@@ -17,21 +17,22 @@ permalink: "{% if pagination.pageNumber == 0 %}/blog/{% else %}/blog/page/{{ pag
   <div id="search" class="post-search"></div>
   <script src="/pagefind/pagefind-ui.js"></script>
   <script>
-    // Guard on readyState, not just DOMContentLoaded: this block is re-run by
-    // nav.js's reviveScripts() after a soft navigation, long after that event
-    // has already fired once — so a bare DOMContentLoaded listener would never
-    // run, and search only appeared after a hard reload.
+    // On a soft navigation nav.js re-runs this inline block, but the re-inserted
+    // pagefind-ui.js loads async and often hasn't defined window.PagefindUI yet
+    // (which is why search used to appear only after a hard reload). Poll for it
+    // for a few seconds, and guard against double-initialising the widget.
     (function () {
-      function initSearch() {
+      var el = document.getElementById("search");
+      if (!el) return;
+      var tries = 0;
+      (function initSearch() {
+        if (el.querySelector(".pagefind-ui__form")) return; // already initialised
         if (window.PagefindUI) {
           new PagefindUI({ element: "#search", showSubResults: true, showImages: false });
+          return;
         }
-      }
-      if (document.readyState === "loading") {
-        window.addEventListener("DOMContentLoaded", initSearch);
-      } else {
-        initSearch();
-      }
+        if (tries++ < 60) setTimeout(initSearch, 50); // wait up to ~3s for pagefind-ui.js
+      })();
     })();
   </script>
 

@@ -1342,10 +1342,11 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .related-posts a:hover { text-decoration: underline; }
 .related-date { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
-/* Pagefind UI — themed to the site instead of its stock white look. Drives
-   Pagefind's own CSS custom properties, then squares/darkens the widgets it
-   renders (search box, result cards, clear button) to match the site. */
-:root {
+/* Pagefind UI — themed to the site instead of its stock white look. Pagefind
+   sets its palette vars on `.pagefind-ui` (loaded from pagefind-ui.css in the
+   body, after this file), so a `:root` override loses; scope the vars to
+   `.post-search .pagefind-ui` (higher specificity) so they actually win. */
+.post-search .pagefind-ui {
   --pagefind-ui-primary: var(--accent);
   --pagefind-ui-text: var(--text);
   --pagefind-ui-background: var(--bg-elevated);
