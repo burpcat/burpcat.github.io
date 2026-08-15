@@ -1349,6 +1349,17 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .bookmark-btn.is-saved { color: var(--warm-accent, #E0975A); border-color: currentColor; }
 .bookmark-btn .bm-icon { font-size: 14px; line-height: 1; }
 
+/* medium-mode toggle — sits beside the save button in the post meta row */
+.medium-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid var(--border); border-radius: 999px;
+  padding: 2px 12px; cursor: pointer;
+  font: inherit; font-size: 12px; color: var(--muted);
+}
+.medium-btn:hover { border-color: var(--accent); color: var(--accent); }
+.medium-btn[aria-pressed="true"] { color: var(--text); border-color: var(--text); }
+.medium-btn .md-icon { font-size: 14px; line-height: 1; }
+
 .saved-posts:empty { display: none; }
 .saved-list { list-style: none; padding: 0; margin: 0 0 24px; }
 .saved-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
@@ -1417,3 +1428,102 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
   html.reading-mode section,
   html.reading-mode .post-full { max-width: clamp(38ch, 94vw, 84ch) !important; }
 }
+
+/* ───────────────────────────────────────
+   THEME TOAST + SWITCH ILLUMINATION
+   ─────────────────────────────────────── */
+.theme-toast {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 300;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 8px 14px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.theme-toast.show { opacity: 1; transform: translateY(0); }
+
+/* While medium mode is on, the theme switch glows to signal that it drives the
+   article's light/dark. */
+@keyframes theme-switch-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(233, 162, 59, 0); }
+  50%      { box-shadow: 0 0 0 3px rgba(233, 162, 59, 0.25), 0 0 14px 2px var(--warm-accent); }
+}
+html.medium-mode #themeSwitch {
+  animation: theme-switch-glow 1.8s ease-in-out infinite;
+  outline: 1px solid var(--warm-accent);
+}
+
+/* ───────────────────────────────────────
+   MEDIUM MODE — blog-post-only reading skin (Medium.com feel). Follows the
+   site theme switch: light by default (set on activation), dark via
+   [data-theme="dark"]. Only the article + surrounding chrome are reskinned.
+   ─────────────────────────────────────── */
+html.medium-mode {
+  --medium-bg:    #ffffff;
+  --medium-fg:    #242424;
+  --medium-muted: #6b6b6b;
+  --medium-rule:  #e6e6e6;
+  --medium-serif: Charter, 'Iowan Old Style', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+}
+html.medium-mode[data-theme="dark"] {
+  --medium-bg:    #121212;
+  --medium-fg:    rgba(255, 255, 255, 0.92);
+  --medium-muted: #a3a3a3;
+  --medium-rule:  #2a2a2a;
+}
+/* clean page: hide the dancing scene, flatten the chrome onto the medium bg */
+html.medium-mode body { background: var(--medium-bg); }
+html.medium-mode .scene { opacity: 0; }
+html.medium-mode .glass-surface { background: transparent; border-color: var(--medium-rule); }
+html.medium-mode .utility-strip,
+html.medium-mode header.glass-surface,
+html.medium-mode footer.glass-surface { color: var(--medium-fg); }
+
+/* the article itself */
+html.medium-mode .post-full { color: var(--medium-fg); }
+html.medium-mode .post-body {
+  background: var(--medium-bg);
+  border: none;
+  color: var(--medium-fg);
+  font-family: var(--medium-serif);
+  font-size: 21px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+  padding: 8px 0 40px;
+}
+html.medium-mode .post-full-title {
+  font-family: var(--medium-serif);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--medium-fg);
+}
+html.medium-mode .post-body h2,
+html.medium-mode .post-body h3 {
+  font-family: var(--medium-serif);
+  color: var(--medium-fg);
+  letter-spacing: -0.015em;
+}
+html.medium-mode .post-body h2 { font-size: 28px; font-weight: 700; }
+html.medium-mode .post-body h3 { font-size: 22px; font-weight: 700; }
+html.medium-mode .post-body p { margin-bottom: 1.4em; }
+html.medium-mode .post-body a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+html.medium-mode .post-body blockquote {
+  border-left: 3px solid var(--medium-fg);
+  color: var(--medium-muted);
+  font-style: italic;
+}
+html.medium-mode .post-toc { background: transparent; border-color: var(--medium-rule); }
+html.medium-mode .post-body code { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
+html.medium-mode[data-theme="dark"] .post-body code { background: rgba(255, 255, 255, 0.08); }
+html.medium-mode .post-signature { color: var(--medium-muted); }
