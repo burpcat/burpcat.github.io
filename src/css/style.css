@@ -226,7 +226,7 @@ body.calm-mode .construction { display: none !important; }
 .wrap {
   position: relative;
   z-index: 2;
-  max-width: 1060px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 24px 48px 60px;
 }
@@ -533,13 +533,9 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
    just how the blog looks, not a toggled state. Calm mode (see
    body.calm-mode above) remains its own separate, site-wide switch.
    ─────────────────────────────────────── */
-/* v9: the scene stays visible but drifts into a soft, blurred amber wash —
-   light through thick frosted glass — instead of disappearing outright. */
-html.reading-mode .scene-sky {
-  filter: blur(16px) saturate(1.2);
-  opacity: 0.85;
-  transition: filter 0.8s ease, opacity 0.8s ease;
-}
+/* Reading mode no longer blurs the scene on its own — the blog only softens
+   when calm mode is explicitly enabled (see body.calm-mode .scene-sky below).
+   A faint amber wash still tints the blog scene. */
 html.reading-mode .scene::after {
   content: "";
   position: absolute; inset: 0; z-index: 2;
@@ -558,10 +554,9 @@ body.calm-mode .scene-sky {
   opacity: 0.9;
   transition: filter 0.8s ease, opacity 0.8s ease;
 }
-/* Blog pages get a wider, laptop-oriented container so the listing cards and
-   reading column line up flush with the header/utility bar (which span .wrap)
-   instead of sitting narrower and centered. ~1.5x the old ~84ch column. */
-html.reading-mode .wrap { max-width: 1240px; }
+/* The wide, laptop-oriented container width is now the sitewide .wrap default
+   (see .wrap above), so the header/utility bar is identical on every page.
+   Blog listing/post sections just fill it flush. */
 html.reading-mode section { max-width: none !important; margin-left: auto; margin-right: auto; }
 html.reading-mode .post-full { max-width: none; }
 html.reading-mode .post-body {
