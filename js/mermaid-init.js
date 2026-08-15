@@ -15,23 +15,23 @@
     async function (mod) {
       var mermaid = mod.default;
 
-      // Fixed dark palette matching this site's code blocks (#1A1714 bg /
-      // #D4C9B4 text), which don't themselves follow the light/dark toggle.
+      // GitHub Dark Default palette, matching this site's code blocks
+      // (#0d1117 bg / #e6edf3 text), which don't follow the light/dark toggle.
       mermaid.initialize({
         startOnLoad: false,
         theme: "base",
         themeVariables: {
-          background: "#1A1714",
-          primaryColor: "#22201B",
-          primaryTextColor: "#D4C9B4",
-          primaryBorderColor: "#7FB59B",
-          lineColor: "#B8AD98",
-          secondaryColor: "#2A2620",
-          secondaryTextColor: "#D4C9B4",
-          tertiaryColor: "#1A1714",
-          tertiaryTextColor: "#D4C9B4",
-          fontFamily: "'Courier New', monospace",
-          fontSize: "14px",
+          background: "#0d1117",
+          primaryColor: "#161b22",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          secondaryTextColor: "#e6edf3",
+          tertiaryColor: "#0d1117",
+          tertiaryTextColor: "#e6edf3",
+          fontFamily: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace",
+          fontSize: "13.5px",
         },
       });
 

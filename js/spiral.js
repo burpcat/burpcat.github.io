@@ -222,6 +222,23 @@
   let rafId = null;
   let lastTs = null;
 
+  // Calm mode (repurposed): the strands straighten into flat, glowy bands of
+  // light that drift with the scrollbar, so their vertical position tells you
+  // where you are on the page. calmBlend eases the straighten in/out so
+  // toggling calm doesn't snap the geometry; scrollP is the page scroll 0..1.
+  let calmBlend = calm ? 1 : 0;
+  let scrollP = 0;
+  let scrollTicking = false;
+  function readScroll() {
+    const max = (document.documentElement.scrollHeight || 0) - window.innerHeight;
+    scrollP = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    scrollTicking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) { scrollTicking = true; requestAnimationFrame(readScroll); }
+  }, { passive: true });
+  readScroll();
+
   // phase machine: fwd1 (0->bell) -> holdBell -> fwd2 (bell->1) -> holdCoil
   // (humming) -> back (1->0, fast physics but a laggy dreamy render) ->
   // loop to fwd1. Only the forward pass holds; the return is unbroken.
@@ -244,11 +261,11 @@
   const MUSIC_GATE_SLEW_K = 0.04;
   let musicGate = 0;
   function updateTimings() {
-    // reading mode (permanently on for the blog section) wins first here to
-    // keep its own tuned, gentler pace (dreamy and visibly moving, not
-    // near-frozen) reachable even when calm mode is also on; calm mode
-    // outside the blog section still gets the harsher near-freeze on its own.
-    const mult = readingMode() ? READING_MULT : (calm ? CALM_MULT : 1);
+    // The gentle reading-mode pace is now the universal default everywhere
+    // (the "dancing lines" are site-wide, not blog-only). Calm mode keeps the
+    // harsher near-freeze on top, since its lines are scroll-driven and mostly
+    // straightened rather than travelling.
+    const mult = calm ? CALM_MULT : READING_MULT;
     legSecondsFwd = LEG_SECONDS * mult;
     legSecondsBack = LEG_SECONDS_BACK * mult;
     holdBellS = HOLD_BELL_S * mult;
@@ -592,14 +609,25 @@
     // don't clear — repaint the sky at partial alpha over the last frame.
     // fast/crisp stretches leave motion-blur streaks; slow holds resolve
     // crisp; the return leg's low trailAlpha smears into long dream-trails.
-    paintSky(trailAlpha);
-    const pts = pointsAtL(Lsmoothed);
+    // Calm mode: ease the traced curve toward a flat horizontal band whose
+    // height is driven by scroll position (top of page = high, bottom = low),
+    // and fatten the glow / dim the crisp line so the heavy CSS blur reads as
+    // soft bands of light behind frosted glass.
+    calmBlend += ((calm ? 1 : 0) - calmBlend) * 0.05;
+    let pts = pointsAtL(Lsmoothed);
+    if (calmBlend > 0.001) {
+      const flatY = 0.72 - scrollP * 0.44; // sweeps top→bottom as you scroll
+      pts = pts.map((p) => [p[0], p[1] + (flatY - p[1]) * calmBlend]);
+      renderStyle = {
+        crispMult: (renderStyle ? renderStyle.crispMult : 1) * (1 - 0.7 * calmBlend),
+        underWidthExtra: (renderStyle ? renderStyle.underWidthExtra : 0) + 22 * calmBlend,
+      };
+    }
     const anchor = anchorPoint(pts, anchorParam(Lsmoothed));
-    if (readingMode()) {
+    // one strand per blog post, site-wide now (About keeps its single
+    // warm-clay strand for its own distinct palette).
+    if (!isAboutPage()) {
       drawStrands(pts, anchor, hum, renderStyle);
-    } else if (!isAboutPage()) {
-      const [r, g, b] = chitraRgb();
-      strokeMorph(pts, anchor, hum, renderStyle, `${r},${g},${b}`);
     } else {
       strokeMorph(pts, anchor, hum, renderStyle);
     }
@@ -614,11 +642,8 @@
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum
     const anchor = anchorPoint(pts, 0.5);
-    if (readingMode()) {
+    if (!isAboutPage()) {
       drawStrands(pts, anchor, null, null);
-    } else if (!isAboutPage()) {
-      const [r, g, b] = chitraRgb();
-      strokeMorph(pts, anchor, null, null, `${r},${g},${b}`);
     } else {
       strokeMorph(pts, anchor, null, null);
     }
