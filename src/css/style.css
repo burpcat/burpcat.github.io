@@ -1044,9 +1044,20 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-signature { margin-top: 2.4em; color: var(--muted); font-size: 14px; font-style: italic; }
 
 .post-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
+/* On the post page the tag row sits over the scene, so give it a clear frosted
+   panel to sit on (the blog-listing cards already provide their own panel). */
+.post-full .post-tags {
+  background: var(--glass-tint);
+  -webkit-backdrop-filter: blur(8px) saturate(105%);
+  backdrop-filter: blur(8px) saturate(105%);
+  border: 1px solid var(--glass-edge);
+  padding: 10px 12px;
+  margin: 14px 0 0;
+}
 .tag-pill {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--body);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 0;
   padding: 3px 10px;
