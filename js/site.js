@@ -64,6 +64,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   iconEl.textContent = current === 'dark' ? '☀' : '☾';
 
   switchEl.addEventListener('click', () => {
+    // While medium mode is on, the switch flips medium's OWN light/dark (a
+    // page-local skin) — it must not touch the site's persisted theme, so that
+    // leaving medium restores whatever the reader actually had.
+    if (root.classList.contains('medium-mode') && window.__site && window.__site.toggleMediumDark) {
+      const dark = window.__site.toggleMediumDark();
+      announceTheme(dark ? 'dark' : 'light');
+      return;
+    }
     const current = root.getAttribute('data-theme');
     applyTheme(current === 'dark' ? 'light' : 'dark', true);
   });
@@ -113,37 +121,59 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   window.__site.setCalmMode = apply; // bridge for the welcome popup
 })();
 
-// ── medium mode (blog post pages only) ──
-// A per-post reading skin that makes the article read like Medium.com (serif
-// body, generous measure, its own light/dark palette). Defaults to light on
-// activation, then follows the site theme switch — so turning it on nudges the
-// user toward that switch, which illuminates while medium mode is active.
+// ── medium mode (blog POST pages only) ──
+// A full-page reading skin that turns the post into a Medium.com-style page.
+// It is strictly page-local: it toggles html.medium-mode ONLY when a post page
+// is present (#mediumToggle exists), and it never touches the site's persisted
+// theme — so navigating to any other page always shows the default, and the
+// reader's real light/dark choice is preserved. Its own light/dark lives in the
+// separate `medium-dark` class, flipped by the theme switch while medium is on.
+// The click listener is delegated on document so it survives nav.js #main swaps.
 (function () {
-  const toggle = document.getElementById('mediumToggle');
-  if (!toggle) return;
   const root = document.documentElement;
-  const label = toggle.querySelector('.md-label');
-  const STORAGE_KEY = 'medium-mode';
+  const MED = 'medium-mode';
+  const DARK = 'medium-dark';
+  const isPostPage = () => !!document.getElementById('mediumToggle');
+  const flag = (k) => { try { return localStorage.getItem(k) === '1'; } catch (e) { return false; } };
+  const setFlag = (k, v) => { try { localStorage.setItem(k, v ? '1' : '0'); } catch (e) {} };
 
-  const apply = (on, forceLight) => {
-    root.classList.toggle('medium-mode', on);
-    toggle.setAttribute('aria-pressed', String(on));
-    if (label) label.textContent = on ? 'medium: on' : 'medium';
-    try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
-    // On explicit activation, start in light like real Medium — and announce
-    // it, so the (now glowing) theme switch is clearly the way to change it.
-    if (on && forceLight && window.__site && window.__site.setTheme) {
-      window.__site.setTheme('light', true);
+  // Reconcile the DOM to stored state for the CURRENT page. On non-post pages
+  // this clears both classes, which is what un-leaks medium on soft-nav.
+  function sync() {
+    const on = isPostPage() && flag(MED);
+    root.classList.toggle(MED, on);
+    root.classList.toggle(DARK, on && flag(DARK));
+    const btn = document.getElementById('mediumToggle');
+    if (btn) {
+      btn.setAttribute('aria-pressed', String(on));
+      const label = btn.querySelector('.md-label');
+      if (label) label.textContent = on ? 'medium: on' : 'medium mode';
     }
+  }
+
+  function setMedium(on) {
+    setFlag(MED, on);
+    if (on) setFlag(DARK, false); // always start light, like Medium
+    sync();
+  }
+
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest && e.target.closest('#mediumToggle');
+    if (!t) return;
+    setMedium(!root.classList.contains(MED));
+  });
+
+  window.__site = window.__site || {};
+  window.__site.syncMedium = sync; // nav.js calls this after a soft-nav swap
+  window.__site.toggleMediumDark = function () {
+    if (!root.classList.contains(MED)) return false;
+    const next = !root.classList.contains(DARK);
+    setFlag(DARK, next);
+    sync();
+    return next; // caller (theme switch) shows the toast
   };
 
-  let initial = false;
-  try { initial = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
-  apply(initial, false); // restore silently — don't force light or toast on load
-
-  toggle.addEventListener('click', () => {
-    apply(!root.classList.contains('medium-mode'), true);
-  });
+  sync();
 })();
 
 // ── background music (independent of calm mode; persists across pages) ──
