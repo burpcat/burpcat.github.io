@@ -51,6 +51,10 @@
 
   --max-reading: 65ch;
   --tap-min: 44px;
+
+  /* GitHub's monospace stack — used for code blocks / inline code so snippets
+     read like GitHub. System fonts only, no webfont request. */
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 /* ───────────────────────────────────────
@@ -933,54 +937,55 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body a { color: var(--accent); }
 .post-body a:hover { text-decoration: underline; }
 .post-body code {
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-family: var(--mono);
+  font-size: 13.5px;
   background: rgba(45, 84, 72, 0.08);
   padding: 2px 6px;
 }
 .post-body pre {
-  background: #1A1714;
-  color: #D4C9B4;
-  padding: 20px 24px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px 20px;
   overflow-x: auto;
   margin: 1.6em 0;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 .post-body pre code { background: none; padding: 0; color: inherit; }
 
-/* Prism token colors — tuned for the fixed dark code-block background
-   (#1A1714 bg / #D4C9B4 text) used by .post-body pre in both site themes,
-   echoing the --accent / --warm-accent hues used elsewhere on the site. */
+/* Prism token colors — GitHub Dark Default palette (#0d1117 bg / #e6edf3 fg),
+   so fenced code reads like a GitHub snippet regardless of the site theme. */
 .post-body pre .token.comment,
 .post-body pre .token.prolog,
 .post-body pre .token.doctype,
-.post-body pre .token.cdata { color: #8A7F6C; font-style: italic; }
-.post-body pre .token.punctuation { color: #B8AD98; }
+.post-body pre .token.cdata { color: #8b949e; }
+.post-body pre .token.punctuation { color: #c9d1d9; }
 .post-body pre .token.property,
 .post-body pre .token.tag,
 .post-body pre .token.boolean,
 .post-body pre .token.number,
 .post-body pre .token.constant,
-.post-body pre .token.symbol,
-.post-body pre .token.deleted { color: #E0975A; }
+.post-body pre .token.symbol { color: #79c0ff; }
 .post-body pre .token.selector,
 .post-body pre .token.attr-name,
 .post-body pre .token.string,
 .post-body pre .token.char,
 .post-body pre .token.builtin,
-.post-body pre .token.inserted { color: #8FBFA3; }
+.post-body pre .token.inserted { color: #a5d6ff; }
 .post-body pre .token.operator,
 .post-body pre .token.entity,
-.post-body pre .token.url { color: #D4C9B4; }
+.post-body pre .token.url,
+.post-body pre .token.variable { color: #c9d1d9; }
 .post-body pre .token.atrule,
 .post-body pre .token.attr-value,
-.post-body pre .token.keyword { color: #7FB59B; }
+.post-body pre .token.keyword { color: #ff7b72; }
 .post-body pre .token.function,
-.post-body pre .token.class-name { color: #D9A85C; }
+.post-body pre .token.class-name { color: #d2a8ff; }
 .post-body pre .token.regex,
-.post-body pre .token.important,
-.post-body pre .token.variable { color: #C97064; }
+.post-body pre .token.important { color: #ffa657; }
+.post-body pre .token.deleted { color: #ffa198; }
 .post-body pre .token.important,
 .post-body pre .token.bold { font-weight: 700; }
 .post-body pre .token.italic { font-style: italic; }
@@ -990,7 +995,9 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
    .post-body pre is styled above; it doesn't need the [data-theme] toggle
    since Mermaid is initialized once with this same fixed dark palette. */
 .post-body .mermaid {
-  background: #1A1714;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
   padding: 20px 24px;
   margin: 1.6em 0;
   overflow-x: auto;
@@ -1164,7 +1171,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* Extended inline HTML tags — previously unstyled fallbacks. */
 .post-body del, .post-body s { color: var(--muted); }
 .post-body kbd {
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
   font-size: 12px;
   background: rgba(45, 84, 72, 0.10);
   border: 1px solid var(--border);
