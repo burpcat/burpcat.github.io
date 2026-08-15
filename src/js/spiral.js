@@ -222,22 +222,26 @@
   let rafId = null;
   let lastTs = null;
 
-  // Calm mode (repurposed): the strands straighten into flat, glowy bands of
-  // light that drift with the scrollbar, so their vertical position tells you
-  // where you are on the page. calmBlend eases the straighten in/out so
-  // toggling calm doesn't snap the geometry; scrollP is the page scroll 0..1.
+  // Calm mode (repurposed): the star freezes and rides the scrollbar — low and
+  // behind the hills at the top of the page, climbing toward the top as the
+  // reader scrolls. calmBlend eases the effect in/out; scrollP is 0..1 page
+  // scroll. calmCy() is the scroll-driven orb center used while calm.
   let calmBlend = calm ? 1 : 0;
   let scrollP = 0;
   let scrollTicking = false;
+  function calmCy() {
+    const base = H * CY_FACTOR;
+    return base + (H * (0.90 - 0.80 * scrollP) - base) * calmBlend;
+  }
   function readScroll() {
     const max = (document.documentElement.scrollHeight || 0) - window.innerHeight;
     scrollP = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     scrollTicking = false;
+    if (frozen) drawStatic(); // rAF loop is off under reduced-motion; redraw so the star still tracks
   }
   window.addEventListener('scroll', () => {
     if (!scrollTicking) { scrollTicking = true; requestAnimationFrame(readScroll); }
   }, { passive: true });
-  readScroll();
 
   // phase machine: fwd1 (0->bell) -> holdBell -> fwd2 (bell->1) -> holdCoil
   // (humming) -> back (1->0, fast physics but a laggy dreamy render) ->
@@ -564,6 +568,12 @@
     let trailAlpha = 0.30;
     let renderStyle = null;
 
+    // Calm mode freezes the phase machine — the star (and its light) stops
+    // travelling through the morph and instead just rides the scrollbar (see
+    // the cy override below). Skip advancing L/phase entirely while calm.
+    if (calm) {
+      Lsmoothed = L;
+    } else
     switch (phase) {
       case 'fwd1':
         L += (speedFwd(L) * dtSec) / legSecondsFwd * NORM_FWD;
@@ -609,15 +619,15 @@
     // don't clear — repaint the sky at partial alpha over the last frame.
     // fast/crisp stretches leave motion-blur streaks; slow holds resolve
     // crisp; the return leg's low trailAlpha smears into long dream-trails.
-    // Calm mode: ease the traced curve toward a flat horizontal band whose
-    // height is driven by scroll position (top of page = high, bottom = low),
-    // and fatten the glow / dim the crisp line so the heavy CSS blur reads as
-    // soft bands of light behind frosted glass.
-    calmBlend += ((calm ? 1 : 0) - calmBlend) * 0.05;
+    // Calm mode: the frozen star rides the scrollbar. At the top of the page it
+    // sits low, behind the hills (the .scene-ridge DOM layer paints above the
+    // canvas and occludes it); as the reader scrolls down it climbs toward the
+    // top. cy drives both the orb and its strands (they anchor to cy), and the
+    // glow is fattened/dimmed so the heavy CSS blur reads as soft light.
+    calmBlend += ((calm ? 1 : 0) - calmBlend) * 0.08;
+    cy = calmCy();
     let pts = pointsAtL(Lsmoothed);
     if (calmBlend > 0.001) {
-      const flatY = 0.72 - scrollP * 0.44; // sweeps top→bottom as you scroll
-      pts = pts.map((p) => [p[0], p[1] + (flatY - p[1]) * calmBlend]);
       renderStyle = {
         crispMult: (renderStyle ? renderStyle.crispMult : 1) * (1 - 0.7 * calmBlend),
         underWidthExtra: (renderStyle ? renderStyle.underWidthExtra : 0) + 22 * calmBlend,
@@ -638,6 +648,8 @@
 
   function drawStatic() {
     cs = getComputedStyle(root);
+    calmBlend = calm ? 1 : 0; // no rAF easing here — snap to target
+    cy = calmCy();            // still track the scrollbar under reduced-motion
     ctx.clearRect(0, 0, W, H);
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum

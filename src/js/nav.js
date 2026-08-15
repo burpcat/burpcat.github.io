@@ -91,6 +91,10 @@
     const isBlog = new URL(url, location.href).pathname.indexOf('/blog/') !== -1;
     document.documentElement.classList.toggle('reading-mode', isBlog);
 
+    // Medium mode is a per-post skin — reconcile it for the destination page so
+    // it clears when leaving a post and re-applies when returning to one.
+    if (window.__site && window.__site.syncMedium) window.__site.syncMedium();
+
     const hash = url.includes('#') ? url.slice(url.indexOf('#') + 1) : '';
     const hashTarget = hash && document.getElementById(hash);
     if (hashTarget) {
