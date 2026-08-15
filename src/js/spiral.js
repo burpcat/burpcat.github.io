@@ -244,11 +244,11 @@
   const MUSIC_GATE_SLEW_K = 0.04;
   let musicGate = 0;
   function updateTimings() {
-    // reading mode (permanently on for the blog section) wins first here to
-    // keep its own tuned, gentler pace (dreamy and visibly moving, not
-    // near-frozen) reachable even when calm mode is also on; calm mode
-    // outside the blog section still gets the harsher near-freeze on its own.
-    const mult = readingMode() ? READING_MULT : (calm ? CALM_MULT : 1);
+    // The gentle reading-mode pace is now the universal default everywhere
+    // (the "dancing lines" are site-wide, not blog-only). Calm mode keeps the
+    // harsher near-freeze on top, since its lines are scroll-driven and mostly
+    // straightened rather than travelling.
+    const mult = calm ? CALM_MULT : READING_MULT;
     legSecondsFwd = LEG_SECONDS * mult;
     legSecondsBack = LEG_SECONDS_BACK * mult;
     holdBellS = HOLD_BELL_S * mult;
@@ -595,11 +595,10 @@
     paintSky(trailAlpha);
     const pts = pointsAtL(Lsmoothed);
     const anchor = anchorPoint(pts, anchorParam(Lsmoothed));
-    if (readingMode()) {
+    // one strand per blog post, site-wide now (About keeps its single
+    // warm-clay strand for its own distinct palette).
+    if (!isAboutPage()) {
       drawStrands(pts, anchor, hum, renderStyle);
-    } else if (!isAboutPage()) {
-      const [r, g, b] = chitraRgb();
-      strokeMorph(pts, anchor, hum, renderStyle, `${r},${g},${b}`);
     } else {
       strokeMorph(pts, anchor, hum, renderStyle);
     }
@@ -614,11 +613,8 @@
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum
     const anchor = anchorPoint(pts, 0.5);
-    if (readingMode()) {
+    if (!isAboutPage()) {
       drawStrands(pts, anchor, null, null);
-    } else if (!isAboutPage()) {
-      const [r, g, b] = chitraRgb();
-      strokeMorph(pts, anchor, null, null, `${r},${g},${b}`);
     } else {
       strokeMorph(pts, anchor, null, null);
     }
