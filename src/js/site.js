@@ -27,14 +27,37 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   if (!switchEl || !iconEl) return;
   const STORAGE_KEY = 'theme';
 
-  const applyTheme = (theme) => {
+  // Small auto-dismissing toast that names the theme when it changes — created
+  // lazily, positioned by CSS near the utility strip. Only shown on an actual
+  // switch (announce=true), never on the silent load-time sync.
+  let toastEl = null;
+  let toastTimer = null;
+  const announceTheme = (theme) => {
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.className = 'theme-toast';
+      toastEl.setAttribute('role', 'status');
+      toastEl.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = theme === 'dark' ? 'dark mode' : 'light mode';
+    // restart the show animation even on rapid repeat toggles
+    toastEl.classList.remove('show');
+    void toastEl.offsetWidth;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { if (toastEl) toastEl.classList.remove('show'); }, 1600);
+  };
+
+  const applyTheme = (theme, announce) => {
     root.setAttribute('data-theme', theme);
     iconEl.textContent = theme === 'dark' ? '☀' : '☾';
     try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+    if (announce) announceTheme(theme);
   };
 
   window.__site = window.__site || {};
-  window.__site.setTheme = applyTheme; // bridge for the welcome popup's day/night preview
+  window.__site.setTheme = applyTheme; // bridge for the welcome popup + medium mode
 
   // Sync icon with whatever the anti-flash script set in <head>
   const current = root.getAttribute('data-theme') || 'light';
@@ -42,7 +65,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
   switchEl.addEventListener('click', () => {
     const current = root.getAttribute('data-theme');
-    applyTheme(current === 'dark' ? 'light' : 'dark');
+    applyTheme(current === 'dark' ? 'light' : 'dark', true);
   });
 
   // Live-respond to OS changes if user hasn't explicitly chosen
@@ -88,6 +111,39 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
   window.__site = window.__site || {};
   window.__site.setCalmMode = apply; // bridge for the welcome popup
+})();
+
+// ── medium mode (blog post pages only) ──
+// A per-post reading skin that makes the article read like Medium.com (serif
+// body, generous measure, its own light/dark palette). Defaults to light on
+// activation, then follows the site theme switch — so turning it on nudges the
+// user toward that switch, which illuminates while medium mode is active.
+(function () {
+  const toggle = document.getElementById('mediumToggle');
+  if (!toggle) return;
+  const root = document.documentElement;
+  const label = toggle.querySelector('.md-label');
+  const STORAGE_KEY = 'medium-mode';
+
+  const apply = (on, forceLight) => {
+    root.classList.toggle('medium-mode', on);
+    toggle.setAttribute('aria-pressed', String(on));
+    if (label) label.textContent = on ? 'medium: on' : 'medium';
+    try { localStorage.setItem(STORAGE_KEY, on ? '1' : '0'); } catch (e) {}
+    // On explicit activation, start in light like real Medium — and announce
+    // it, so the (now glowing) theme switch is clearly the way to change it.
+    if (on && forceLight && window.__site && window.__site.setTheme) {
+      window.__site.setTheme('light', true);
+    }
+  };
+
+  let initial = false;
+  try { initial = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
+  apply(initial, false); // restore silently — don't force light or toast on load
+
+  toggle.addEventListener('click', () => {
+    apply(!root.classList.contains('medium-mode'), true);
+  });
 })();
 
 // ── background music (independent of calm mode; persists across pages) ──

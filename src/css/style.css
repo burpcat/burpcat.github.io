@@ -51,6 +51,10 @@
 
   --max-reading: 65ch;
   --tap-min: 44px;
+
+  /* GitHub's monospace stack — used for code blocks / inline code so snippets
+     read like GitHub. System fonts only, no webfont request. */
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 /* ───────────────────────────────────────
@@ -154,18 +158,6 @@ body {
 body.calm-mode .new-badge,
 body.calm-mode .dot { animation: none !important; }
 body.calm-mode .construction { display: none !important; }
-/* de-frost every glassy panel, site-wide — each page keeps its own colors
-   (light/dark/About), this only removes the blur/translucency. Reading
-   mode (blog + post pages only) is a derived subset of calm mode, so this
-   already covers what reading mode used to flatten on its own. */
-body.calm-mode { background: var(--bg); }
-body.calm-mode .glass-surface {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-body.calm-mode .glass-surface::after { display: none; }
 
 /* ───────────────────────────────────────
    BACKGROUND SCENE — fixed sky/spiral/ridge behind everything
@@ -415,14 +407,12 @@ body.calm-mode .glass-surface::after { display: none; }
    ─────────────────────────────────────── */
 header { margin-top: 16px; margin-bottom: 36px; }
 .wrap > header { padding: 24px 28px; }
-/* Display face: Clash Display (Fontshare). No true italic — emphasis is
-   weight/size, not font-style. Alternative if a more literal athletic feel
-   is wanted later: swap the Fontshare link for
-   https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap
-   and set font-family: 'Oswald', 'Arial Narrow', sans-serif; on the same selectors. */
+/* Display face: Bricolage Grotesque (Google Fonts) — a heavy, characterful
+   grotesque used at 600–800 for the strength the titles were missing. No true
+   italic; emphasis is weight/size, not font-style. */
 h1 {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700;
   font-size: clamp(46px, 7vw, 68px);
   line-height: 1;
   letter-spacing: -0.3px;
@@ -524,24 +514,17 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 }
 
 /* ───────────────────────────────────────
-   GLASS — atmosphere, not a widget. Squared, lightly frosted, faintly grained.
+   GLASS — solid, calm panels. Formerly a frosted/grained translucent surface
+   that only turned opaque under calm mode; that darker, de-frosted look is now
+   the site-wide default (calm mode was repurposed for the background lights).
+   Each page keeps its own colors (light/dark/About) via --bg-elevated.
    ─────────────────────────────────────── */
 .glass-surface {
-  background: var(--glass-tint);
-  border: 1px solid var(--glass-edge);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
   border-radius: 0;
-  -webkit-backdrop-filter: blur(7px) saturate(105%);
-  backdrop-filter: blur(7px) saturate(105%);
   position: relative;
   isolation: isolate;
-}
-.glass-surface::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  opacity: 0.06; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-surface { background: var(--glass-solid); }
 }
 
 /* ───────────────────────────────────────
@@ -565,11 +548,22 @@ html.reading-mode .scene::after {
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
-/* the listing/post sections set their own max-width inline — beat it here.
-   clamp() (not a plain ch cap) lets the column grow fuller on wide monitors
-   and shrink gracefully on narrow ones, instead of a single fixed width. */
-html.reading-mode section { max-width: clamp(46ch, 86vw, 84ch) !important; margin-left: auto; margin-right: auto; }
-html.reading-mode .post-full { max-width: clamp(46ch, 86vw, 84ch); }
+
+/* Calm mode (repurposed): the straightened, scroll-driven strands (see
+   spiral.js) are washed into desaturated, low-brightness bands of light
+   behind a thick frosted glass. Placed after the reading-mode wash so it
+   wins on blog pages too — calm behaves the same everywhere. */
+body.calm-mode .scene-sky {
+  filter: blur(22px) saturate(0.3) brightness(0.55);
+  opacity: 0.9;
+  transition: filter 0.8s ease, opacity 0.8s ease;
+}
+/* Blog pages get a wider, laptop-oriented container so the listing cards and
+   reading column line up flush with the header/utility bar (which span .wrap)
+   instead of sitting narrower and centered. ~1.5x the old ~84ch column. */
+html.reading-mode .wrap { max-width: 1240px; }
+html.reading-mode section { max-width: none !important; margin-left: auto; margin-right: auto; }
+html.reading-mode .post-full { max-width: none; }
 html.reading-mode .post-body {
   line-height: 1.9;
   padding: 34px 36px;
@@ -618,8 +612,8 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .exp-item:last-of-type { border-bottom: none; }
 .exp-role {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 500;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 600;
   font-size: 19px;
   margin-bottom: 5px;
   color: var(--text);
@@ -649,7 +643,6 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   margin-bottom: 30px;
   padding-bottom: 30px;
   border-bottom: 1px dashed var(--dash);
-  max-width: var(--max-reading);
 }
 .post-item:last-of-type { border-bottom: none; }
 /* /blog/ listing: each card is its own glass panel, not a dashed-divided list */
@@ -674,8 +667,8 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 .post-date { font-weight: 600; }
 .reading-time::before { content: "·"; margin-right: 8px; }
 .post-title {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600; font-size: 21px;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700; font-size: 21px;
   line-height: 1.3; margin-bottom: 12px;
 }
 .post-title em { font-style: normal; }
@@ -792,8 +785,8 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   width: 100%;
 }
 .modal h3 {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 500;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700;
   font-size: 26px;
   margin-bottom: 8px;
 }
@@ -856,8 +849,8 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 }
 .welcome-overlay.open .welcome-card { transform: none; opacity: 1; }
 .welcome-title {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700;
   font-size: 30px;
   color: var(--text);
   margin: 6px 0 10px;
@@ -930,76 +923,79 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ── single post page ── */
 .post-full { max-width: 65ch; margin: 0 auto; }
 .post-full-title {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600;
-  font-size: clamp(28px, 5vw, 40px);
-  line-height: 1.2;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.15;
   letter-spacing: -0.5px;
   margin: 12px 0 30px;
 }
 .post-body { font-size: 16px; color: var(--body); line-height: 1.85; padding: 28px 30px; }
 .post-body p { margin-bottom: 1.2em; }
 .post-body h2 {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 500; font-size: 24px;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700; font-size: 25px;
+  letter-spacing: -0.2px;
   margin: 2em 0 0.8em; color: var(--text);
 }
 .post-body h3 {
-  font-size: 16px; font-weight: 600;
-  letter-spacing: 0.04em;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-size: 18px; font-weight: 700;
+  letter-spacing: 0;
   margin: 1.8em 0 0.6em; color: var(--text);
 }
 .post-body a { color: var(--accent); }
 .post-body a:hover { text-decoration: underline; }
 .post-body code {
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-family: var(--mono);
+  font-size: 13.5px;
   background: rgba(45, 84, 72, 0.08);
   padding: 2px 6px;
 }
 .post-body pre {
-  background: #1A1714;
-  color: #D4C9B4;
-  padding: 20px 24px;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px 20px;
   overflow-x: auto;
   margin: 1.6em 0;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 .post-body pre code { background: none; padding: 0; color: inherit; }
 
-/* Prism token colors — tuned for the fixed dark code-block background
-   (#1A1714 bg / #D4C9B4 text) used by .post-body pre in both site themes,
-   echoing the --accent / --warm-accent hues used elsewhere on the site. */
+/* Prism token colors — GitHub Dark Default palette (#0d1117 bg / #e6edf3 fg),
+   so fenced code reads like a GitHub snippet regardless of the site theme. */
 .post-body pre .token.comment,
 .post-body pre .token.prolog,
 .post-body pre .token.doctype,
-.post-body pre .token.cdata { color: #8A7F6C; font-style: italic; }
-.post-body pre .token.punctuation { color: #B8AD98; }
+.post-body pre .token.cdata { color: #8b949e; }
+.post-body pre .token.punctuation { color: #c9d1d9; }
 .post-body pre .token.property,
 .post-body pre .token.tag,
 .post-body pre .token.boolean,
 .post-body pre .token.number,
 .post-body pre .token.constant,
-.post-body pre .token.symbol,
-.post-body pre .token.deleted { color: #E0975A; }
+.post-body pre .token.symbol { color: #79c0ff; }
 .post-body pre .token.selector,
 .post-body pre .token.attr-name,
 .post-body pre .token.string,
 .post-body pre .token.char,
 .post-body pre .token.builtin,
-.post-body pre .token.inserted { color: #8FBFA3; }
+.post-body pre .token.inserted { color: #a5d6ff; }
 .post-body pre .token.operator,
 .post-body pre .token.entity,
-.post-body pre .token.url { color: #D4C9B4; }
+.post-body pre .token.url,
+.post-body pre .token.variable { color: #c9d1d9; }
 .post-body pre .token.atrule,
 .post-body pre .token.attr-value,
-.post-body pre .token.keyword { color: #7FB59B; }
+.post-body pre .token.keyword { color: #ff7b72; }
 .post-body pre .token.function,
-.post-body pre .token.class-name { color: #D9A85C; }
+.post-body pre .token.class-name { color: #d2a8ff; }
 .post-body pre .token.regex,
-.post-body pre .token.important,
-.post-body pre .token.variable { color: #C97064; }
+.post-body pre .token.important { color: #ffa657; }
+.post-body pre .token.deleted { color: #ffa198; }
 .post-body pre .token.important,
 .post-body pre .token.bold { font-weight: 700; }
 .post-body pre .token.italic { font-style: italic; }
@@ -1009,7 +1005,9 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
    .post-body pre is styled above; it doesn't need the [data-theme] toggle
    since Mermaid is initialized once with this same fixed dark palette. */
 .post-body .mermaid {
-  background: #1A1714;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
   padding: 20px 24px;
   margin: 1.6em 0;
   overflow-x: auto;
@@ -1111,13 +1109,15 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* offset so a #anchor jump doesn't hide the heading under any sticky UI */
 .post-body :is(h2, h3)[id] { scroll-margin-top: 1.5em; }
 
-/* Table of contents (generated by the `toc` filter). */
+/* Table of contents (generated by the `toc` filter). Solid elevated panel so
+   it reads as a uniform block like the content cards, not a faint outline that
+   mixes into the background. */
 .post-toc {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px 20px;
   margin: 0 0 2em;
-  background: rgba(45, 84, 72, 0.03);
+  background: var(--bg-elevated);
   font-size: 14px;
 }
 .post-toc-label {
@@ -1183,7 +1183,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* Extended inline HTML tags — previously unstyled fallbacks. */
 .post-body del, .post-body s { color: var(--muted); }
 .post-body kbd {
-  font-family: 'Courier New', monospace;
+  font-family: var(--mono);
   font-size: 12px;
   background: rgba(45, 84, 72, 0.10);
   border: 1px solid var(--border);
@@ -1349,6 +1349,17 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .bookmark-btn.is-saved { color: var(--warm-accent, #E0975A); border-color: currentColor; }
 .bookmark-btn .bm-icon { font-size: 14px; line-height: 1; }
 
+/* medium-mode toggle — sits beside the save button in the post meta row */
+.medium-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid var(--border); border-radius: 999px;
+  padding: 2px 12px; cursor: pointer;
+  font: inherit; font-size: 12px; color: var(--muted);
+}
+.medium-btn:hover { border-color: var(--accent); color: var(--accent); }
+.medium-btn[aria-pressed="true"] { color: var(--text); border-color: var(--text); }
+.medium-btn .md-icon { font-size: 14px; line-height: 1; }
+
 .saved-posts:empty { display: none; }
 .saved-list { list-style: none; padding: 0; margin: 0 0 24px; }
 .saved-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
@@ -1417,3 +1428,102 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
   html.reading-mode section,
   html.reading-mode .post-full { max-width: clamp(38ch, 94vw, 84ch) !important; }
 }
+
+/* ───────────────────────────────────────
+   THEME TOAST + SWITCH ILLUMINATION
+   ─────────────────────────────────────── */
+.theme-toast {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 300;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 8px 14px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.theme-toast.show { opacity: 1; transform: translateY(0); }
+
+/* While medium mode is on, the theme switch glows to signal that it drives the
+   article's light/dark. */
+@keyframes theme-switch-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(233, 162, 59, 0); }
+  50%      { box-shadow: 0 0 0 3px rgba(233, 162, 59, 0.25), 0 0 14px 2px var(--warm-accent); }
+}
+html.medium-mode #themeSwitch {
+  animation: theme-switch-glow 1.8s ease-in-out infinite;
+  outline: 1px solid var(--warm-accent);
+}
+
+/* ───────────────────────────────────────
+   MEDIUM MODE — blog-post-only reading skin (Medium.com feel). Follows the
+   site theme switch: light by default (set on activation), dark via
+   [data-theme="dark"]. Only the article + surrounding chrome are reskinned.
+   ─────────────────────────────────────── */
+html.medium-mode {
+  --medium-bg:    #ffffff;
+  --medium-fg:    #242424;
+  --medium-muted: #6b6b6b;
+  --medium-rule:  #e6e6e6;
+  --medium-serif: Charter, 'Iowan Old Style', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+}
+html.medium-mode[data-theme="dark"] {
+  --medium-bg:    #121212;
+  --medium-fg:    rgba(255, 255, 255, 0.92);
+  --medium-muted: #a3a3a3;
+  --medium-rule:  #2a2a2a;
+}
+/* clean page: hide the dancing scene, flatten the chrome onto the medium bg */
+html.medium-mode body { background: var(--medium-bg); }
+html.medium-mode .scene { opacity: 0; }
+html.medium-mode .glass-surface { background: transparent; border-color: var(--medium-rule); }
+html.medium-mode .utility-strip,
+html.medium-mode header.glass-surface,
+html.medium-mode footer.glass-surface { color: var(--medium-fg); }
+
+/* the article itself */
+html.medium-mode .post-full { color: var(--medium-fg); }
+html.medium-mode .post-body {
+  background: var(--medium-bg);
+  border: none;
+  color: var(--medium-fg);
+  font-family: var(--medium-serif);
+  font-size: 21px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+  padding: 8px 0 40px;
+}
+html.medium-mode .post-full-title {
+  font-family: var(--medium-serif);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--medium-fg);
+}
+html.medium-mode .post-body h2,
+html.medium-mode .post-body h3 {
+  font-family: var(--medium-serif);
+  color: var(--medium-fg);
+  letter-spacing: -0.015em;
+}
+html.medium-mode .post-body h2 { font-size: 28px; font-weight: 700; }
+html.medium-mode .post-body h3 { font-size: 22px; font-weight: 700; }
+html.medium-mode .post-body p { margin-bottom: 1.4em; }
+html.medium-mode .post-body a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+html.medium-mode .post-body blockquote {
+  border-left: 3px solid var(--medium-fg);
+  color: var(--medium-muted);
+  font-style: italic;
+}
+html.medium-mode .post-toc { background: transparent; border-color: var(--medium-rule); }
+html.medium-mode .post-body code { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
+html.medium-mode[data-theme="dark"] .post-body code { background: rgba(255, 255, 255, 0.08); }
+html.medium-mode .post-signature { color: var(--medium-muted); }

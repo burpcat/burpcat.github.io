@@ -26,6 +26,9 @@ layout: base.njk
       <button class="bookmark-btn" type="button" data-bookmark data-url="{{ page.url }}" data-title="{{ title }}" aria-pressed="false" aria-label="Save this post">
         <span class="bm-icon" aria-hidden="true">☆</span><span class="bm-label">save</span>
       </button>
+      <button class="medium-btn" type="button" id="mediumToggle" aria-pressed="false" aria-label="Toggle Medium reading mode">
+        <span class="md-icon" aria-hidden="true">Ⓜ</span><span class="md-label">medium</span>
+      </button>
     </div>
     <h1 class="post-full-title">{{ title }}</h1>
     {% if tags and (tags | displayTags).length %}
