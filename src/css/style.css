@@ -565,11 +565,12 @@ html.reading-mode .scene::after {
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
-/* the listing/post sections set their own max-width inline — beat it here.
-   clamp() (not a plain ch cap) lets the column grow fuller on wide monitors
-   and shrink gracefully on narrow ones, instead of a single fixed width. */
-html.reading-mode section { max-width: clamp(46ch, 86vw, 84ch) !important; margin-left: auto; margin-right: auto; }
-html.reading-mode .post-full { max-width: clamp(46ch, 86vw, 84ch); }
+/* Blog pages get a wider, laptop-oriented container so the listing cards and
+   reading column line up flush with the header/utility bar (which span .wrap)
+   instead of sitting narrower and centered. ~1.5x the old ~84ch column. */
+html.reading-mode .wrap { max-width: 1240px; }
+html.reading-mode section { max-width: none !important; margin-left: auto; margin-right: auto; }
+html.reading-mode .post-full { max-width: none; }
 html.reading-mode .post-body {
   line-height: 1.9;
   padding: 34px 36px;
@@ -649,7 +650,6 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   margin-bottom: 30px;
   padding-bottom: 30px;
   border-bottom: 1px dashed var(--dash);
-  max-width: var(--max-reading);
 }
 .post-item:last-of-type { border-bottom: none; }
 /* /blog/ listing: each card is its own glass panel, not a dashed-divided list */
