@@ -1342,8 +1342,35 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .related-posts a:hover { text-decoration: underline; }
 .related-date { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
-/* Pagefind UI — nudge its accent to the site palette */
-:root { --pagefind-ui-primary: var(--accent); --pagefind-ui-font: inherit; }
+/* Pagefind UI — themed to the site instead of its stock white look. Drives
+   Pagefind's own CSS custom properties, then squares/darkens the widgets it
+   renders (search box, result cards, clear button) to match the site. */
+:root {
+  --pagefind-ui-primary: var(--accent);
+  --pagefind-ui-text: var(--text);
+  --pagefind-ui-background: var(--bg-elevated);
+  --pagefind-ui-border: var(--border);
+  --pagefind-ui-tag: var(--bg);
+  --pagefind-ui-font: 'Open Sans', system-ui, sans-serif;
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 0;
+  --pagefind-ui-image-border-radius: 0;
+}
+.post-search .pagefind-ui__search-input,
+.post-search .pagefind-ui__search-clear {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+.post-search .pagefind-ui__result {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+.post-search .pagefind-ui__result-link { color: var(--accent); }
+.post-search .pagefind-ui__result-excerpt { color: var(--body); }
+.post-search .pagefind-ui__message { color: var(--muted); }
 
 /* ───────────────────────────────────────
    ENGAGEMENT — bookmarks, newsletter, comments
