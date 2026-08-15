@@ -1494,9 +1494,11 @@ html.medium-mode #themeSwitch {
 }
 
 /* ───────────────────────────────────────
-   MEDIUM MODE — blog-post-only reading skin (Medium.com feel). Follows the
-   site theme switch: light by default (set on activation), dark via
-   [data-theme="dark"]. Only the article + surrounding chrome are reskinned.
+   MEDIUM MODE — a full-page, blog-post-only takeover that turns the post into
+   a Medium.com-style page. Page-local: it's keyed on html.medium-mode only,
+   never on the site theme (data-theme), so it can't leak to other pages and
+   can't corrupt the reader's real light/dark. Its own light/dark is the
+   `medium-dark` class, flipped by the theme switch while medium is on.
    ─────────────────────────────────────── */
 html.medium-mode {
   --medium-bg:    #ffffff;
@@ -1505,22 +1507,42 @@ html.medium-mode {
   --medium-rule:  #e6e6e6;
   --medium-serif: 'Source Serif 4', Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
 }
-html.medium-mode[data-theme="dark"] {
-  --medium-bg:    #121212;
+html.medium-mode.medium-dark {
+  --medium-bg:    #0f0f0f;
   --medium-fg:    rgba(255, 255, 255, 0.92);
   --medium-muted: #a3a3a3;
   --medium-rule:  #2a2a2a;
 }
-/* clean page: hide the dancing scene, flatten the chrome onto the medium bg */
-html.medium-mode body { background: var(--medium-bg); }
+/* whole page becomes the medium canvas: hide the scene, flatten every panel */
+html.medium-mode body { background: var(--medium-bg); color: var(--medium-fg); }
 html.medium-mode .scene { opacity: 0; }
-html.medium-mode .glass-surface { background: transparent; border-color: var(--medium-rule); }
-html.medium-mode .utility-strip,
-html.medium-mode header.glass-surface,
-html.medium-mode footer.glass-surface { color: var(--medium-fg); }
+html.medium-mode .glass-surface,
+html.medium-mode .glass-surface::after { background: transparent; }
+html.medium-mode .glass-surface { border: none; }
+html.medium-mode .utility-strip { border-bottom: 1px solid var(--medium-rule); }
+/* narrow, centered Medium column for chrome + article */
+html.medium-mode .wrap { max-width: 760px; }
 
-/* the article itself */
-html.medium-mode .post-full { color: var(--medium-fg); }
+/* chrome text onto the medium palette */
+html.medium-mode h1 a,
+html.medium-mode .tagline,
+html.medium-mode .sub-tagline,
+html.medium-mode .status,
+html.medium-mode .status .label,
+html.medium-mode nav a,
+html.medium-mode .post-meta-row { color: var(--medium-fg); }
+html.medium-mode .status a,
+html.medium-mode nav a.active { color: var(--medium-fg); }
+html.medium-mode .nav-row { border-top-color: var(--medium-rule); }
+html.medium-mode .medium-btn {
+  background: transparent; color: var(--medium-fg); border-color: var(--medium-rule);
+}
+html.medium-mode .medium-btn[aria-pressed="true"] {
+  background: var(--medium-fg); color: var(--medium-bg); border-color: var(--medium-fg);
+}
+
+/* the article itself — Medium serif at reading size */
+html.medium-mode .post-full { color: var(--medium-fg); max-width: 700px; margin: 0 auto; }
 html.medium-mode .post-body {
   background: var(--medium-bg);
   border: none;
@@ -1552,7 +1574,12 @@ html.medium-mode .post-body blockquote {
   color: var(--medium-muted);
   font-style: italic;
 }
+html.medium-mode .post-tags {
+  background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
+  border: none; padding: 0;
+}
+html.medium-mode .tag-pill { background: transparent; color: var(--medium-muted); border-color: var(--medium-rule); }
 html.medium-mode .post-toc { background: transparent; border-color: var(--medium-rule); }
 html.medium-mode .post-body code { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
-html.medium-mode[data-theme="dark"] .post-body code { background: rgba(255, 255, 255, 0.08); }
+html.medium-mode.medium-dark .post-body code { background: rgba(255, 255, 255, 0.08); }
 html.medium-mode .post-signature { color: var(--medium-muted); }
