@@ -226,7 +226,7 @@ body.calm-mode .construction { display: none !important; }
 .wrap {
   position: relative;
   z-index: 2;
-  max-width: 1060px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 24px 48px 60px;
 }
@@ -310,7 +310,7 @@ body.calm-mode .construction { display: none !important; }
   height: 28px;
   background: var(--text);
   border: none;
-  border-radius: 999px;
+  border-radius: 0;
   cursor: pointer;
   padding: 3px;
   transition: background 0.3s;
@@ -533,13 +533,9 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
    just how the blog looks, not a toggled state. Calm mode (see
    body.calm-mode above) remains its own separate, site-wide switch.
    ─────────────────────────────────────── */
-/* v9: the scene stays visible but drifts into a soft, blurred amber wash —
-   light through thick frosted glass — instead of disappearing outright. */
-html.reading-mode .scene-sky {
-  filter: blur(16px) saturate(1.2);
-  opacity: 0.85;
-  transition: filter 0.8s ease, opacity 0.8s ease;
-}
+/* Reading mode no longer blurs the scene on its own — the blog only softens
+   when calm mode is explicitly enabled (see body.calm-mode .scene-sky below).
+   A faint amber wash still tints the blog scene. */
 html.reading-mode .scene::after {
   content: "";
   position: absolute; inset: 0; z-index: 2;
@@ -558,10 +554,9 @@ body.calm-mode .scene-sky {
   opacity: 0.9;
   transition: filter 0.8s ease, opacity 0.8s ease;
 }
-/* Blog pages get a wider, laptop-oriented container so the listing cards and
-   reading column line up flush with the header/utility bar (which span .wrap)
-   instead of sitting narrower and centered. ~1.5x the old ~84ch column. */
-html.reading-mode .wrap { max-width: 1240px; }
+/* The wide, laptop-oriented container width is now the sitewide .wrap default
+   (see .wrap above), so the header/utility bar is identical on every page.
+   Blog listing/post sections just fill it flush. */
 html.reading-mode section { max-width: none !important; margin-left: auto; margin-right: auto; }
 html.reading-mode .post-full { max-width: none; }
 html.reading-mode .post-body {
@@ -674,7 +669,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 .post-title em { font-style: normal; }
 .post-title a { text-decoration: none; color: var(--text); transition: color 0.15s; }
 .post-title a:hover, .post-title a:focus { color: var(--accent); outline: none; }
-.post-excerpt { font-size: 15px; color: var(--body); line-height: 1.7; margin-bottom: 12px; }
+.post-excerpt { font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; color: var(--body); line-height: 1.7; margin-bottom: 12px; }
 .read-link {
   font-size: 13px; color: var(--accent);
   text-decoration: none; letter-spacing: 0.04em; font-weight: 600;
@@ -930,7 +925,10 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   letter-spacing: -0.5px;
   margin: 12px 0 30px;
 }
-.post-body { font-size: 16px; color: var(--body); line-height: 1.85; padding: 28px 30px; }
+.post-body {
+  font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  font-size: 18px; color: var(--body); line-height: 1.75; padding: 28px 30px;
+}
 .post-body p { margin-bottom: 1.2em; }
 .post-body h2 {
   font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
@@ -956,7 +954,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   background: #0d1117;
   color: #e6edf3;
   border: 1px solid #30363d;
-  border-radius: 6px;
+  border-radius: 0;
   padding: 16px 20px;
   overflow-x: auto;
   margin: 1.6em 0;
@@ -1007,7 +1005,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body .mermaid {
   background: #0d1117;
   border: 1px solid #30363d;
-  border-radius: 6px;
+  border-radius: 0;
   padding: 20px 24px;
   margin: 1.6em 0;
   overflow-x: auto;
@@ -1033,7 +1031,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   max-width: 100%;
   height: auto;
   display: block;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1px solid var(--border);
 }
 .post-body figcaption {
@@ -1049,11 +1047,22 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-signature { margin-top: 2.4em; color: var(--muted); font-size: 14px; font-style: italic; }
 
 .post-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
+/* On the post page the tag row sits over the scene, so give it a clear frosted
+   panel to sit on (the blog-listing cards already provide their own panel). */
+.post-full .post-tags {
+  background: var(--glass-tint);
+  -webkit-backdrop-filter: blur(8px) saturate(105%);
+  backdrop-filter: blur(8px) saturate(105%);
+  border: 1px solid var(--glass-edge);
+  padding: 10px 12px;
+  margin: 14px 0 0;
+}
 .tag-pill {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--body);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 3px 10px;
   letter-spacing: 0.02em;
 }
@@ -1114,7 +1123,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
    mixes into the background. */
 .post-toc {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 16px 20px;
   margin: 0 0 2em;
   background: var(--bg-elevated);
@@ -1137,7 +1146,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body .callout {
   border: 1px solid var(--border);
   border-left-width: 4px;
-  border-radius: 8px;
+  border-radius: 0;
   padding: 14px 18px;
   margin: 1.6em 0;
   background: rgba(45, 84, 72, 0.04);
@@ -1188,13 +1197,13 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   background: rgba(45, 84, 72, 0.10);
   border: 1px solid var(--border);
   border-bottom-width: 2px;
-  border-radius: 4px;
+  border-radius: 0;
   padding: 1px 6px;
 }
 .post-body sub, .post-body sup { line-height: 0; }
 .post-body details {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 10px 16px;
   margin: 1.6em 0;
 }
@@ -1209,7 +1218,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
    ─────────────────────────────────────── */
 .post-body .embed {
   margin: 1.6em 0;
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
   border: 1px solid var(--border);
 }
@@ -1232,7 +1241,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   margin: 1.6em 0;
   padding: 20px;
   border: 1px dashed var(--border);
-  border-radius: 8px;
+  border-radius: 0;
   color: var(--muted);
   font-size: 14px;
   text-align: center;
@@ -1244,7 +1253,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   margin: 1.6em 0;
   padding: 14px 18px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 0;
   text-decoration: none;
   color: var(--text);
 }
@@ -1272,7 +1281,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .lightbox-backdrop img {
   max-width: 100%;
   max-height: 100%;
-  border-radius: 8px;
+  border-radius: 0;
   cursor: zoom-out;
 }
 
@@ -1283,12 +1292,12 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-thumb { display: block; margin: -4px 0 14px; }
 .post-thumb img {
   width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
-  border-radius: 8px; border: 1px solid var(--border);
+  border-radius: 0; border: 1px solid var(--border);
 }
 .series-badge {
   font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--accent); border: 1px solid var(--border);
-  border-radius: 999px; padding: 1px 8px;
+  border-radius: 0; padding: 1px 8px;
 }
 a.tag-pill { text-decoration: none; transition: background 0.15s ease; }
 a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
@@ -1309,7 +1318,7 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .tag-count { color: var(--muted); font-size: 12px; }
 
 .series-nav {
-  border: 1px solid var(--border); border-radius: 10px;
+  border: 1px solid var(--border); border-radius: 0;
   padding: 16px 20px; margin: 40px 0 0; background: rgba(45, 84, 72, 0.03);
 }
 .series-nav-label { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
@@ -1333,31 +1342,50 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .related-posts a:hover { text-decoration: underline; }
 .related-date { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
-/* Pagefind UI — nudge its accent to the site palette */
-:root { --pagefind-ui-primary: var(--accent); --pagefind-ui-font: inherit; }
+/* Pagefind UI — themed to the site instead of its stock white look. Drives
+   Pagefind's own CSS custom properties, then squares/darkens the widgets it
+   renders (search box, result cards, clear button) to match the site. */
+:root {
+  --pagefind-ui-primary: var(--accent);
+  --pagefind-ui-text: var(--text);
+  --pagefind-ui-background: var(--bg-elevated);
+  --pagefind-ui-border: var(--border);
+  --pagefind-ui-tag: var(--bg);
+  --pagefind-ui-font: 'Open Sans', system-ui, sans-serif;
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 0;
+  --pagefind-ui-image-border-radius: 0;
+}
+.post-search .pagefind-ui__search-input,
+.post-search .pagefind-ui__search-clear {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+.post-search .pagefind-ui__result {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+.post-search .pagefind-ui__result-link { color: var(--accent); }
+.post-search .pagefind-ui__result-excerpt { color: var(--body); }
+.post-search .pagefind-ui__message { color: var(--muted); }
 
 /* ───────────────────────────────────────
    ENGAGEMENT — bookmarks, newsletter, comments
    ─────────────────────────────────────── */
-.bookmark-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: none; border: 1px solid var(--border); border-radius: 999px;
-  padding: 2px 12px; margin-left: auto; cursor: pointer;
-  font: inherit; font-size: 12px; color: var(--muted);
-}
-.bookmark-btn:hover { border-color: var(--accent); color: var(--accent); }
-.bookmark-btn.is-saved { color: var(--warm-accent, #E0975A); border-color: currentColor; }
-.bookmark-btn .bm-icon { font-size: 14px; line-height: 1; }
-
-/* medium-mode toggle — sits beside the save button in the post meta row */
+/* medium-mode toggle — the only button in the post meta row. Opaque backing +
+   sharp corners so it reads clearly over the animated scene. */
 .medium-btn {
   display: inline-flex; align-items: center; gap: 5px;
-  background: none; border: 1px solid var(--border); border-radius: 999px;
-  padding: 2px 12px; cursor: pointer;
-  font: inherit; font-size: 12px; color: var(--muted);
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0;
+  padding: 4px 12px; margin-left: auto; cursor: pointer;
+  font: inherit; font-size: 12px; color: var(--body);
+  min-height: 26px;
 }
 .medium-btn:hover { border-color: var(--accent); color: var(--accent); }
-.medium-btn[aria-pressed="true"] { color: var(--text); border-color: var(--text); }
+.medium-btn[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
 .medium-btn .md-icon { font-size: 14px; line-height: 1; }
 
 .saved-posts:empty { display: none; }
@@ -1368,18 +1396,18 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 
 .newsletter {
   margin: 40px 0 0; padding: 20px 24px;
-  border: 1px solid var(--border); border-radius: 10px;
+  border: 1px solid var(--border); border-radius: 0;
   background: rgba(45, 84, 72, 0.03);
 }
 .newsletter-label { font-weight: 600; margin: 0 0 12px; }
 .newsletter-form { display: flex; gap: 10px; flex-wrap: wrap; }
 .newsletter-form input {
   flex: 1 1 220px; padding: 9px 12px;
-  border: 1px solid var(--border); border-radius: 8px;
+  border: 1px solid var(--border); border-radius: 0;
   font: inherit; background: var(--bg, #fff); color: var(--text);
 }
 .newsletter-form button {
-  padding: 9px 20px; border: none; border-radius: 8px; cursor: pointer;
+  padding: 9px 20px; border: none; border-radius: 0; cursor: pointer;
   font: inherit; font-weight: 600; background: var(--accent); color: #fff;
 }
 .newsletter-form button:hover { opacity: 0.9; }
@@ -1444,7 +1472,7 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
   font-size: 12px;
   letter-spacing: 0.06em;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 0;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
   opacity: 0;
   transform: translateY(-8px);
@@ -1474,7 +1502,7 @@ html.medium-mode {
   --medium-fg:    #242424;
   --medium-muted: #6b6b6b;
   --medium-rule:  #e6e6e6;
-  --medium-serif: Charter, 'Iowan Old Style', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+  --medium-serif: 'Source Serif 4', Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
 }
 html.medium-mode[data-theme="dark"] {
   --medium-bg:    #121212;
