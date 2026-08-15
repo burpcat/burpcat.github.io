@@ -407,14 +407,12 @@ body.calm-mode .construction { display: none !important; }
    ─────────────────────────────────────── */
 header { margin-top: 16px; margin-bottom: 36px; }
 .wrap > header { padding: 24px 28px; }
-/* Display face: Clash Display (Fontshare). No true italic — emphasis is
-   weight/size, not font-style. Alternative if a more literal athletic feel
-   is wanted later: swap the Fontshare link for
-   https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap
-   and set font-family: 'Oswald', 'Arial Narrow', sans-serif; on the same selectors. */
+/* Display face: Bricolage Grotesque (Google Fonts) — a heavy, characterful
+   grotesque used at 600–800 for the strength the titles were missing. No true
+   italic; emphasis is weight/size, not font-style. */
 h1 {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700;
   font-size: clamp(46px, 7vw, 68px);
   line-height: 1;
   letter-spacing: -0.3px;
@@ -604,8 +602,8 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .exp-item:last-of-type { border-bottom: none; }
 .exp-role {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 500;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 600;
   font-size: 19px;
   margin-bottom: 5px;
   color: var(--text);
@@ -659,8 +657,8 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 .post-date { font-weight: 600; }
 .reading-time::before { content: "·"; margin-right: 8px; }
 .post-title {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600; font-size: 21px;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700; font-size: 21px;
   line-height: 1.3; margin-bottom: 12px;
 }
 .post-title em { font-style: normal; }
@@ -777,8 +775,8 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   width: 100%;
 }
 .modal h3 {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 500;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700;
   font-size: 26px;
   margin-bottom: 8px;
 }
@@ -841,8 +839,8 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 }
 .welcome-overlay.open .welcome-card { transform: none; opacity: 1; }
 .welcome-title {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700;
   font-size: 30px;
   color: var(--text);
   margin: 6px 0 10px;
@@ -915,23 +913,25 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ── single post page ── */
 .post-full { max-width: 65ch; margin: 0 auto; }
 .post-full-title {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 600;
-  font-size: clamp(28px, 5vw, 40px);
-  line-height: 1.2;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.15;
   letter-spacing: -0.5px;
   margin: 12px 0 30px;
 }
 .post-body { font-size: 16px; color: var(--body); line-height: 1.85; padding: 28px 30px; }
 .post-body p { margin-bottom: 1.2em; }
 .post-body h2 {
-  font-family: 'Clash Display', 'Arial Narrow', sans-serif;
-  font-weight: 500; font-size: 24px;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 700; font-size: 25px;
+  letter-spacing: -0.2px;
   margin: 2em 0 0.8em; color: var(--text);
 }
 .post-body h3 {
-  font-size: 16px; font-weight: 600;
-  letter-spacing: 0.04em;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-size: 18px; font-weight: 700;
+  letter-spacing: 0;
   margin: 1.8em 0 0.6em; color: var(--text);
 }
 .post-body a { color: var(--accent); }
