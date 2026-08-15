@@ -154,18 +154,6 @@ body {
 body.calm-mode .new-badge,
 body.calm-mode .dot { animation: none !important; }
 body.calm-mode .construction { display: none !important; }
-/* de-frost every glassy panel, site-wide — each page keeps its own colors
-   (light/dark/About), this only removes the blur/translucency. Reading
-   mode (blog + post pages only) is a derived subset of calm mode, so this
-   already covers what reading mode used to flatten on its own. */
-body.calm-mode { background: var(--bg); }
-body.calm-mode .glass-surface {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-body.calm-mode .glass-surface::after { display: none; }
 
 /* ───────────────────────────────────────
    BACKGROUND SCENE — fixed sky/spiral/ridge behind everything
@@ -524,24 +512,17 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 }
 
 /* ───────────────────────────────────────
-   GLASS — atmosphere, not a widget. Squared, lightly frosted, faintly grained.
+   GLASS — solid, calm panels. Formerly a frosted/grained translucent surface
+   that only turned opaque under calm mode; that darker, de-frosted look is now
+   the site-wide default (calm mode was repurposed for the background lights).
+   Each page keeps its own colors (light/dark/About) via --bg-elevated.
    ─────────────────────────────────────── */
 .glass-surface {
-  background: var(--glass-tint);
-  border: 1px solid var(--glass-edge);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
   border-radius: 0;
-  -webkit-backdrop-filter: blur(7px) saturate(105%);
-  backdrop-filter: blur(7px) saturate(105%);
   position: relative;
   isolation: isolate;
-}
-.glass-surface::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  opacity: 0.06; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-surface { background: var(--glass-solid); }
 }
 
 /* ───────────────────────────────────────
