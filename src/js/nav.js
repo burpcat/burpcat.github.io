@@ -29,8 +29,8 @@
 
   // ── script re-execution ──
   // <script> tags inserted via innerHTML/appendChild of parsed nodes never
-  // run — needed for guestbook's giscus embed, written with no knowledge of
-  // giscus specifically so any future per-page script keeps working too.
+  // run — needed for per-page scripts like the blog search overlay's init
+  // (src/js/search.js), written generically so any such script keeps working.
   function reviveScripts(container) {
     container.querySelectorAll('script').forEach((old) => {
       const fresh = document.createElement('script');

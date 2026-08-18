@@ -591,34 +591,6 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .see-all:hover, .see-all:focus { color: var(--accent-hover); text-decoration: underline; outline: none; }
 
-.guestbook-teaser {
-  margin-top: 32px;
-  padding: 20px 22px;
-  background: rgba(var(--warm-rgb), 0.08);
-  border: 1px dashed var(--warm-accent);
-  max-width: var(--max-reading);
-}
-.gb-label {
-  font-size: 11px; color: var(--muted);
-  letter-spacing: 0.12em; text-transform: uppercase;
-  margin-bottom: 10px; font-weight: 700;
-}
-.gb-empty {
-  font-family: 'Open Sans', sans-serif;
-  font-style: italic; font-size: 16px;
-  color: var(--text); line-height: 1.55;
-  margin-bottom: 10px;
-}
-.gb-sign {
-  display: inline-flex; align-items: center;
-  margin-top: 8px; font-size: 13px;
-  color: var(--accent); text-decoration: none;
-  font-weight: 600;
-  border-bottom: 1px dashed var(--accent);
-  padding: 6px 0; min-height: var(--tap-min);
-}
-.gb-sign:hover, .gb-sign:focus { color: var(--accent-hover); outline: none; }
-
 .blogroll {
   margin-top: 52px;
   padding: 26px 24px 30px;
@@ -1405,12 +1377,6 @@ a.tag-pill:hover { background: rgba(var(--muted-rgb), 0.10); }
   font: inherit; font-weight: 600; background: var(--accent); color: #fff;
 }
 .newsletter-form button:hover { opacity: 0.9; }
-
-.post-comments { margin: 48px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
-.comments-label {
-  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--muted); margin: 0 0 16px;
-}
 
 /* ───────────────────────────────────────
    RESPONSIVE
