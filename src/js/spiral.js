@@ -739,7 +739,11 @@
   // "dancing" wobble every other strand gets (computeStrandHum), and the
   // same arm-split gradient-band fill drawStrands uses for ring strands —
   // simpler here since a few-degree spread never needs the cross-arm
-  // pairing check large rotations require (see drawStrands).
+  // pairing check large rotations require (see drawStrands). Unlike
+  // drawStrands, these twin strands are never STRAND_REACH_FRAC-clamped —
+  // there's only ever two of them, so there's no risk of tiling the whole
+  // background, and the design calls for them bleeding all the way to the
+  // screen edges.
   function drawAboutStrands(points, anchor, hum, style, anchorParamVal) {
     const spreadRad = (ABOUT_TWIN_SPREAD_DEG * Math.PI) / 180;
     const offsets = [-spreadRad / 2, spreadRad / 2];
@@ -759,14 +763,9 @@
     ]);
     const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
     const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
-    const reachPx = STRAND_REACH_FRAC * Math.min(W, H);
-    const [startIdx, endIdx] = reachIndexRange(basePts, anchorIdx, reachPx);
-    const trimmedPoints = points.slice(startIdx, endIdx + 1);
-    const trimmedBasePts = basePts.slice(startIdx, endIdx + 1);
-    const trimmedAnchorIdx = anchorIdx - startIdx;
     const arms = [
-      resamplePolyline(trimmedBasePts.slice(0, trimmedAnchorIdx + 1).reverse(), BAND_ARM_POINTS),
-      resamplePolyline(trimmedBasePts.slice(trimmedAnchorIdx), BAND_ARM_POINTS),
+      resamplePolyline(basePts.slice(0, anchorIdx + 1).reverse(), BAND_ARM_POINTS),
+      resamplePolyline(basePts.slice(anchorIdx), BAND_ARM_POINTS),
     ];
     for (const arm of arms) {
       const ptsA = arm.map((p) => rotateScalePoint(p[0], p[1], strandHums[0]));
@@ -775,7 +774,7 @@
     }
 
     for (let i = 0; i < offsets.length; i++) {
-      strokeMorph(trimmedPoints, anchor, strandHums[i], style, colors[i]);
+      strokeMorph(points, anchor, strandHums[i], style, colors[i]);
     }
   }
 
@@ -868,7 +867,8 @@
     // Hum frequency locks to the bar (not the raw beat — a full-speed
     // beat-locked hum reads as a flutter, not a breath); calm/reading mode
     // drops to every 4th bar, close to the original ~0.15Hz slow breathing.
-    const humFreqHz = (calm || readingMode()) ? 1 / (4 * BAR) : 3 / (4 * BAR);
+    // About page's twin strands dance 50% faster than everywhere else.
+    const humFreqHz = ((calm || readingMode()) ? 1 / (4 * BAR) : 3 / (4 * BAR)) * (isAboutPage() ? 1.5 : 1);
     humPhaseAccum = (humPhaseAccum + dtSec * humFreqHz * 2 * Math.PI) % (2 * Math.PI);
 
     let hum = null;
