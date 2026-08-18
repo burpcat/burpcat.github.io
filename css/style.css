@@ -1,133 +1,15 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ───────────────────────────────────────
-   LIGHT THEME
-   ─────────────────────────────────────── */
-:root, [data-theme="light"] {
-  --bg:           #E7D3B8;
-  --bg-elevated:  #EEDCC4;
-  --text:         #2A2018;
-  --body:         #3A2E23;
-  --muted:        #6E5C48;
-  --faint:        #82705A;
-  --border:       #C4A883;
-  --dash:         #B69A76;
-  --accent:       #2F6E57;
-  --accent-hover: #245943;
-  --warm-accent:  #C25A2A;
-  --rss:          #B5501F;
-  --geo-yellow:   #D08A2E;
-  --geo-pink:     #A85440;
-
-  /* calm mode icon — "on" tuned for contrast against the toggle's filled
-     pressed state (var(--text)); "off" matches this theme's --muted value
-     (already proven legible at rest), copied literally rather than
-     `var(--muted)` so the icon keeps one consistent identity everywhere,
-     including pages (About) that locally override --muted for their own
-     palette. */
-  --calm-on:      #6FE3B4;
-  --calm-off:     #6E5C48;
-
-  --sky-top:      #F0D9B4;
-  --sky-bottom:   #E0B181;
-  --ridge-far:    #9C8460;
-  --ridge-near:   #5E4A34;
-  --ridge-trees:  #33261A;
-  --orb:          #E8913C;
-  --orb-glow:     rgba(232,145,60,0.34);
-  --spiral-line:  47,110,87;
-  --spiral-alpha: 0.42;
-
-  /* Chitra — the reading-mode star's color. Overridden inline in base.njk
-     from src/_data/weather.json (see scripts/fetch-weather.js); these are
-     just the static fallback (a clear-sky gold) for local dev before any
-     fetch has run. */
-  --chitra-color:     #F5D77A;
-  --chitra-color-rgb: 245,215,122;
-
-  --glass-tint:   rgba(231,211,184,0.52);
-  --glass-solid:  rgba(231,211,184,0.94);
-  --glass-edge:   rgba(42,32,24,0.20);
-
+/* All themed color tokens (light/dark/about + the 5-color system they're
+   built from) live in src/css/theme.css, loaded before this file. What
+   follows are non-color, theme-independent constants. */
+:root {
   --max-reading: 65ch;
   --tap-min: 44px;
 
   /* GitHub's monospace stack — used for code blocks / inline code so snippets
      read like GitHub. System fonts only, no webfont request. */
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
-}
-
-/* ───────────────────────────────────────
-   DARK THEME
-   ─────────────────────────────────────── */
-[data-theme="dark"] {
-  --bg:           #0C1512;
-  --bg-elevated:  #14211C;
-  --text:         #DCE4D6;
-  --body:         #C2CDBB;
-  --muted:        #93A08E;
-  --faint:        #7F8C7A;
-  --border:       #2A3A32;
-  --dash:         #23322B;
-  --accent:       #7FB59B;
-  --accent-hover: #9BCBB4;
-  --warm-accent:  #E9A23B;
-  --rss:          #E0975A;
-  --geo-yellow:   #E9A23B;
-  --geo-pink:     #B98090;
-
-  /* calm mode icon — see light theme above for the rationale */
-  --calm-on:      #1D6B4A;
-  --calm-off:     #93A08E;
-
-  --sky-top:      #0A130F;
-  --sky-bottom:   #1C3A34;
-  --ridge-far:    #16302A;
-  --ridge-near:   #0E211C;
-  --ridge-trees:  #060D0A;
-  --orb:          #E9A23B;
-  --orb-glow:     rgba(233,162,59,0.42);
-  --spiral-line:  127,181,155;
-  --spiral-alpha: 0.55;
-
-  --glass-tint:   rgba(12,21,18,0.42);
-  --glass-solid:  rgba(12,21,18,0.90);
-  --glass-edge:   rgba(220,228,214,0.14);
-}
-
-/* ───────────────────────────────────────
-   ABOUT PAGE — scoped warm-clay override, same regardless of light/dark.
-   Hot, watchful, Claude-adjacent clay — not a neon alarm.
-   ─────────────────────────────────────── */
-[data-page="about"] {
-  --bg:           #170D09;
-  --bg-elevated:  #221109;
-  --text:         #F1DBCB;
-  --body:         #E0C3B0;
-  --muted:        #B0846C;
-  --faint:        #966B54;
-  --border:       #4A2416;
-  --dash:         #3A1B10;
-  --accent:       #D9542A;
-  --accent-hover: #C15F3C;
-  --warm-accent:  #FF6A38;
-  --rss:          #E0662E;
-  --geo-yellow:   #E08A3C;
-  --geo-pink:     #C15F3C;
-
-  --sky-top:      #120806;
-  --sky-bottom:   #3A1508;
-  --ridge-far:    #3A1A10;
-  --ridge-near:   #24110A;
-  --ridge-trees:  #150A06;
-  --orb:          #FF5A2C;
-  --orb-glow:     rgba(255,90,44,0.50);
-  --spiral-line:  217,84,42;
-  --spiral-alpha: 0.50;
-
-  --glass-tint:   rgba(23,13,9,0.44);
-  --glass-solid:  rgba(23,13,9,0.90);
-  --glass-edge:   rgba(241,219,203,0.14);
 }
 
 /* v9: the about tile itself reads darker — ~20% light through — while the
@@ -223,6 +105,27 @@ body.calm-mode .construction { display: none !important; }
   );
 }
 
+/* Calm-mode-only mist, hugging whichever edge the scroll-driven star is
+   currently near (see updateMist() in spiral.js) — opacity is set inline
+   per-frame from scrollP, so the transition here just smooths that out. */
+.scene-mist {
+  position: absolute;
+  left: 0; right: 0;
+  height: 38vh;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+  filter: blur(20px);
+}
+.scene-mist-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.35), transparent 80%);
+}
+.scene-mist-top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35), transparent 80%);
+}
+
 .wrap {
   position: relative;
   z-index: 2;
@@ -275,16 +178,15 @@ body.calm-mode .construction { display: none !important; }
 }
 .dot {
   width: 9px; height: 9px;
-  background: #5C9A82;
+  background: var(--accent);
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(92, 154, 130, 0.20);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.20);
   animation: gentle-pulse 3s ease-in-out infinite;
 }
-[data-theme="dark"] .dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(123, 184, 156, 0.18); }
 @keyframes gentle-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(92, 154, 130, 0.20); }
-  50%      { box-shadow: 0 0 0 5px rgba(92, 154, 130, 0.12); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.20); }
+  50%      { box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.12); }
 }
 .status .label { color: var(--muted); }
 .status a {
@@ -392,7 +294,7 @@ body.calm-mode .construction { display: none !important; }
   font-size: 9px;
   letter-spacing: 0.12em;
   color: #1A1714;
-  background: var(--geo-yellow);
+  background: var(--warm-accent);
   padding: 6px 10px;
   transform: rotate(-2deg);
   border: 1px solid #1A1714;
@@ -465,10 +367,10 @@ nav a.active { color: var(--accent); font-weight: 600; }
 nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 .rss-link {
   gap: 6px;
-  color: var(--rss) !important;
+  color: var(--warm-accent) !important;
   margin-left: auto;
 }
-.rss-icon { width: 14px; height: 14px; fill: var(--rss); }
+.rss-icon { width: 14px; height: 14px; fill: var(--warm-accent); }
 
 .auth-buttons {
   display: flex;
@@ -509,8 +411,10 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
   color: var(--text);
   opacity: 0.85;
   letter-spacing: 0.04em;
+  line-height: 1.6;
   text-align: center;
-  margin: 8px 0 32px;
+  max-width: 62ch;
+  margin: 8px auto 32px;
 }
 
 /* ───────────────────────────────────────
@@ -593,7 +497,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   max-width: var(--max-reading);
 }
 .empty-state code {
-  background: rgba(45, 84, 72, 0.08);
+  background: rgba(var(--muted-rgb), 0.08);
   padding: 1px 6px;
   font-size: 13px;
   font-style: normal;
@@ -647,7 +551,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .new-badge {
   display: inline-block;
-  background: var(--geo-pink); color: #fff;
+  background: var(--warm-accent); color: #fff;
   font-size: 10px; letter-spacing: 0.15em;
   padding: 3px 7px; margin-right: 8px;
   vertical-align: middle; font-weight: 700;
@@ -689,35 +593,6 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .see-all:hover, .see-all:focus { color: var(--accent-hover); text-decoration: underline; outline: none; }
 
-.guestbook-teaser {
-  margin-top: 32px;
-  padding: 20px 22px;
-  background: rgba(217, 164, 39, 0.10);
-  border: 1px dashed var(--warm-accent);
-  max-width: var(--max-reading);
-}
-[data-theme="dark"] .guestbook-teaser { background: rgba(232, 169, 81, 0.08); }
-.gb-label {
-  font-size: 11px; color: var(--muted);
-  letter-spacing: 0.12em; text-transform: uppercase;
-  margin-bottom: 10px; font-weight: 700;
-}
-.gb-empty {
-  font-family: 'Open Sans', sans-serif;
-  font-style: italic; font-size: 16px;
-  color: var(--text); line-height: 1.55;
-  margin-bottom: 10px;
-}
-.gb-sign {
-  display: inline-flex; align-items: center;
-  margin-top: 8px; font-size: 13px;
-  color: var(--accent); text-decoration: none;
-  font-weight: 600;
-  border-bottom: 1px dashed var(--accent);
-  padding: 6px 0; min-height: var(--tap-min);
-}
-.gb-sign:hover, .gb-sign:focus { color: var(--accent-hover); outline: none; }
-
 .blogroll {
   margin-top: 52px;
   padding: 26px 24px 30px;
@@ -744,7 +619,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   color: var(--accent-hover); text-decoration: underline; outline: none;
 }
 .blogroll-list .feed-link {
-  color: var(--rss); font-size: 12px;
+  color: var(--warm-accent); font-size: 12px;
   margin-left: 4px; padding: 8px 6px;
   min-height: var(--tap-min);
   display: inline-flex; align-items: center;
@@ -768,7 +643,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ── modal ── */
 .modal-backdrop {
   position: fixed; inset: 0;
-  background: rgba(26, 23, 20, 0.55);
+  background: rgba(var(--scrim-rgb), 0.55);
   display: none;
   align-items: center; justify-content: center;
   z-index: 100; padding: 20px;
@@ -824,7 +699,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   position: fixed; inset: 0; z-index: 50;
   display: flex; align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--bg) 70%, transparent);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
   opacity: 0;
   transition: opacity 0.35s ease;
 }
@@ -832,6 +707,10 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
    the author rule wins and the closed popup keeps blocking clicks site-wide */
 .welcome-overlay[hidden] { display: none; }
 .welcome-overlay.open { opacity: 1; }
+/* while the popup is up, hide the site content (name/nav/cards) entirely —
+   only the animated scene behind it (Chitra, her strands, the mountains)
+   stays visible, softly blurred by the overlay's own backdrop-filter above */
+body.welcome-active .wrap { visibility: hidden; }
 .welcome-card {
   /* .glass-surface already supplies squared corners, tint, grain, ink edge */
   max-width: 440px;
@@ -850,20 +729,9 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   color: var(--text);
   margin: 6px 0 10px;
 }
-.welcome-body {
-  font-family: 'Open Sans', sans-serif;
-  color: var(--body);
-  line-height: 1.6;
-  font-size: 14px;
-}
 .welcome-theme {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   margin: 18px 0 6px;
-}
-.welcome-label {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: var(--muted);
 }
 .welcome-modes { display: flex; gap: 8px; }
 .welcome-modes button {
@@ -872,16 +740,17 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   padding: 6px 12px;
   border: 0.5px solid var(--glass-edge);
   background: transparent;
-  color: var(--muted);
+  color: var(--body);
   cursor: pointer;
   border-radius: 0;
   min-height: var(--tap-min);
 }
 .welcome-modes button[aria-pressed="true"] { color: var(--warm-accent); border-color: var(--warm-accent); }
-/* the calm button gets its own color (matching the header calm-toggle
-   icon) rather than --warm-accent, to read as a distinct concept from the
-   day/night choice above it */
-#wm-calm[aria-pressed="true"] { color: var(--calm-on); border-color: var(--calm-on); }
+/* the calm buttons get their own colors (matching the header calm-toggle
+   icon's on/off tokens) rather than --warm-accent, to read as a distinct
+   concept from the day/night choice above them */
+#wm-calm-on[aria-pressed="true"] { color: var(--calm-on); border-color: var(--calm-on); }
+#wm-calm-off[aria-pressed="true"] { color: var(--calm-off); border-color: var(--calm-off); }
 .welcome-music {
   display: flex; align-items: flex-start; gap: 10px;
   margin: 16px 0 22px;
@@ -947,13 +816,13 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body code {
   font-family: var(--mono);
   font-size: 13.5px;
-  background: rgba(45, 84, 72, 0.08);
+  background: rgba(var(--muted-rgb), 0.08);
   padding: 2px 6px;
 }
 .post-body pre {
-  background: #0d1117;
-  color: #e6edf3;
-  border: 1px solid #30363d;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid var(--code-border);
   border-radius: 0;
   padding: 16px 20px;
   overflow-x: auto;
@@ -961,50 +830,55 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   font-size: 13.5px;
   line-height: 1.6;
 }
-.post-body pre code { background: none; padding: 0; color: inherit; }
+.post-body pre code { background: none; padding: 0; color: var(--code-fg); }
 
-/* Prism token colors — GitHub Dark Default palette (#0d1117 bg / #e6edf3 fg),
-   so fenced code reads like a GitHub snippet regardless of the site theme. */
+/* Prism token colors — GitHub Dark Default palette by default (see
+   theme.css's --code-*/--tok-* exception vars); Medium Mode redefines those
+   vars to a GitHub Light set, so fenced code switches with Medium's own
+   light/dark instead of a hardcoded hex regardless of mode. */
 .post-body pre .token.comment,
 .post-body pre .token.prolog,
 .post-body pre .token.doctype,
-.post-body pre .token.cdata { color: #8b949e; }
-.post-body pre .token.punctuation { color: #c9d1d9; }
+.post-body pre .token.cdata { color: var(--tok-comment); }
+.post-body pre .token.punctuation { color: var(--tok-punct); }
 .post-body pre .token.property,
 .post-body pre .token.tag,
 .post-body pre .token.boolean,
 .post-body pre .token.number,
 .post-body pre .token.constant,
-.post-body pre .token.symbol { color: #79c0ff; }
+.post-body pre .token.symbol { color: var(--tok-number); }
 .post-body pre .token.selector,
 .post-body pre .token.attr-name,
 .post-body pre .token.string,
 .post-body pre .token.char,
 .post-body pre .token.builtin,
-.post-body pre .token.inserted { color: #a5d6ff; }
+.post-body pre .token.inserted { color: var(--tok-string); }
 .post-body pre .token.operator,
 .post-body pre .token.entity,
 .post-body pre .token.url,
-.post-body pre .token.variable { color: #c9d1d9; }
+.post-body pre .token.variable { color: var(--tok-punct); }
 .post-body pre .token.atrule,
 .post-body pre .token.attr-value,
-.post-body pre .token.keyword { color: #ff7b72; }
+.post-body pre .token.keyword { color: var(--tok-keyword); }
 .post-body pre .token.function,
-.post-body pre .token.class-name { color: #d2a8ff; }
+.post-body pre .token.class-name { color: var(--tok-fn); }
 .post-body pre .token.regex,
-.post-body pre .token.important { color: #ffa657; }
-.post-body pre .token.deleted { color: #ffa198; }
+.post-body pre .token.important { color: var(--tok-regex); }
+.post-body pre .token.deleted { color: var(--tok-deleted); }
 .post-body pre .token.important,
 .post-body pre .token.bold { font-weight: 700; }
 .post-body pre .token.italic { font-style: italic; }
 
 /* Mermaid diagrams — rendered client-side (see /js/mermaid-init.js) into a
    plain <div class="mermaid">, so this styles the container the same way
-   .post-body pre is styled above; it doesn't need the [data-theme] toggle
-   since Mermaid is initialized once with this same fixed dark palette. */
+   .post-body pre is styled above. Unlike the token colors, Mermaid's own
+   palette is baked into the SVG at render time (mermaid.initialize()'s
+   themeVariables) and stays a fixed dark palette regardless of Medium Mode
+   — only this container (background/border) follows --code-bg/--code-border
+   so the box around it still matches whichever mode's code palette is active. */
 .post-body .mermaid {
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
   border-radius: 0;
   padding: 20px 24px;
   margin: 1.6em 0;
@@ -1091,7 +965,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   overflow-x: auto;
 }
 .post-body thead th {
-  background: rgba(45, 84, 72, 0.10);
+  background: rgba(var(--muted-rgb), 0.10);
   font-weight: 600;
   text-align: left;
 }
@@ -1100,7 +974,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   padding: 8px 12px;
   vertical-align: top;
 }
-.post-body tbody tr:nth-child(even) { background: rgba(45, 84, 72, 0.03); }
+.post-body tbody tr:nth-child(even) { background: rgba(var(--muted-rgb), 0.03); }
 
 /* Heading anchor links (markdown-it-anchor). Hidden until the heading is
    hovered/focused so prose stays clean. */
@@ -1121,26 +995,53 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* Table of contents (generated by the `toc` filter). Solid elevated panel so
    it reads as a uniform block like the content cards, not a faint outline that
    mixes into the background. */
+/* A fixed-width label column + a content column, side by side — the label
+   stays a constant 30% regardless of how tall the section list makes the
+   rectangle (align-items: center keeps it vertically centered as it grows).
+   `.post-toc` is a <nav>, so this also has to out-specify the generic
+   `nav { display:flex; font-family:'Courier New' }` rule meant for the
+   header's own navigation (a real bleed bug — every <nav> on the site was
+   inheriting it, which is why this used to render as an unstyled monospace
+   row instead of a designed two-column block). */
 .post-toc {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
   border: 1px solid var(--border);
   border-radius: 0;
-  padding: 16px 20px;
   margin: 0 0 2em;
   background: var(--bg-elevated);
-  font-size: 14px;
+  overflow: hidden;
+  font-family: 'Open Sans', system-ui, sans-serif;
 }
 .post-toc-label {
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  flex: 0 0 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0;
+  padding: 20px 14px;
+  font-family: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 8px;
+  color: var(--text);
+  background: rgba(var(--muted-rgb), 0.07);
+  border-right: 1px solid var(--border);
 }
-.post-toc ul { list-style: none; padding-left: 0; margin: 0; }
-.post-toc li { margin: 3px 0; }
-.post-toc li.toc-h3 { padding-left: 16px; font-size: 13px; }
-.post-toc a { color: var(--accent); text-decoration: none; }
-.post-toc a:hover { text-decoration: underline; }
+.post-toc-sections { flex: 1 1 70%; min-width: 0; padding: 18px 22px; font-size: 14px; }
+.post-toc-sections ul { list-style: none; padding-left: 0; margin: 0; }
+.post-toc-sections li { margin: 8px 0; }
+.post-toc-sections li.toc-h3 { padding-left: 16px; font-size: 13px; }
+.post-toc-sections li::before { content: "–"; color: var(--muted); margin-right: 8px; }
+.post-toc-sections a {
+  display: inline; padding: 0; min-height: 0;
+  color: var(--accent); text-decoration: none;
+}
+.post-toc-sections a:hover { text-decoration: underline; }
 
 /* Callouts / admonitions (:::note / :::tip / :::warn / :::info). */
 .post-body .callout {
@@ -1149,7 +1050,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   border-radius: 0;
   padding: 14px 18px;
   margin: 1.6em 0;
-  background: rgba(45, 84, 72, 0.04);
+  background: var(--callout-bg);
 }
 .post-body .callout > :last-child { margin-bottom: 0; }
 .post-body .callout-label {
@@ -1159,14 +1060,14 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   text-transform: uppercase;
   margin: 0 0 6px;
 }
-.post-body .callout-note { border-left-color: #7FB59B; }
-.post-body .callout-note .callout-label { color: #5B8F79; }
-.post-body .callout-tip { border-left-color: #8FBFA3; background: rgba(143, 191, 163, 0.08); }
-.post-body .callout-tip .callout-label { color: #4F8A6B; }
-.post-body .callout-warn { border-left-color: #E0975A; background: rgba(224, 151, 90, 0.08); }
-.post-body .callout-warn .callout-label { color: #C57A38; }
-.post-body .callout-info { border-left-color: #6FA8C7; background: rgba(111, 168, 199, 0.08); }
-.post-body .callout-info .callout-label { color: #4A83A2; }
+.post-body .callout-note { border-left-color: var(--callout-note); }
+.post-body .callout-note .callout-label { color: var(--callout-note-label); }
+.post-body .callout-tip { border-left-color: var(--callout-tip); background: var(--callout-tip-bg); }
+.post-body .callout-tip .callout-label { color: var(--callout-tip-label); }
+.post-body .callout-warn { border-left-color: var(--callout-warn); background: var(--callout-warn-bg); }
+.post-body .callout-warn .callout-label { color: var(--callout-warn-label); }
+.post-body .callout-info { border-left-color: var(--callout-info); background: var(--callout-info-bg); }
+.post-body .callout-info .callout-label { color: var(--callout-info-label); }
 
 /* Footnotes (markdown-it-footnote). */
 .post-body .footnote-ref a { text-decoration: none; font-weight: 600; }
@@ -1194,7 +1095,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body kbd {
   font-family: var(--mono);
   font-size: 12px;
-  background: rgba(45, 84, 72, 0.10);
+  background: rgba(var(--muted-rgb), 0.10);
   border: 1px solid var(--border);
   border-bottom-width: 2px;
   border-radius: 0;
@@ -1257,7 +1158,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   text-decoration: none;
   color: var(--text);
 }
-.post-body .embed-repo:hover { background: rgba(45, 84, 72, 0.04); }
+.post-body .embed-repo:hover { background: rgba(var(--muted-rgb), 0.04); }
 .post-body .embed-repo-icon { color: var(--accent); }
 .post-body .embed-repo-name { font-weight: 600; }
 .post-body .embed-repo-host { margin-left: auto; font-size: 12px; color: var(--muted); }
@@ -1272,7 +1173,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   align-items: center;
   justify-content: center;
   padding: 4vmin;
-  background: rgba(12, 21, 18, 0.92);
+  background: rgba(var(--scrim-rgb), 0.92);
   cursor: zoom-out;
   opacity: 0;
   transition: opacity 0.18s ease;
@@ -1288,7 +1189,6 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ───────────────────────────────────────
    NAVIGATION — search, pagination, tags, series, related, thumbnails
    ─────────────────────────────────────── */
-.post-search { margin: 0 0 28px; }
 .post-thumb { display: block; margin: -4px 0 14px; }
 .post-thumb img {
   width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
@@ -1300,7 +1200,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   border-radius: 0; padding: 1px 8px;
 }
 a.tag-pill { text-decoration: none; transition: background 0.15s ease; }
-a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
+a.tag-pill:hover { background: rgba(var(--muted-rgb), 0.10); }
 
 .pagination {
   display: flex; align-items: center; justify-content: space-between;
@@ -1319,7 +1219,7 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 
 .series-nav {
   border: 1px solid var(--border); border-radius: 0;
-  padding: 16px 20px; margin: 40px 0 0; background: rgba(45, 84, 72, 0.03);
+  padding: 16px 20px; margin: 40px 0 0; background: rgba(var(--muted-rgb), 0.03);
 }
 .series-nav-label { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
 .series-nav ol { margin: 0; padding-left: 20px; font-size: 14px; }
@@ -1342,36 +1242,102 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .related-posts a:hover { text-decoration: underline; }
 .related-date { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
-/* Pagefind UI — themed to the site instead of its stock white look. Pagefind
-   sets its palette vars on `.pagefind-ui` (loaded from pagefind-ui.css in the
-   body, after this file), so a `:root` override loses; scope the vars to
-   `.post-search .pagefind-ui` (higher specificity) so they actually win. */
-.post-search .pagefind-ui {
-  --pagefind-ui-primary: var(--accent);
-  --pagefind-ui-text: var(--text);
-  --pagefind-ui-background: var(--bg-elevated);
-  --pagefind-ui-border: var(--border);
-  --pagefind-ui-tag: var(--bg);
-  --pagefind-ui-font: 'Open Sans', system-ui, sans-serif;
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 0;
-  --pagefind-ui-image-border-radius: 0;
+/* Search — a static trigger bar that opens a full-screen "spotlight" overlay
+   (blurred backdrop, panel rises + fades in) driven by Pagefind's low-level
+   JS API (see src/js/search.js) instead of the stock PagefindUI widget, so
+   results can use the site's own card layout below. */
+.search-trigger {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; margin: 0 0 28px; padding: 12px 16px;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0;
+  color: var(--muted); font: inherit; font-size: 15px; text-align: left;
+  cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
 }
-.post-search .pagefind-ui__search-input,
-.post-search .pagefind-ui__search-clear {
-  background: var(--bg-elevated);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 0;
+.search-trigger:hover, .search-trigger:focus-visible { border-color: var(--accent); color: var(--text); }
+.search-trigger-icon { width: 16px; height: 16px; flex: none; }
+
+.search-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 10vh 20px 20px;
+  background: rgba(var(--scrim-rgb), 0.6);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
 }
-.post-search .pagefind-ui__result {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 0;
+.search-overlay.open {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.25s ease, visibility 0s;
 }
-.post-search .pagefind-ui__result-link { color: var(--accent); }
-.post-search .pagefind-ui__result-excerpt { color: var(--body); }
-.post-search .pagefind-ui__message { color: var(--muted); }
+.search-panel {
+  width: 100%; max-width: 640px; max-height: 72vh;
+  display: flex; flex-direction: column; padding: 0;
+  transform: translateY(24px) scale(0.97); opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.search-overlay.open .search-panel { transform: none; opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .search-overlay, .search-panel { transition: none; }
+}
+
+.search-input-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px; border-bottom: 1px solid var(--border);
+}
+.search-input-icon { width: 18px; height: 18px; flex: none; color: var(--muted); }
+.search-input {
+  flex: 1; min-width: 0; border: none; background: none; outline: none;
+  font: inherit; font-size: 17px; color: var(--text);
+}
+.search-input::placeholder { color: var(--muted); }
+.search-clear, .search-close {
+  flex: none; background: none; border: 1px solid var(--border); border-radius: 0;
+  color: var(--muted); font-size: 12px; font-family: var(--mono, monospace);
+  padding: 4px 8px; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
+}
+.search-clear:hover, .search-close:hover { color: var(--text); border-color: var(--accent); }
+
+.search-results { overflow-y: auto; padding: 8px 18px 18px; }
+.search-hint, .search-count { color: var(--muted); font-size: 13px; margin: 10px 0; }
+.search-result { padding: 14px 0; border-top: 1px solid var(--border); }
+.search-result:first-of-type { border-top: none; }
+.search-result-title {
+  display: block; color: var(--text); font-weight: 600; font-size: 16px; text-decoration: none;
+}
+.search-result-title:hover, .search-result-title.is-active { color: var(--accent); }
+.search-result-meta {
+  display: flex; gap: 8px; align-items: center;
+  color: var(--muted); font-size: 12px; margin: 4px 0 6px;
+}
+.search-result-meta-sep { opacity: 0.6; }
+/* excerpt + its matched-term <mark> share one hue (--accent) — the match at
+   full strength, the surrounding sentence a desaturated/lightened version of
+   the same color, rather than an unrelated gray + a default yellow box. */
+.search-result-excerpt {
+  display: block; margin: 0; font-size: 14px; line-height: 1.5;
+  color: color-mix(in srgb, var(--accent), var(--muted) 60%);
+  text-decoration: none;
+}
+.search-result-excerpt:hover { text-decoration: underline; text-decoration-color: currentColor; }
+.search-result-excerpt mark { background: none; color: var(--accent); font-weight: 600; }
+
+/* labels the subheading a match was found under — each match links straight
+   to that section, so this just tells the reader where it's about to go */
+.search-match-heading {
+  display: block; color: var(--muted); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 3px;
+}
+.search-result-excerpt:hover .search-match-heading,
+.search-subresult:hover .search-match-heading { color: var(--accent); }
+
+.search-subresults { margin: 8px 0 0; padding-left: 14px; border-left: 1px solid var(--border); }
+.search-subresult { display: block; padding: 6px 0; text-decoration: none; }
+.search-subresult.is-active { background: rgba(var(--accent-rgb), 0.06); }
+.search-subresult-excerpt {
+  display: block; font-size: 13px; line-height: 1.4;
+  color: color-mix(in srgb, var(--accent), var(--muted) 60%);
+}
+.search-subresult-excerpt mark { background: none; color: var(--accent); font-weight: 600; }
 
 /* ───────────────────────────────────────
    ENGAGEMENT — bookmarks, newsletter, comments
@@ -1398,7 +1364,7 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .newsletter {
   margin: 40px 0 0; padding: 20px 24px;
   border: 1px solid var(--border); border-radius: 0;
-  background: rgba(45, 84, 72, 0.03);
+  background: rgba(var(--muted-rgb), 0.03);
 }
 .newsletter-label { font-weight: 600; margin: 0 0 12px; }
 .newsletter-form { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -1412,12 +1378,6 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
   font: inherit; font-weight: 600; background: var(--accent); color: #fff;
 }
 .newsletter-form button:hover { opacity: 0.9; }
-
-.post-comments { margin: 48px 0 0; padding-top: 24px; border-top: 1px solid var(--border); }
-.comments-label {
-  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--muted); margin: 0 0 16px;
-}
 
 /* ───────────────────────────────────────
    RESPONSIVE
@@ -1435,6 +1395,12 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
   .auth-buttons .btn { flex: 1; }
   .rss-link { margin-left: 0; }
   html.reading-mode .post-body { padding: 26px 24px; }
+  .post-toc { flex-direction: column; }
+  .post-toc-label {
+    flex: 0 0 auto; width: 100%; font-size: 17px;
+    padding: 14px; border-right: none; border-bottom: 1px solid var(--border);
+  }
+  .post-toc-sections { padding: 16px 20px; }
 }
 @media (max-width: 560px) {
   .wrap { padding: 18px 18px 40px; }
@@ -1456,6 +1422,13 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
   html.reading-mode .post-body { padding: 20px 16px; line-height: 1.8; }
   html.reading-mode section,
   html.reading-mode .post-full { max-width: clamp(38ch, 94vw, 84ch) !important; }
+  /* narrow viewports have no side whitespace left to bleed code blocks into
+     — wrap long lines instead of relying on the min(94vw,1000px) bleed */
+  html.medium-mode .post-body pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: clamp(11.5px, 3vw, 13.5px);
+  }
 }
 
 /* ───────────────────────────────────────
@@ -1482,23 +1455,13 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 }
 .theme-toast.show { opacity: 1; transform: translateY(0); }
 
-/* While medium mode is on, the theme switch glows to signal that it drives the
-   article's light/dark. */
-@keyframes theme-switch-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(233, 162, 59, 0); }
-  50%      { box-shadow: 0 0 0 3px rgba(233, 162, 59, 0.25), 0 0 14px 2px var(--warm-accent); }
-}
-html.medium-mode #themeSwitch {
-  animation: theme-switch-glow 1.8s ease-in-out infinite;
-  outline: 1px solid var(--warm-accent);
-}
-
 /* ───────────────────────────────────────
-   MEDIUM MODE — a full-page, blog-post-only takeover that turns the post into
-   a Medium.com-style page. Page-local: it's keyed on html.medium-mode only,
-   never on the site theme (data-theme), so it can't leak to other pages and
-   can't corrupt the reader's real light/dark. Its own light/dark is the
-   `medium-dark` class, flipped by the theme switch while medium is on.
+   MEDIUM MODE — a full-page, blog-post-only takeover that strips the site
+   chrome down to just the site name + the article, Medium.com-style.
+   Page-local: it's keyed on html.medium-mode only, never on the site theme
+   (data-theme), so it can't leak to other pages and can't corrupt the
+   reader's real light/dark. Its own light/dark is the `medium-dark` class,
+   flipped by #mediumDarkToggle (see site.js) while medium is on.
    ─────────────────────────────────────── */
 html.medium-mode {
   --medium-bg:    #ffffff;
@@ -1506,12 +1469,22 @@ html.medium-mode {
   --medium-muted: #6b6b6b;
   --medium-rule:  #e6e6e6;
   --medium-serif: 'Source Serif 4', Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  /* fenced-code palette switches with Medium's own light/dark instead of
+     staying the fixed GitHub Dark default (theme.css) regardless of mode */
+  --code-bg: #f6f8fa; --code-fg: #1f2328; --code-border: #d0d7de;
+  --tok-comment: #6e7781; --tok-punct: #24292f; --tok-number: #0550ae;
+  --tok-string: #0a3069; --tok-keyword: #cf222e; --tok-fn: #8250df;
+  --tok-regex: #953800; --tok-deleted: #82071e;
 }
 html.medium-mode.medium-dark {
   --medium-bg:    #0f0f0f;
   --medium-fg:    rgba(255, 255, 255, 0.92);
   --medium-muted: #a3a3a3;
   --medium-rule:  #2a2a2a;
+  --code-bg: #0d1117; --code-fg: #e6edf3; --code-border: #30363d;
+  --tok-comment: #8b949e; --tok-punct: #c9d1d9; --tok-number: #79c0ff;
+  --tok-string: #a5d6ff; --tok-keyword: #ff7b72; --tok-fn: #d2a8ff;
+  --tok-regex: #ffa657; --tok-deleted: #ffa198;
 }
 /* whole page becomes the medium canvas: hide the scene, flatten every panel */
 html.medium-mode body { background: var(--medium-bg); color: var(--medium-fg); }
@@ -1519,29 +1492,26 @@ html.medium-mode .scene { opacity: 0; }
 html.medium-mode .glass-surface,
 html.medium-mode .glass-surface::after { background: transparent; }
 html.medium-mode .glass-surface { border: none; }
-html.medium-mode .utility-strip { border-bottom: 1px solid var(--medium-rule); }
-/* narrow, centered Medium column for chrome + article */
-html.medium-mode .wrap { max-width: 760px; }
 
-/* chrome text onto the medium palette */
-html.medium-mode h1 a,
-html.medium-mode .tagline,
-html.medium-mode .sub-tagline,
-html.medium-mode .status,
-html.medium-mode .status .label,
-html.medium-mode nav a,
+/* strip the chrome to just the site name + the article + its meta row —
+   .wrap itself is NOT narrowed (unlike the old design), so the site name
+   stays at its normal x-position instead of becoming a centered masthead */
+html.medium-mode .utility-strip,
+html.medium-mode header .tagline,
+html.medium-mode header .sub-tagline,
+html.medium-mode header .nav-row,
+html.medium-mode .post-toc,
+html.medium-mode .post-tags {
+  display: none;
+}
+html.medium-mode h1 a { color: var(--medium-fg); }
 html.medium-mode .post-meta-row { color: var(--medium-fg); }
-html.medium-mode .status a,
-html.medium-mode nav a.active { color: var(--medium-fg); }
-html.medium-mode .nav-row { border-top-color: var(--medium-rule); }
-html.medium-mode .medium-btn {
-  background: transparent; color: var(--medium-fg); border-color: var(--medium-rule);
-}
-html.medium-mode .medium-btn[aria-pressed="true"] {
-  background: var(--medium-fg); color: var(--medium-bg); border-color: var(--medium-fg);
-}
+/* the entry trigger is redundant once you're already in — exit is the
+   corner ✕ / double-tap Esc now, not this button */
+html.medium-mode .medium-btn { display: none; }
 
-/* the article itself — Medium serif at reading size */
+/* the article itself — Medium serif at reading size, centered independently
+   of .wrap so the site name up in the corner isn't dragged along with it */
 html.medium-mode .post-full { color: var(--medium-fg); max-width: 700px; margin: 0 auto; }
 html.medium-mode .post-body {
   background: var(--medium-bg);
@@ -1574,12 +1544,55 @@ html.medium-mode .post-body blockquote {
   color: var(--medium-muted);
   font-style: italic;
 }
-html.medium-mode .post-tags {
-  background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
-  border: none; padding: 0;
-}
-html.medium-mode .tag-pill { background: transparent; color: var(--medium-muted); border-color: var(--medium-rule); }
-html.medium-mode .post-toc { background: transparent; border-color: var(--medium-rule); }
-html.medium-mode .post-body code { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
-html.medium-mode.medium-dark .post-body code { background: rgba(255, 255, 255, 0.08); }
+/* inline code chips only — .post-body pre code (fenced blocks, above) keeps
+   the --code-fg/--code-bg palette, switching with Medium's own light/dark.
+   :not(pre > code) matters: this selector used to just be `.post-body code`,
+   which (being more specific than `.post-body pre code { color: inherit }`)
+   also won against fenced code, forcing every untagged/plain character in a
+   code block to --medium-fg — invisible against the code block's own
+   permanently-dark-or-light background whenever the two didn't match. */
+html.medium-mode .post-body code:not(pre > code) { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
+html.medium-mode.medium-dark .post-body code:not(pre > code) { background: rgba(255, 255, 255, 0.08); }
 html.medium-mode .post-signature { color: var(--medium-muted); }
+
+/* code/mermaid bleed past the 700px article column into the side whitespace
+   instead of showing a horizontal scrollbar */
+html.medium-mode .post-body pre,
+html.medium-mode .post-body .mermaid {
+  width: min(94vw, 1000px);
+  margin-left: 50%;
+  transform: translateX(-50%);
+  overflow-x: clip;
+}
+
+/* ── Medium's own exit affordances — site.js wires the click/keydown logic;
+   the hint toast reuses the .theme-toast pattern above (fixed, monospace,
+   fade+slide via a .show class), the ✕/☾ buttons reuse the modal-close /
+   welcome-modal square-button look. ── */
+.medium-hint {
+  position: fixed; top: 14px; left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  z-index: 300; max-width: 90vw;
+  background: var(--medium-bg); color: var(--medium-fg); border: 1px solid var(--medium-rule);
+  font-family: 'Courier New', Courier, monospace; font-size: 12px; letter-spacing: 0.04em;
+  padding: 10px 16px; border-radius: 0; text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.medium-hint.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+#mediumExit, #mediumDarkToggle {
+  display: none;
+  position: fixed; top: 14px; z-index: 300;
+  align-items: center; justify-content: center;
+  width: 34px; height: 34px; min-height: var(--tap-min);
+  background: transparent; color: var(--medium-fg);
+  border: 1px solid var(--medium-rule); border-radius: 0;
+  font: inherit; font-size: 16px; cursor: pointer;
+}
+#mediumExit { left: 14px; }
+#mediumDarkToggle { right: 14px; }
+html.medium-mode #mediumExit,
+html.medium-mode #mediumDarkToggle { display: flex; }
+#mediumExit:hover, #mediumDarkToggle:hover { border-color: var(--medium-fg); }

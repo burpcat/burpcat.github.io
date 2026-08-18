@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#E7D3B8" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0C1512" media="(prefers-color-scheme: dark)">
+  
+  <meta name="theme-color" content="#F0EAD6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1B1B" media="(prefers-color-scheme: dark)">
   <title>The pattern repeats · burpcat</title>
   <meta name="description" content="A welcome note, and a small argument that today&#39;s expensive AI is just early compute wearing a new coat.">
 
@@ -34,14 +35,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/style.css">
   
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   
   <style>
     :root {
-      --chitra-color: #A9C4D9;
-      --chitra-color-rgb: 169,196,217;
+      --chitra-color: #F5D77A;
+      --chitra-color-rgb: 245,215,122;
     }
   </style>
 
@@ -66,6 +68,8 @@
     <div class="ridge-near"></div>
     <div class="ridge-trees"></div>
   </div>
+  <div class="scene-mist scene-mist-bottom"></div>
+  <div class="scene-mist scene-mist-top"></div>
 </div>
 
 <a href="#main" class="skip-link">skip to content</a>
@@ -110,7 +114,6 @@
         <a href="/">home</a>
         <a href="/blog/" class="active" aria-current="page">blog</a>
         <a href="/about/">about</a>
-        <a href="/guestbook/">guestbook</a>
         <a href="/feeds/">feeds</a>
         <a class="rss-link" href="/feed.xml" aria-label="RSS feed">
           <svg class="rss-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"></path></svg>
@@ -146,13 +149,13 @@
 
   <header>
     <div class="post-meta-row">
-      <time class="post-date" datetime="2026-06-26T00:00:00.000Z">2026·06·26</time>
-      <span class="reading-time">1 min read</span>
+      <time class="post-date" datetime="2026-06-26T00:00:00.000Z" data-pagefind-meta="date">2026·06·26</time>
+      <span class="reading-time" data-pagefind-meta="reading_time">1 min read</span>
       <button class="medium-btn" type="button" id="mediumToggle" data-pagefind-ignore="" aria-pressed="false" aria-label="Toggle Medium reading mode">
         <span class="md-label">medium mode</span>
       </button>
     </div>
-    <h1 class="post-full-title">The pattern repeats</h1>
+    <h1 class="post-full-title" data-pagefind-meta="title">The pattern repeats</h1>
     
   </header>
 
@@ -169,11 +172,10 @@
 <p>Glad you’re here. Pull up a chair.</p>
 
     <p class="post-signature">sent from Aegon</p>
-  </div><section class="post-comments" aria-label="Comments">
-    <p class="comments-label">Comments &amp; reactions</p>
-    <script src="https://giscus.app/client.js" data-repo="burpcat/burpcat.github.io" data-repo-id="R_kgDOTEg8ug" data-category="Guestbook" data-category-id="DIC_kwDOTEg8us4C_6kx" data-mapping="pathname" data-strict="1" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="preferred_color_scheme" data-lang="en" crossorigin="anonymous" async="">
-    </script>
-  </section><div class="post-footer">
+  </div>
+
+  
+  <script src="/js/mermaid-init.js"></script><div class="post-footer">
     <a class="back-link" href="/blog/">← back to all writing</a>
   </div>
 
@@ -183,7 +185,7 @@
 
   <footer class="glass-surface">
     <p> coded on aegon · no analytics OR tracking </p>
-    <p><a href="/feed.xml">rss</a> · <a href="/guestbook/">guestbook</a></p>
+    <p><a href="/feed.xml">rss</a></p>
   </footer>
 
 </div>
@@ -202,39 +204,40 @@
   </div>
 </div>
 
+
+<button id="mediumExit" type="button" aria-label="Exit Medium Mode">✕</button>
+<button id="mediumDarkToggle" type="button" aria-label="Toggle Medium Mode's light/dark">☾</button>
+
 <audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop="" preload="none"></audio>
 
 
 <div class="welcome-overlay" id="welcome" hidden="">
   <div class="welcome-card glass-surface" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
     <div class="welcome-orb" aria-hidden="true"></div>
-    <h2 id="welcome-title" class="welcome-title">Welcome, wanderer.</h2>
-    <p class="welcome-body">You've found a small bright thing in a vast quiet space. A few things before you explore:</p>
+    <h2 id="welcome-title" class="welcome-title">Hello boss, howzya</h2>
     <div class="welcome-theme">
-      <span class="welcome-label">this place has a day and a night —</span>
       <div class="welcome-modes">
-        <button type="button" data-mode="light" id="wm-light">sun</button>
-        <button type="button" data-mode="dark" id="wm-dark">moon</button>
+        <button type="button" data-mode="light" id="wm-light">light mode</button>
+        <button type="button" data-mode="dark" id="wm-dark">dark mode</button>
       </div>
     </div>
     <div class="welcome-theme">
-      <span class="welcome-label">prefer stillness? —</span>
       <div class="welcome-modes">
-        <button type="button" id="wm-calm" aria-pressed="false">calm mode</button>
+        <button type="button" id="wm-calm-off">calm mode: off</button>
+        <button type="button" id="wm-calm-on">calm mode: on</button>
       </div>
     </div>
     <label class="welcome-music">
-      <input type="checkbox" id="welcome-music-check" checked="">
-      <span>no one said no to good music, play background music?</span>
+      <input type="checkbox" id="welcome-music-check">
+      <span>music</span>
     </label>
-    <button type="button" class="welcome-enter" id="welcome-enter">enter →</button>
+    <button type="button" class="welcome-enter" id="welcome-enter">continue (with defaults) →</button>
   </div>
 </div>
 
 <script src="/js/site.js"></script>
 <script src="/js/nav.js"></script>
 <script src="/js/spiral.js"></script>
-<script src="/js/mermaid-init.js"></script>
 <script src="/js/embeds.js" defer=""></script>
 <script src="/js/lightbox.js" defer=""></script>
 </body>

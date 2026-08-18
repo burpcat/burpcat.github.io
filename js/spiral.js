@@ -14,6 +14,8 @@
   const ctx = canvas.getContext('2d');
   const root = document.documentElement;
   const audioEl = document.getElementById('calmAudio'); // safe: base.njk defines it well before this script tag, same as #sceneSky
+  const mistBottom = document.querySelector('.scene-mist-bottom');
+  const mistTop = document.querySelector('.scene-mist-top');
   // baked in at build time from collections.posts.length — one dancing
   // strand per blog post, reading-mode only (see drawStrands below).
   const POST_COUNT = Math.max(1, parseInt(root.getAttribute('data-post-count'), 10) || 1);
@@ -24,6 +26,12 @@
   const CY_FACTOR = 0.52;         // orb's vertical position as a fraction of viewport height
   const EXT = 0.5;                // how far (normalized units) open ends bleed past the viewport
   const P = 256;                  // resampled point count shared by every keyframe
+
+  // About page only: the sky itself scrolls through a day, sunrise (orange/
+  // yellow) at the top of the page crossfading to sunset (golden red/
+  // orange) by the bottom — see aboutSkyColors(), used by paintSky().
+  const ABOUT_SUNRISE_SKY = ['#F2A65A', '#FCE29B']; // top, bottom
+  const ABOUT_SUNSET_SKY = ['#7A2E1D', '#E8873C'];  // top, bottom
 
   // Tempo data for the background track: E-flat major, Camelot 5B, 135 BPM.
   const BPM = 135;
@@ -51,8 +59,17 @@
   // is a subtle fan around Chitra's live weather color, not a rainbow.
   const IDLE_HUM_SCALE_AMP = 0.006;
   const IDLE_HUM_ROT_AMP = (0.3 * Math.PI) / 180;
-  const STRAND_HUE_SPREAD_DEG = 40; // +/- 20 degrees across the outermost strands
+  // Analogous color-harmony step: each extra strand's hue is nudged a fixed,
+  // bounded distance from Chitra's base hue, alternating sides (+18, -18,
+  // +36, -36, ...), hard-capped well short of 180 degrees so it can never
+  // wander into a clashing hue no matter how many posts (strands) accrue.
+  // Each strand's offset depends only on its own index, not the total
+  // count, so a newly added strand never recolors ones that already exist.
+  const HUE_STEP_DEG = 18;
+  const HUE_MAX_SPREAD_DEG = 65;
   const MAX_STRANDS = 12; // safety cap on draw calls as the blog grows
+  const BAND_ARM_POINTS = 32; // fixed point count per band-fill arm — cheap, and equal-length arms let any two arms pair up safely
+  const ABOUT_TWIN_SPREAD_DEG = 3; // About page's two strands: start together at the star, only barely apart by the screen edge
 
   // ── traced keyframes — the owner's sketch, pages 2 through 8 ──
   // Each is a y=f(x) profile: 40 samples, x = i/39 across the width,
@@ -233,10 +250,30 @@
     const base = H * CY_FACTOR;
     return base + (H * (0.90 - 0.80 * scrollP) - base) * calmBlend;
   }
+  // About page: the star always rides the scrollbar (its own sun-arc
+  // conceit, paired with the sunrise->sunset sky) — no calm-mode gating,
+  // unlike calmCy() above, since this is the page's baseline behavior, not
+  // an optional mode. Same low-to-high climb as calmCy() uses while calm.
+  function aboutCy() {
+    return H * (0.90 - 0.80 * scrollP);
+  }
+  function orbCy() {
+    return isAboutPage() ? aboutCy() : calmCy();
+  }
+  // Faint fog hugging whichever edge the star is currently near — driven
+  // directly off scrollP (no extra lerp) so it tracks scroll swiftly rather
+  // than lagging behind like the star's own eased calmBlend position.
+  // calmBlend gates it to calm mode, easing in/out with everything else.
+  function updateMist() {
+    if (!mistBottom || !mistTop) return;
+    mistBottom.style.opacity = calmBlend * (1 - scrollP);
+    mistTop.style.opacity = calmBlend * scrollP;
+  }
   function readScroll() {
     const max = (document.documentElement.scrollHeight || 0) - window.innerHeight;
     scrollP = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     scrollTicking = false;
+    updateMist();
     if (frozen) drawStatic(); // rAF loop is off under reduced-motion; redraw so the star still tracks
   }
   window.addEventListener('scroll', () => {
@@ -344,10 +381,37 @@
     if (frozen) drawStatic();
   }
 
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  function lerpHex(hexA, hexB, t) {
+    const a = hexToRgb(hexA), b = hexToRgb(hexB);
+    const r = Math.round(a[0] + (b[0] - a[0]) * t);
+    const g = Math.round(a[1] + (b[1] - a[1]) * t);
+    const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+  // scrollP=0 (top of page) reads as sunrise; scrollP=1 (bottom) as sunset —
+  // reading through the page plays out like a day turning toward dusk.
+  function aboutSkyColors() {
+    const t = Math.max(0, Math.min(1, scrollP));
+    return [
+      lerpHex(ABOUT_SUNRISE_SKY[0], ABOUT_SUNSET_SKY[0], t),
+      lerpHex(ABOUT_SUNRISE_SKY[1], ABOUT_SUNSET_SKY[1], t),
+    ];
+  }
+
   function paintSky(alpha) {
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, v('--sky-top') || '#DDE4D2');
-    g.addColorStop(1, v('--sky-bottom') || '#C4D0BA');
+    if (isAboutPage()) {
+      const [top, bottom] = aboutSkyColors();
+      g.addColorStop(0, top);
+      g.addColorStop(1, bottom);
+    } else {
+      g.addColorStop(0, v('--sky-top') || '#F0EAD6');
+      g.addColorStop(1, v('--sky-bottom') || '#A28F9D');
+    }
     ctx.globalAlpha = alpha;
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
@@ -358,7 +422,7 @@
   // page (see fetch-weather.js + base.njk), a bare "r,g,b" triplet like
   // --spiral-line already is.
   function chitraRgb() {
-    const raw = v('--chitra-color-rgb') || '245,215,122';
+    const raw = v('--chitra-color-rgb') || '214,40,40';
     return raw.split(',').map(Number);
   }
 
@@ -404,9 +468,9 @@
   // only while the coil is held. `style` carries the return leg's dreamy
   // trail/opacity ramp (absent = forward defaults). `rgbOverride` lets
   // reading-mode's multiple strands (drawStrands, below) each paint in
-  // their own hue-shifted variant of Chitra's color instead of --spiral-line.
+  // their own harmonious color instead of --spiral-line.
   function strokeMorph(points, anchor, hum, style, rgbOverride) {
-    const rgb = rgbOverride || v('--spiral-line') || '62,107,84';
+    const rgb = rgbOverride || v('--spiral-line') || '214,40,40';
     const baseAlpha = parseFloat(v('--spiral-alpha')) || 0.42;
     const crispAlpha = baseAlpha * (style ? style.crispMult : 1);
     const underWidth = 11 + (style ? style.underWidthExtra : 0);
@@ -435,40 +499,245 @@
     }
     ctx.lineTo(screenPts[screenPts.length - 1][0], screenPts[screenPts.length - 1][1]);
 
+    // the crisp core line stays thin now that the filled bands (below)
+    // carry the color — it's a fine outline, not the main event.
     ctx.lineWidth = underWidth;
     ctx.strokeStyle = `rgba(${rgb}, 0.14)`;
     ctx.stroke();
-    ctx.lineWidth = 2.6;
+    ctx.lineWidth = 1.2;
     ctx.strokeStyle = `rgba(${rgb}, ${crispAlpha})`;
     ctx.stroke();
     ctx.restore();
+  }
+
+  // Analogous color-harmony step (see the HUE_STEP_DEG comment above):
+  // index 0 is the base strand and never calls this; index >=1 alternates
+  // sides of the base hue, growing outward, capped at HUE_MAX_SPREAD_DEG.
+  function harmoniousHue(baseHue, index) {
+    const pair = Math.ceil(index / 2);
+    const direction = index % 2 === 1 ? 1 : -1;
+    const offset = Math.min(pair * HUE_STEP_DEG, HUE_MAX_SPREAD_DEG) * direction;
+    return ((baseHue + offset) % 360 + 360) % 360;
+  }
+
+  // The idle "dancing" wobble shared by every strand-like line on the site
+  // (ring strands and the About page's twin alike): a small breathing scale
+  // + rotation around `baseRotation`, phase-offset so multiple lines don't
+  // move in lockstep. This baseline ambient wobble always runs, music or
+  // not — only the coil-hold hum boost (`hum` set) is scaled by musicGate,
+  // since that boost specifically exists to read as "synced to live audio."
+  function computeStrandHum(baseRotation, phaseOffset, hum) {
+    const strandPhase = humPhaseAccum + phaseOffset;
+    const scaleAmp = hum ? HUM_SCALE_AMP * musicGate : IDLE_HUM_SCALE_AMP;
+    const rotAmp = hum ? HUM_ROT_AMP * musicGate : IDLE_HUM_ROT_AMP;
+    return {
+      scale: 1 + scaleAmp * Math.sin(strandPhase),
+      rot: baseRotation + rotAmp * Math.cos(strandPhase),
+    };
+  }
+
+  // Rotates+scales an absolute screen point about (cx,cy) by the same
+  // transform `hum` applies via ctx — used to build each strand's actual
+  // on-screen points for the band fill below (fillBand needs real
+  // coordinates for two strands at once, which a shared ctx transform can't
+  // give us since each strand's rotation differs).
+  function rotateScalePoint(px, py, hum) {
+    const theta = hum ? hum.rot : 0;
+    const s = hum ? hum.scale : 1;
+    const dx = px - cx, dy = py - cy;
+    const cos = Math.cos(theta), sin = Math.sin(theta);
+    return [cx + s * (dx * cos - dy * sin), cy + s * (dx * sin + dy * cos)];
+  }
+
+  // Resamples a polyline down to a fixed point count (evenly spaced by
+  // fractional index, linearly interpolated) — band-fill polygons don't
+  // need every point to read as smooth at this scale, and a fixed count
+  // means any two arms (regardless of their original slice length) always
+  // have matching lengths, so they can always be paired for a fill.
+  function resamplePolyline(pts, count) {
+    const n = pts.length;
+    const out = new Array(count);
+    for (let k = 0; k < count; k++) {
+      const t = (k / (count - 1)) * (n - 1);
+      const i0 = Math.floor(t), i1 = Math.min(n - 1, i0 + 1), f = t - i0;
+      out[k] = [pts[i0][0] + (pts[i1][0] - pts[i0][0]) * f, pts[i0][1] + (pts[i1][1] - pts[i0][1]) * f];
+    }
+    return out;
+  }
+
+  function dist2(a, b) {
+    const dx = a[0] - b[0], dy = a[1] - b[1];
+    return dx * dx + dy * dy;
+  }
+
+  // Fills the wedge/petal-shaped region between two ring-adjacent strands
+  // with a gradient from one's color to the other's — the space *between*
+  // the dancing strands reads as a solid color wash, not just two flat
+  // lines. Gradient axis runs between each strand's centroid (not a point
+  // near the shared center, which both strands pass close to and would
+  // give a near-zero-length, unstable axis).
+  function fillBand(ptsA, ptsB, rgbA, rgbB, alpha) {
+    const n = ptsA.length;
+    ctx.beginPath();
+    ctx.moveTo(ptsA[0][0], ptsA[0][1]);
+    // quadratic-through-midpoints on both legs — same smoothing strokeMorph
+    // uses — so the fill's boundary reads as a curve, not a faceted polygon
+    for (let i = 1; i < n - 1; i++) {
+      const mx = (ptsA[i][0] + ptsA[i + 1][0]) / 2;
+      const my = (ptsA[i][1] + ptsA[i + 1][1]) / 2;
+      ctx.quadraticCurveTo(ptsA[i][0], ptsA[i][1], mx, my);
+    }
+    ctx.lineTo(ptsA[n - 1][0], ptsA[n - 1][1]);
+    for (let i = n - 1; i > 0; i--) {
+      const mx = (ptsB[i][0] + ptsB[i - 1][0]) / 2;
+      const my = (ptsB[i][1] + ptsB[i - 1][1]) / 2;
+      ctx.quadraticCurveTo(ptsB[i][0], ptsB[i][1], mx, my);
+    }
+    ctx.lineTo(ptsB[0][0], ptsB[0][1]);
+    ctx.closePath();
+
+    let sxA = 0, syA = 0, sxB = 0, syB = 0;
+    for (let i = 0; i < n; i++) {
+      sxA += ptsA[i][0]; syA += ptsA[i][1];
+      sxB += ptsB[i][0]; syB += ptsB[i][1];
+    }
+    const g = ctx.createLinearGradient(sxA / n, syA / n, sxB / n, syB / n);
+    g.addColorStop(0, `rgba(${rgbA}, ${alpha})`);
+    g.addColorStop(1, `rgba(${rgbB}, ${alpha})`);
+    ctx.fillStyle = g;
+    ctx.fill();
   }
 
   // Reading-mode only: one strand per blog post (POST_COUNT), all sharing
   // the same underlying morph geometry — "synchronous" — but each rotated
   // an even angle around the star and given its own hum phase offset, so
   // they read as dancing in harmony rather than one line traced N times.
-  // Each strand is also a subtle hue variant of Chitra's live weather color.
-  function drawStrands(points, anchor, hum, style) {
+  // The base strand (index 0) keeps Chitra's live weather color untouched;
+  // every other strand is a harmonious nudge off it (harmoniousHue).
+  // Ring-adjacent pairs (strands keep a fixed rotational spacing and never
+  // cross, so "adjacent" is stable) get the space between them filled with
+  // a gradient — see fillBand. Every strand's curve bleeds off both ends
+  // and passes close to the shared anchor point in between, so each strand
+  // is split at that anchor into its two arms first, and bands are filled
+  // arm-to-arm rather than whole-curve-to-whole-curve — each arm alone
+  // sweeps outward from center without crossing back, so the fill polygon
+  // stays simple (no self-intersection, no gap at the crossover). Which of
+  // the other strand's two arms actually sits on the same visible side
+  // (and so is the one to fill against) depends on the rotation between
+  // the pair — close together, same-named arms line up; far apart (e.g. a
+  // 2-strand ring, 180 degrees), it's the opposite-named arm — so that's
+  // picked per seam by comparing actual tip distances, not assumed by
+  // name. When bands compete near the shared center, whichever pair is
+  // rotating apart/together fastest *this frame* is filled last, i.e. on
+  // top, so the liveliest seam always wins.
+  function drawStrands(points, anchor, hum, style, anchorParamVal) {
     const N = Math.min(POST_COUNT, MAX_STRANDS);
     const [br, bg, bb] = chitraRgb();
     const [bh, bs, bl] = rgbToHsl(br, bg, bb);
 
+    const basePts = points.map((p) => [
+      cx + (p[0] - anchor[0]) * W * SCALE_X,
+      cy - (p[1] - anchor[1]) * H * SCALE_Y,
+    ]);
+
+    const strands = new Array(N);
     for (let i = 0; i < N; i++) {
       const rotation = (2 * Math.PI * i) / N;
-      const strandPhase = humPhaseAccum + (2 * Math.PI * i) / N;
-      // wobble amplitude (not the base fan-out angle above) is gated by
-      // musicGate — strands go still when music isn't audible
-      const scaleAmp = (hum ? HUM_SCALE_AMP : IDLE_HUM_SCALE_AMP) * musicGate;
-      const rotAmp = (hum ? HUM_ROT_AMP : IDLE_HUM_ROT_AMP) * musicGate;
-      const strandHum = {
-        scale: 1 + scaleAmp * Math.sin(strandPhase),
-        rot: rotation + rotAmp * Math.cos(strandPhase),
-      };
-      const hueOffset = N > 1 ? -STRAND_HUE_SPREAD_DEG / 2 + (STRAND_HUE_SPREAD_DEG * i) / (N - 1) : 0;
-      const hue = ((bh + hueOffset) % 360 + 360) % 360;
-      const [r, g, b] = hslToRgb(hue, bs, bl);
-      strokeMorph(points, anchor, strandHum, style, `${r},${g},${b}`);
+      const strandHum = computeStrandHum(rotation, rotation, hum);
+      const [r, g, b] = i === 0 ? [br, bg, bb] : hslToRgb(harmoniousHue(bh, i), bs, bl);
+      strands[i] = { hum: strandHum, rgb: `${r},${g},${b}`, phase: humPhaseAccum + rotation };
+    }
+
+    if (N > 1) {
+      // same index formula anchorPoint() uses — where in `basePts` the
+      // anchor itself actually falls, so the split lands exactly there.
+      const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
+      const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
+      // Both arms are ordered center-first, tip-last (armStart's natural
+      // slice order is tip-first, so it's reversed) — fillBand needs matching
+      // directionality on both sides of a pairing, or its start/end edges
+      // connect the wrong ends (a near-center point to a far-tip point).
+      const arms = [
+        resamplePolyline(basePts.slice(0, anchorIdx + 1).reverse(), BAND_ARM_POINTS),
+        resamplePolyline(basePts.slice(anchorIdx), BAND_ARM_POINTS),
+      ];
+      const bandAlpha = isLightMode() ? 0.32 : 0.5;
+      const edgeCount = N === 2 ? 1 : N; // a 2-strand ring has one seam, not two
+
+      const bands = [];
+      for (let i = 0; i < edgeCount; i++) {
+        const j = (i + 1) % N;
+        const activity = Math.abs(Math.sin(strands[i].phase) - Math.sin(strands[j].phase));
+
+        // Tip = each arm's far (outer) point — now always the last element,
+        // since both arms run center-first — actually rotated per-strand:
+        // whichever pairing puts strand i's tips closest to strand j's
+        // tips is the one that's visually adjacent, i.e. the real gap.
+        const tip0i = rotateScalePoint(arms[0][arms[0].length - 1][0], arms[0][arms[0].length - 1][1], strands[i].hum);
+        const tip1i = rotateScalePoint(arms[1][arms[1].length - 1][0], arms[1][arms[1].length - 1][1], strands[i].hum);
+        const tip0j = rotateScalePoint(arms[0][arms[0].length - 1][0], arms[0][arms[0].length - 1][1], strands[j].hum);
+        const tip1j = rotateScalePoint(arms[1][arms[1].length - 1][0], arms[1][arms[1].length - 1][1], strands[j].hum);
+        const sameDist = dist2(tip0i, tip0j) + dist2(tip1i, tip1j);
+        const crossDist = dist2(tip0i, tip1j) + dist2(tip1i, tip0j);
+        const crossed = crossDist < sameDist;
+
+        bands.push({ i, j, activity, armI: arms[0], armJ: crossed ? arms[1] : arms[0] });
+        bands.push({ i, j, activity, armI: arms[1], armJ: crossed ? arms[0] : arms[1] });
+      }
+      bands.sort((a, b) => a.activity - b.activity);
+
+      for (const { i, j, armI, armJ } of bands) {
+        const ptsA = armI.map((p) => rotateScalePoint(p[0], p[1], strands[i].hum));
+        const ptsB = armJ.map((p) => rotateScalePoint(p[0], p[1], strands[j].hum));
+        fillBand(ptsA, ptsB, strands[i].rgb, strands[j].rgb, bandAlpha);
+      }
+    }
+
+    for (let i = 0; i < N; i++) {
+      strokeMorph(points, anchor, strands[i].hum, style, strands[i].rgb);
+    }
+  }
+
+  // About page's own scene: two strands off the same fixed warm-clay hue —
+  // a lighter and a darker shade of it, so the fill between them (below) is
+  // a real (if subtle) gradient rather than one flat tint — fanned only a
+  // couple degrees apart (ABOUT_TWIN_SPREAD_DEG) so they start together at
+  // the star and drift just barely apart by the screen edge. Same idle
+  // "dancing" wobble every other strand gets (computeStrandHum), and the
+  // same arm-split gradient-band fill drawStrands uses for ring strands —
+  // simpler here since a few-degree spread never needs the cross-arm
+  // pairing check large rotations require (see drawStrands).
+  function drawAboutStrands(points, anchor, hum, style, anchorParamVal) {
+    const spreadRad = (ABOUT_TWIN_SPREAD_DEG * Math.PI) / 180;
+    const offsets = [-spreadRad / 2, spreadRad / 2];
+    const strandHums = offsets.map((offset, i) => computeStrandHum(offset, i * Math.PI, hum));
+
+    const baseRgb = (v('--spiral-line') || '221,55,4').split(',').map(Number);
+    const [bh, bs, bl] = rgbToHsl(baseRgb[0], baseRgb[1], baseRgb[2]);
+    const shadeDelta = 0.12;
+    const colors = [
+      hslToRgb(bh, bs, Math.max(0, bl - shadeDelta)).join(','),
+      hslToRgb(bh, bs, Math.min(1, bl + shadeDelta)).join(','),
+    ];
+
+    const basePts = points.map((p) => [
+      cx + (p[0] - anchor[0]) * W * SCALE_X,
+      cy - (p[1] - anchor[1]) * H * SCALE_Y,
+    ]);
+    const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
+    const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
+    const arms = [
+      resamplePolyline(basePts.slice(0, anchorIdx + 1).reverse(), BAND_ARM_POINTS),
+      resamplePolyline(basePts.slice(anchorIdx), BAND_ARM_POINTS),
+    ];
+    for (const arm of arms) {
+      const ptsA = arm.map((p) => rotateScalePoint(p[0], p[1], strandHums[0]));
+      const ptsB = arm.map((p) => rotateScalePoint(p[0], p[1], strandHums[1]));
+      fillBand(ptsA, ptsB, colors[0], colors[1], 0.4);
+    }
+
+    for (let i = 0; i < offsets.length; i++) {
+      strokeMorph(points, anchor, strandHums[i], style, colors[i]);
     }
   }
 
@@ -480,9 +749,9 @@
   // — it takes her live weather color instead of the sun/moon theming.
   function drawOrb(pulse) {
     const star = !isAboutPage();
-    const orbColor = star ? (v('--chitra-color') || '#E9A23B') : (v('--orb') || '#E9A23B');
-    const glow = star ? `rgba(${chitraRgb().join(',')},0.34)` : (v('--orb-glow') || 'rgba(233,162,59,0.3)');
-    const shadow = v('--sky-top') || '#0A130F';
+    const orbColor = star ? (v('--chitra-color') || '#D62828') : (v('--orb') || '#DD3704');
+    const glow = star ? `rgba(${chitraRgb().join(',')},0.34)` : (v('--orb-glow') || 'rgba(221,55,4,0.50)');
+    const shadow = v('--sky-top') || '#7A2E1D';
 
     ctx.save();
     // Reading mode's pulse boost is itself gated by musicGate — it fades to
@@ -624,8 +893,10 @@
     // canvas and occludes it); as the reader scrolls down it climbs toward the
     // top. cy drives both the orb and its strands (they anchor to cy), and the
     // glow is fattened/dimmed so the heavy CSS blur reads as soft light.
+    paintSky(trailAlpha);
     calmBlend += ((calm ? 1 : 0) - calmBlend) * 0.08;
-    cy = calmCy();
+    cy = orbCy();
+    updateMist();
     let pts = pointsAtL(Lsmoothed);
     if (calmBlend > 0.001) {
       renderStyle = {
@@ -633,13 +904,14 @@
         underWidthExtra: (renderStyle ? renderStyle.underWidthExtra : 0) + 22 * calmBlend,
       };
     }
-    const anchor = anchorPoint(pts, anchorParam(Lsmoothed));
-    // one strand per blog post, site-wide now (About keeps its single
-    // warm-clay strand for its own distinct palette).
+    const aParam = anchorParam(Lsmoothed);
+    const anchor = anchorPoint(pts, aParam);
+    // one strand per blog post, site-wide now (About keeps its own twin-
+    // strand scene, same warm-clay palette).
     if (!isAboutPage()) {
-      drawStrands(pts, anchor, hum, renderStyle);
+      drawStrands(pts, anchor, hum, renderStyle, aParam);
     } else {
-      strokeMorph(pts, anchor, hum, renderStyle);
+      drawAboutStrands(pts, anchor, hum, renderStyle, aParam);
     }
     drawOrb(beatPulse);
 
@@ -649,15 +921,16 @@
   function drawStatic() {
     cs = getComputedStyle(root);
     calmBlend = calm ? 1 : 0; // no rAF easing here — snap to target
-    cy = calmCy();            // still track the scrollbar under reduced-motion
+    cy = orbCy();              // still track the scrollbar under reduced-motion
+    updateMist();
     ctx.clearRect(0, 0, W, H);
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum
     const anchor = anchorPoint(pts, 0.5);
     if (!isAboutPage()) {
-      drawStrands(pts, anchor, null, null);
+      drawStrands(pts, anchor, null, null, 0.5);
     } else {
-      strokeMorph(pts, anchor, null, null);
+      drawAboutStrands(pts, anchor, null, null, 0.5);
     }
     drawOrb();
   }
