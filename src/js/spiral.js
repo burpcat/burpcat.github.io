@@ -580,8 +580,20 @@
     const n = ptsA.length;
     ctx.beginPath();
     ctx.moveTo(ptsA[0][0], ptsA[0][1]);
-    for (let i = 1; i < n; i++) ctx.lineTo(ptsA[i][0], ptsA[i][1]);
-    for (let i = n - 1; i >= 0; i--) ctx.lineTo(ptsB[i][0], ptsB[i][1]);
+    // quadratic-through-midpoints on both legs — same smoothing strokeMorph
+    // uses — so the fill's boundary reads as a curve, not a faceted polygon
+    for (let i = 1; i < n - 1; i++) {
+      const mx = (ptsA[i][0] + ptsA[i + 1][0]) / 2;
+      const my = (ptsA[i][1] + ptsA[i + 1][1]) / 2;
+      ctx.quadraticCurveTo(ptsA[i][0], ptsA[i][1], mx, my);
+    }
+    ctx.lineTo(ptsA[n - 1][0], ptsA[n - 1][1]);
+    for (let i = n - 1; i > 0; i--) {
+      const mx = (ptsB[i][0] + ptsB[i - 1][0]) / 2;
+      const my = (ptsB[i][1] + ptsB[i - 1][1]) / 2;
+      ctx.quadraticCurveTo(ptsB[i][0], ptsB[i][1], mx, my);
+    }
+    ctx.lineTo(ptsB[0][0], ptsB[0][1]);
     ctx.closePath();
 
     let sxA = 0, syA = 0, sxB = 0, syB = 0;

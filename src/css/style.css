@@ -1189,7 +1189,6 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ───────────────────────────────────────
    NAVIGATION — search, pagination, tags, series, related, thumbnails
    ─────────────────────────────────────── */
-.post-search { margin: 0 0 28px; }
 .post-thumb { display: block; margin: -4px 0 14px; }
 .post-thumb img {
   width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
@@ -1243,36 +1242,102 @@ a.tag-pill:hover { background: rgba(var(--muted-rgb), 0.10); }
 .related-posts a:hover { text-decoration: underline; }
 .related-date { color: var(--muted); font-size: 13px; white-space: nowrap; }
 
-/* Pagefind UI — themed to the site instead of its stock white look. Pagefind
-   sets its palette vars on `.pagefind-ui` (loaded from pagefind-ui.css in the
-   body, after this file), so a `:root` override loses; scope the vars to
-   `.post-search .pagefind-ui` (higher specificity) so they actually win. */
-.post-search .pagefind-ui {
-  --pagefind-ui-primary: var(--accent);
-  --pagefind-ui-text: var(--text);
-  --pagefind-ui-background: var(--bg-elevated);
-  --pagefind-ui-border: var(--border);
-  --pagefind-ui-tag: var(--bg);
-  --pagefind-ui-font: 'Open Sans', system-ui, sans-serif;
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 0;
-  --pagefind-ui-image-border-radius: 0;
+/* Search — a static trigger bar that opens a full-screen "spotlight" overlay
+   (blurred backdrop, panel rises + fades in) driven by Pagefind's low-level
+   JS API (see src/js/search.js) instead of the stock PagefindUI widget, so
+   results can use the site's own card layout below. */
+.search-trigger {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; margin: 0 0 28px; padding: 12px 16px;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 0;
+  color: var(--muted); font: inherit; font-size: 15px; text-align: left;
+  cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
 }
-.post-search .pagefind-ui__search-input,
-.post-search .pagefind-ui__search-clear {
-  background: var(--bg-elevated);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 0;
+.search-trigger:hover, .search-trigger:focus-visible { border-color: var(--accent); color: var(--text); }
+.search-trigger-icon { width: 16px; height: 16px; flex: none; }
+
+.search-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 10vh 20px 20px;
+  background: rgba(var(--scrim-rgb), 0.6);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
 }
-.post-search .pagefind-ui__result {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 0;
+.search-overlay.open {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.25s ease, visibility 0s;
 }
-.post-search .pagefind-ui__result-link { color: var(--accent); }
-.post-search .pagefind-ui__result-excerpt { color: var(--body); }
-.post-search .pagefind-ui__message { color: var(--muted); }
+.search-panel {
+  width: 100%; max-width: 640px; max-height: 72vh;
+  display: flex; flex-direction: column; padding: 0;
+  transform: translateY(24px) scale(0.97); opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.search-overlay.open .search-panel { transform: none; opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .search-overlay, .search-panel { transition: none; }
+}
+
+.search-input-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px; border-bottom: 1px solid var(--border);
+}
+.search-input-icon { width: 18px; height: 18px; flex: none; color: var(--muted); }
+.search-input {
+  flex: 1; min-width: 0; border: none; background: none; outline: none;
+  font: inherit; font-size: 17px; color: var(--text);
+}
+.search-input::placeholder { color: var(--muted); }
+.search-clear, .search-close {
+  flex: none; background: none; border: 1px solid var(--border); border-radius: 0;
+  color: var(--muted); font-size: 12px; font-family: var(--mono, monospace);
+  padding: 4px 8px; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
+}
+.search-clear:hover, .search-close:hover { color: var(--text); border-color: var(--accent); }
+
+.search-results { overflow-y: auto; padding: 8px 18px 18px; }
+.search-hint, .search-count { color: var(--muted); font-size: 13px; margin: 10px 0; }
+.search-result { padding: 14px 0; border-top: 1px solid var(--border); }
+.search-result:first-of-type { border-top: none; }
+.search-result-title {
+  display: block; color: var(--text); font-weight: 600; font-size: 16px; text-decoration: none;
+}
+.search-result-title:hover, .search-result-title.is-active { color: var(--accent); }
+.search-result-meta {
+  display: flex; gap: 8px; align-items: center;
+  color: var(--muted); font-size: 12px; margin: 4px 0 6px;
+}
+.search-result-meta-sep { opacity: 0.6; }
+/* excerpt + its matched-term <mark> share one hue (--accent) — the match at
+   full strength, the surrounding sentence a desaturated/lightened version of
+   the same color, rather than an unrelated gray + a default yellow box. */
+.search-result-excerpt {
+  display: block; margin: 0; font-size: 14px; line-height: 1.5;
+  color: color-mix(in srgb, var(--accent), var(--muted) 60%);
+  text-decoration: none;
+}
+.search-result-excerpt:hover { text-decoration: underline; text-decoration-color: currentColor; }
+.search-result-excerpt mark { background: none; color: var(--accent); font-weight: 600; }
+
+/* labels the subheading a match was found under — each match links straight
+   to that section, so this just tells the reader where it's about to go */
+.search-match-heading {
+  display: block; color: var(--muted); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 3px;
+}
+.search-result-excerpt:hover .search-match-heading,
+.search-subresult:hover .search-match-heading { color: var(--accent); }
+
+.search-subresults { margin: 8px 0 0; padding-left: 14px; border-left: 1px solid var(--border); }
+.search-subresult { display: block; padding: 6px 0; text-decoration: none; }
+.search-subresult.is-active { background: rgba(var(--accent-rgb), 0.06); }
+.search-subresult-excerpt {
+  display: block; font-size: 13px; line-height: 1.4;
+  color: color-mix(in srgb, var(--accent), var(--muted) 60%);
+}
+.search-subresult-excerpt mark { background: none; color: var(--accent); font-weight: 600; }
 
 /* ───────────────────────────────────────
    ENGAGEMENT — bookmarks, newsletter, comments

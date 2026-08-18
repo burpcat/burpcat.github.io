@@ -21,13 +21,13 @@ layout: base.njk
 
   <header>
     <div class="post-meta-row">
-      <time class="post-date" datetime="{{ page.date | isoDate }}">{{ page.date | dotDate }}</time>
-      <span class="reading-time">{{ content | readingTime }}</span>
+      <time class="post-date" datetime="{{ page.date | isoDate }}" data-pagefind-meta="date">{{ page.date | dotDate }}</time>
+      <span class="reading-time" data-pagefind-meta="reading_time">{{ content | readingTime }}</span>
       <button class="medium-btn" type="button" id="mediumToggle" data-pagefind-ignore aria-pressed="false" aria-label="Toggle Medium reading mode">
         <span class="md-label">medium mode</span>
       </button>
     </div>
-    <h1 class="post-full-title">{{ title }}</h1>
+    <h1 class="post-full-title" data-pagefind-meta="title">{{ title }}</h1>
     {% if tags and (tags | displayTags).length %}
     <div class="post-tags">
       {% for tag in tags | displayTags %}<span class="tag-pill">{{ tag }}</span>{% endfor %}
