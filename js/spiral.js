@@ -21,8 +21,8 @@
   const POST_COUNT = Math.max(1, parseInt(root.getAttribute('data-post-count'), 10) || 1);
 
   // ── tuning knobs ──
-  const SCALE_X = 0.9;            // curve width as a fraction of viewport width
-  const SCALE_Y = 0.72;           // curve height as a fraction of viewport height
+  const SCALE_X = 0.45;           // curve width as a fraction of viewport width
+  const SCALE_Y = 0.36;           // curve height as a fraction of viewport height
   const CY_FACTOR = 0.52;         // orb's vertical position as a fraction of viewport height
   const EXT = 0.5;                // how far (normalized units) open ends bleed past the viewport
   const P = 256;                  // resampled point count shared by every keyframe
