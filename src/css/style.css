@@ -411,8 +411,10 @@ nav a:hover, nav a:focus { color: var(--accent); outline: none; }
   color: var(--text);
   opacity: 0.85;
   letter-spacing: 0.04em;
+  line-height: 1.6;
   text-align: center;
-  margin: 8px 0 32px;
+  max-width: 62ch;
+  margin: 8px auto 32px;
 }
 
 /* ───────────────────────────────────────
@@ -697,7 +699,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   position: fixed; inset: 0; z-index: 50;
   display: flex; align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--bg) 70%, transparent);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
   opacity: 0;
   transition: opacity 0.35s ease;
 }
@@ -705,6 +707,10 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
    the author rule wins and the closed popup keeps blocking clicks site-wide */
 .welcome-overlay[hidden] { display: none; }
 .welcome-overlay.open { opacity: 1; }
+/* while the popup is up, hide the site content (name/nav/cards) entirely —
+   only the animated scene behind it (Chitra, her strands, the mountains)
+   stays visible, softly blurred by the overlay's own backdrop-filter above */
+body.welcome-active .wrap { visibility: hidden; }
 .welcome-card {
   /* .glass-surface already supplies squared corners, tint, grain, ink edge */
   max-width: 440px;
@@ -723,20 +729,9 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   color: var(--text);
   margin: 6px 0 10px;
 }
-.welcome-body {
-  font-family: 'Open Sans', sans-serif;
-  color: var(--body);
-  line-height: 1.6;
-  font-size: 14px;
-}
 .welcome-theme {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   margin: 18px 0 6px;
-}
-.welcome-label {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: var(--muted);
 }
 .welcome-modes { display: flex; gap: 8px; }
 .welcome-modes button {
@@ -745,16 +740,17 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   padding: 6px 12px;
   border: 0.5px solid var(--glass-edge);
   background: transparent;
-  color: var(--muted);
+  color: var(--body);
   cursor: pointer;
   border-radius: 0;
   min-height: var(--tap-min);
 }
 .welcome-modes button[aria-pressed="true"] { color: var(--warm-accent); border-color: var(--warm-accent); }
-/* the calm button gets its own color (matching the header calm-toggle
-   icon) rather than --warm-accent, to read as a distinct concept from the
-   day/night choice above it */
-#wm-calm[aria-pressed="true"] { color: var(--calm-on); border-color: var(--calm-on); }
+/* the calm buttons get their own colors (matching the header calm-toggle
+   icon's on/off tokens) rather than --warm-accent, to read as a distinct
+   concept from the day/night choice above them */
+#wm-calm-on[aria-pressed="true"] { color: var(--calm-on); border-color: var(--calm-on); }
+#wm-calm-off[aria-pressed="true"] { color: var(--calm-off); border-color: var(--calm-off); }
 .welcome-music {
   display: flex; align-items: flex-start; gap: 10px;
   margin: 16px 0 22px;
@@ -824,9 +820,9 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   padding: 2px 6px;
 }
 .post-body pre {
-  background: #0d1117;
-  color: #e6edf3;
-  border: 1px solid #30363d;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid var(--code-border);
   border-radius: 0;
   padding: 16px 20px;
   overflow-x: auto;
@@ -834,50 +830,55 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   font-size: 13.5px;
   line-height: 1.6;
 }
-.post-body pre code { background: none; padding: 0; color: inherit; }
+.post-body pre code { background: none; padding: 0; color: var(--code-fg); }
 
-/* Prism token colors — GitHub Dark Default palette (#0d1117 bg / #e6edf3 fg),
-   so fenced code reads like a GitHub snippet regardless of the site theme. */
+/* Prism token colors — GitHub Dark Default palette by default (see
+   theme.css's --code-*/--tok-* exception vars); Medium Mode redefines those
+   vars to a GitHub Light set, so fenced code switches with Medium's own
+   light/dark instead of a hardcoded hex regardless of mode. */
 .post-body pre .token.comment,
 .post-body pre .token.prolog,
 .post-body pre .token.doctype,
-.post-body pre .token.cdata { color: #8b949e; }
-.post-body pre .token.punctuation { color: #c9d1d9; }
+.post-body pre .token.cdata { color: var(--tok-comment); }
+.post-body pre .token.punctuation { color: var(--tok-punct); }
 .post-body pre .token.property,
 .post-body pre .token.tag,
 .post-body pre .token.boolean,
 .post-body pre .token.number,
 .post-body pre .token.constant,
-.post-body pre .token.symbol { color: #79c0ff; }
+.post-body pre .token.symbol { color: var(--tok-number); }
 .post-body pre .token.selector,
 .post-body pre .token.attr-name,
 .post-body pre .token.string,
 .post-body pre .token.char,
 .post-body pre .token.builtin,
-.post-body pre .token.inserted { color: #a5d6ff; }
+.post-body pre .token.inserted { color: var(--tok-string); }
 .post-body pre .token.operator,
 .post-body pre .token.entity,
 .post-body pre .token.url,
-.post-body pre .token.variable { color: #c9d1d9; }
+.post-body pre .token.variable { color: var(--tok-punct); }
 .post-body pre .token.atrule,
 .post-body pre .token.attr-value,
-.post-body pre .token.keyword { color: #ff7b72; }
+.post-body pre .token.keyword { color: var(--tok-keyword); }
 .post-body pre .token.function,
-.post-body pre .token.class-name { color: #d2a8ff; }
+.post-body pre .token.class-name { color: var(--tok-fn); }
 .post-body pre .token.regex,
-.post-body pre .token.important { color: #ffa657; }
-.post-body pre .token.deleted { color: #ffa198; }
+.post-body pre .token.important { color: var(--tok-regex); }
+.post-body pre .token.deleted { color: var(--tok-deleted); }
 .post-body pre .token.important,
 .post-body pre .token.bold { font-weight: 700; }
 .post-body pre .token.italic { font-style: italic; }
 
 /* Mermaid diagrams — rendered client-side (see /js/mermaid-init.js) into a
    plain <div class="mermaid">, so this styles the container the same way
-   .post-body pre is styled above; it doesn't need the [data-theme] toggle
-   since Mermaid is initialized once with this same fixed dark palette. */
+   .post-body pre is styled above. Unlike the token colors, Mermaid's own
+   palette is baked into the SVG at render time (mermaid.initialize()'s
+   themeVariables) and stays a fixed dark palette regardless of Medium Mode
+   — only this container (background/border) follows --code-bg/--code-border
+   so the box around it still matches whichever mode's code palette is active. */
 .post-body .mermaid {
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
   border-radius: 0;
   padding: 20px 24px;
   margin: 1.6em 0;
@@ -1421,6 +1422,13 @@ a.tag-pill:hover { background: rgba(var(--muted-rgb), 0.10); }
   html.reading-mode .post-body { padding: 20px 16px; line-height: 1.8; }
   html.reading-mode section,
   html.reading-mode .post-full { max-width: clamp(38ch, 94vw, 84ch) !important; }
+  /* narrow viewports have no side whitespace left to bleed code blocks into
+     — wrap long lines instead of relying on the min(94vw,1000px) bleed */
+  html.medium-mode .post-body pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: clamp(11.5px, 3vw, 13.5px);
+  }
 }
 
 /* ───────────────────────────────────────
@@ -1447,23 +1455,13 @@ a.tag-pill:hover { background: rgba(var(--muted-rgb), 0.10); }
 }
 .theme-toast.show { opacity: 1; transform: translateY(0); }
 
-/* While medium mode is on, the theme switch glows to signal that it drives the
-   article's light/dark. */
-@keyframes theme-switch-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--warm-rgb), 0); }
-  50%      { box-shadow: 0 0 0 3px rgba(var(--warm-rgb), 0.25), 0 0 14px 2px var(--warm-accent); }
-}
-html.medium-mode #themeSwitch {
-  animation: theme-switch-glow 1.8s ease-in-out infinite;
-  outline: 1px solid var(--warm-accent);
-}
-
 /* ───────────────────────────────────────
-   MEDIUM MODE — a full-page, blog-post-only takeover that turns the post into
-   a Medium.com-style page. Page-local: it's keyed on html.medium-mode only,
-   never on the site theme (data-theme), so it can't leak to other pages and
-   can't corrupt the reader's real light/dark. Its own light/dark is the
-   `medium-dark` class, flipped by the theme switch while medium is on.
+   MEDIUM MODE — a full-page, blog-post-only takeover that strips the site
+   chrome down to just the site name + the article, Medium.com-style.
+   Page-local: it's keyed on html.medium-mode only, never on the site theme
+   (data-theme), so it can't leak to other pages and can't corrupt the
+   reader's real light/dark. Its own light/dark is the `medium-dark` class,
+   flipped by #mediumDarkToggle (see site.js) while medium is on.
    ─────────────────────────────────────── */
 html.medium-mode {
   --medium-bg:    #ffffff;
@@ -1471,12 +1469,22 @@ html.medium-mode {
   --medium-muted: #6b6b6b;
   --medium-rule:  #e6e6e6;
   --medium-serif: 'Source Serif 4', Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  /* fenced-code palette switches with Medium's own light/dark instead of
+     staying the fixed GitHub Dark default (theme.css) regardless of mode */
+  --code-bg: #f6f8fa; --code-fg: #1f2328; --code-border: #d0d7de;
+  --tok-comment: #6e7781; --tok-punct: #24292f; --tok-number: #0550ae;
+  --tok-string: #0a3069; --tok-keyword: #cf222e; --tok-fn: #8250df;
+  --tok-regex: #953800; --tok-deleted: #82071e;
 }
 html.medium-mode.medium-dark {
   --medium-bg:    #0f0f0f;
   --medium-fg:    rgba(255, 255, 255, 0.92);
   --medium-muted: #a3a3a3;
   --medium-rule:  #2a2a2a;
+  --code-bg: #0d1117; --code-fg: #e6edf3; --code-border: #30363d;
+  --tok-comment: #8b949e; --tok-punct: #c9d1d9; --tok-number: #79c0ff;
+  --tok-string: #a5d6ff; --tok-keyword: #ff7b72; --tok-fn: #d2a8ff;
+  --tok-regex: #ffa657; --tok-deleted: #ffa198;
 }
 /* whole page becomes the medium canvas: hide the scene, flatten every panel */
 html.medium-mode body { background: var(--medium-bg); color: var(--medium-fg); }
@@ -1484,29 +1492,26 @@ html.medium-mode .scene { opacity: 0; }
 html.medium-mode .glass-surface,
 html.medium-mode .glass-surface::after { background: transparent; }
 html.medium-mode .glass-surface { border: none; }
-html.medium-mode .utility-strip { border-bottom: 1px solid var(--medium-rule); }
-/* narrow, centered Medium column for chrome + article */
-html.medium-mode .wrap { max-width: 760px; }
 
-/* chrome text onto the medium palette */
-html.medium-mode h1 a,
-html.medium-mode .tagline,
-html.medium-mode .sub-tagline,
-html.medium-mode .status,
-html.medium-mode .status .label,
-html.medium-mode nav a,
+/* strip the chrome to just the site name + the article + its meta row —
+   .wrap itself is NOT narrowed (unlike the old design), so the site name
+   stays at its normal x-position instead of becoming a centered masthead */
+html.medium-mode .utility-strip,
+html.medium-mode header .tagline,
+html.medium-mode header .sub-tagline,
+html.medium-mode header .nav-row,
+html.medium-mode .post-toc,
+html.medium-mode .post-tags {
+  display: none;
+}
+html.medium-mode h1 a { color: var(--medium-fg); }
 html.medium-mode .post-meta-row { color: var(--medium-fg); }
-html.medium-mode .status a,
-html.medium-mode nav a.active { color: var(--medium-fg); }
-html.medium-mode .nav-row { border-top-color: var(--medium-rule); }
-html.medium-mode .medium-btn {
-  background: transparent; color: var(--medium-fg); border-color: var(--medium-rule);
-}
-html.medium-mode .medium-btn[aria-pressed="true"] {
-  background: var(--medium-fg); color: var(--medium-bg); border-color: var(--medium-fg);
-}
+/* the entry trigger is redundant once you're already in — exit is the
+   corner ✕ / double-tap Esc now, not this button */
+html.medium-mode .medium-btn { display: none; }
 
-/* the article itself — Medium serif at reading size */
+/* the article itself — Medium serif at reading size, centered independently
+   of .wrap so the site name up in the corner isn't dragged along with it */
 html.medium-mode .post-full { color: var(--medium-fg); max-width: 700px; margin: 0 auto; }
 html.medium-mode .post-body {
   background: var(--medium-bg);
@@ -1539,14 +1544,55 @@ html.medium-mode .post-body blockquote {
   color: var(--medium-muted);
   font-style: italic;
 }
-html.medium-mode .post-tags {
-  background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
-  border: none; padding: 0;
-}
-html.medium-mode .tag-pill { background: transparent; color: var(--medium-muted); border-color: var(--medium-rule); }
-html.medium-mode .post-toc { background: transparent; border-color: var(--medium-rule); }
-html.medium-mode .post-toc-label { background: transparent; border-right-color: var(--medium-rule); color: var(--medium-fg); }
-html.medium-mode .post-toc-sections a { color: var(--medium-fg); }
-html.medium-mode .post-body code { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
-html.medium-mode.medium-dark .post-body code { background: rgba(255, 255, 255, 0.08); }
+/* inline code chips only — .post-body pre code (fenced blocks, above) keeps
+   the --code-fg/--code-bg palette, switching with Medium's own light/dark.
+   :not(pre > code) matters: this selector used to just be `.post-body code`,
+   which (being more specific than `.post-body pre code { color: inherit }`)
+   also won against fenced code, forcing every untagged/plain character in a
+   code block to --medium-fg — invisible against the code block's own
+   permanently-dark-or-light background whenever the two didn't match. */
+html.medium-mode .post-body code:not(pre > code) { background: rgba(0, 0, 0, 0.05); color: var(--medium-fg); }
+html.medium-mode.medium-dark .post-body code:not(pre > code) { background: rgba(255, 255, 255, 0.08); }
 html.medium-mode .post-signature { color: var(--medium-muted); }
+
+/* code/mermaid bleed past the 700px article column into the side whitespace
+   instead of showing a horizontal scrollbar */
+html.medium-mode .post-body pre,
+html.medium-mode .post-body .mermaid {
+  width: min(94vw, 1000px);
+  margin-left: 50%;
+  transform: translateX(-50%);
+  overflow-x: clip;
+}
+
+/* ── Medium's own exit affordances — site.js wires the click/keydown logic;
+   the hint toast reuses the .theme-toast pattern above (fixed, monospace,
+   fade+slide via a .show class), the ✕/☾ buttons reuse the modal-close /
+   welcome-modal square-button look. ── */
+.medium-hint {
+  position: fixed; top: 14px; left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  z-index: 300; max-width: 90vw;
+  background: var(--medium-bg); color: var(--medium-fg); border: 1px solid var(--medium-rule);
+  font-family: 'Courier New', Courier, monospace; font-size: 12px; letter-spacing: 0.04em;
+  padding: 10px 16px; border-radius: 0; text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.medium-hint.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+#mediumExit, #mediumDarkToggle {
+  display: none;
+  position: fixed; top: 14px; z-index: 300;
+  align-items: center; justify-content: center;
+  width: 34px; height: 34px; min-height: var(--tap-min);
+  background: transparent; color: var(--medium-fg);
+  border: 1px solid var(--medium-rule); border-radius: 0;
+  font: inherit; font-size: 16px; cursor: pointer;
+}
+#mediumExit { left: 14px; }
+#mediumDarkToggle { right: 14px; }
+html.medium-mode #mediumExit,
+html.medium-mode #mediumDarkToggle { display: flex; }
+#mediumExit:hover, #mediumDarkToggle:hover { border-color: var(--medium-fg); }

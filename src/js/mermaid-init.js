@@ -52,7 +52,33 @@
           tertiaryTextColor: "#e6edf3",
           fontFamily: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace",
           fontSize: "13.5px",
+          // Gantt charts use their own theme-variable slots, unset above —
+          // they were falling back to Mermaid's built-in (light-background)
+          // defaults, putting light task-label text on a white section band
+          // that's invisible against this always-dark diagram background.
+          sectionBkgColor: "#0d1117",
+          sectionBkgColor2: "#161b22",
+          altSectionBkgColor: "#161b22",
+          taskBkgColor: "#21262d",
+          taskBorderColor: "#30363d",
+          activeTaskBkgColor: "#30363d",
+          activeTaskBorderColor: "#8b949e",
+          doneTaskBkgColor: "#161b22",
+          doneTaskBorderColor: "#30363d",
+          taskTextColor: "#e6edf3",
+          taskTextLightColor: "#e6edf3",
+          taskTextDarkColor: "#e6edf3",
+          taskTextOutsideColor: "#e6edf3",
+          taskTextClickableColor: "#79c0ff",
+          gridColor: "#30363d",
+          todayLineColor: "#8b949e",
         },
+        // Flowchart node labels default to HTML labels inside a <foreignObject>,
+        // which Mermaid sizes correctly in Chromium/Firefox here but is a known
+        // WebKit/Safari intrinsic-sizing failure mode (label text clips instead
+        // of wrapping/fitting). Native SVG text labels are measured the same
+        // way in every engine, so they can't clip like that.
+        flowchart: { htmlLabels: false, useMaxWidth: true },
       });
       return renderAll(mermaid);
     })

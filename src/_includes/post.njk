@@ -48,6 +48,14 @@ layout: base.njk
     <p class="post-signature">sent from Aegon</p>
   </div>
 
+  {# Mermaid init lives here (inside #main) rather than base.njk: nav.js's
+     reviveScripts() only re-executes <script> tags inside the swapped
+     #main region on a soft navigation. From base.njk it only ever ran once,
+     on whichever page first loaded — soft-navigating into a later post with
+     diagrams left them as raw, unrendered source (Prism just syntax-
+     highlights the mermaid fence as code, which is all that showed). #}
+  <script src="/js/mermaid-init.js"></script>
+
   {%- if series and collections.seriesMap[series] -%}
   {%- set parts = collections.seriesMap[series] -%}
   <nav class="series-nav" aria-label="Series navigation">

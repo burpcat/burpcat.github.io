@@ -145,7 +145,7 @@
 
   {# ── HERO CAPTION (homepage only, floats over the scene) ── #}
   {% if page.url == "/" %}
-  <p class="hero-caption">a small bright thing in a vast quiet space</p>
+  <p class="hero-caption">From here I watch you flicker and fade, tiny as dust on the wind you cannot stop what comes, and neither can I; so we simply burn, you and I, beautiful for a moment, though I may already be the light of something long dead.</p>
   {% endif %}
 
   {{ content | safe }}
@@ -171,39 +171,42 @@
   </div>
 </div>
 
+{# ── Medium Mode's own exit affordances (site.js wires the behavior) —
+   fixed, hidden outside html.medium-mode, so they survive nav.js's #main
+   swaps untouched and never need re-inserting ── #}
+<button id="mediumExit" type="button" aria-label="Exit Medium Mode">✕</button>
+<button id="mediumDarkToggle" type="button" aria-label="Toggle Medium Mode's light/dark">☾</button>
+
 <audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop preload="none"></audio>
 
 {# ── first-visit welcome popup — hidden by default to avoid a flash ── #}
 <div class="welcome-overlay" id="welcome" hidden>
   <div class="welcome-card glass-surface" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
     <div class="welcome-orb" aria-hidden="true"></div>
-    <h2 id="welcome-title" class="welcome-title">Welcome, wanderer.</h2>
-    <p class="welcome-body">You've found a small bright thing in a vast quiet space. A few things before you explore:</p>
+    <h2 id="welcome-title" class="welcome-title">Hello boss, howzya</h2>
     <div class="welcome-theme">
-      <span class="welcome-label">this place has a day and a night —</span>
       <div class="welcome-modes">
-        <button type="button" data-mode="light" id="wm-light">sun</button>
-        <button type="button" data-mode="dark" id="wm-dark">moon</button>
+        <button type="button" data-mode="light" id="wm-light">light mode</button>
+        <button type="button" data-mode="dark" id="wm-dark">dark mode</button>
       </div>
     </div>
     <div class="welcome-theme">
-      <span class="welcome-label">prefer stillness? —</span>
       <div class="welcome-modes">
-        <button type="button" id="wm-calm" aria-pressed="false">calm mode</button>
+        <button type="button" id="wm-calm-off">calm mode: off</button>
+        <button type="button" id="wm-calm-on">calm mode: on</button>
       </div>
     </div>
     <label class="welcome-music">
-      <input type="checkbox" id="welcome-music-check" checked>
-      <span>no one said no to good music, play background music?</span>
+      <input type="checkbox" id="welcome-music-check">
+      <span>music</span>
     </label>
-    <button type="button" class="welcome-enter" id="welcome-enter">enter →</button>
+    <button type="button" class="welcome-enter" id="welcome-enter">continue (with defaults) →</button>
   </div>
 </div>
 
 <script src="/js/site.js"></script>
 <script src="/js/nav.js"></script>
 <script src="/js/spiral.js"></script>
-<script src="/js/mermaid-init.js"></script>
 <script src="/js/embeds.js" defer></script>
 <script src="/js/lightbox.js" defer></script>
 </body>

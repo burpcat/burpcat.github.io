@@ -229,4 +229,21 @@
      centered box, the lightbox is a near-opaque backdrop (0.92) behind a
      full image viewer. */
   --scrim-rgb: 26, 23, 20;
+
+  /* fenced-code palette (GitHub Dark Default) — see style.css's
+     .post-body pre/.token.* rules. Medium Mode redefines these to a
+     GitHub Light set (and back to this dark set in medium-dark), so code
+     switches with Medium's own light/dark; normal site light/dark never
+     touches these, by design. */
+  --code-bg:      #0d1117;
+  --code-fg:      #e6edf3;
+  --code-border:  #30363d;
+  --tok-comment:  #8b949e;
+  --tok-punct:    #c9d1d9;
+  --tok-number:   #79c0ff;
+  --tok-string:   #a5d6ff;
+  --tok-keyword:  #ff7b72;
+  --tok-fn:       #d2a8ff;
+  --tok-regex:    #ffa657;
+  --tok-deleted:  #ffa198;
 }

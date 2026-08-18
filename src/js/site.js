@@ -149,18 +149,70 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
       const label = btn.querySelector('.md-label');
       if (label) label.textContent = on ? 'medium: on' : 'medium mode';
     }
+    const darkToggle = document.getElementById('mediumDarkToggle');
+    if (darkToggle) darkToggle.textContent = flag(DARK) ? '☀' : '☾';
+  }
+
+  // Small auto-dismissing hint, shown only when medium is actually switched
+  // on (not on the silent load-time/soft-nav resync) — same lazy-create +
+  // .show-class pattern as the theme toast above.
+  let hintEl = null;
+  let hintTimer = null;
+  function showHint() {
+    if (!hintEl) {
+      hintEl = document.createElement('div');
+      hintEl.className = 'medium-hint';
+      hintEl.setAttribute('role', 'status');
+      hintEl.setAttribute('aria-live', 'polite');
+      document.body.appendChild(hintEl);
+    }
+    hintEl.textContent = 'double-tap esc to exit medium mode, or press ✕ in the top-left corner';
+    hintEl.classList.remove('show');
+    void hintEl.offsetWidth;
+    hintEl.classList.add('show');
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => { if (hintEl) hintEl.classList.remove('show'); }, 4500);
+  }
+  function hideHint() {
+    clearTimeout(hintTimer);
+    if (hintEl) hintEl.classList.remove('show');
   }
 
   function setMedium(on) {
+    const wasOn = root.classList.contains(MED);
     setFlag(MED, on);
     if (on) setFlag(DARK, false); // always start light, like Medium
     sync();
+    if (on && !wasOn) showHint();
+    if (!on) hideHint();
   }
 
   document.addEventListener('click', (e) => {
-    const t = e.target.closest && e.target.closest('#mediumToggle');
-    if (!t) return;
-    setMedium(!root.classList.contains(MED));
+    if (e.target.closest && e.target.closest('#mediumToggle')) {
+      setMedium(!root.classList.contains(MED));
+      return;
+    }
+    if (e.target.closest && e.target.closest('#mediumExit')) {
+      setMedium(false);
+      return;
+    }
+    if (e.target.closest && e.target.closest('#mediumDarkToggle')) {
+      window.__site.toggleMediumDark();
+    }
+  });
+
+  // Double-tap Esc (within 500ms) exits medium mode; a single Esc does
+  // nothing here, so it doesn't interfere with the modal's own Esc-to-close.
+  let lastEscAt = 0;
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !root.classList.contains(MED)) return;
+    const now = Date.now();
+    if (now - lastEscAt < 500) {
+      setMedium(false);
+      lastEscAt = 0;
+    } else {
+      lastEscAt = now;
+    }
   });
 
   window.__site = window.__site || {};
@@ -261,7 +313,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   const root = document.documentElement;
   const lightBtn = document.getElementById('wm-light');
   const darkBtn = document.getElementById('wm-dark');
-  const calmBtn = document.getElementById('wm-calm');
+  const calmOffBtn = document.getElementById('wm-calm-off');
+  const calmOnBtn = document.getElementById('wm-calm-on');
   const musicCheck = document.getElementById('welcome-music-check');
   const enterBtn = document.getElementById('welcome-enter');
 
@@ -272,10 +325,12 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   }
   syncModeButtons();
 
-  function syncCalmButton() {
-    if (calmBtn) calmBtn.setAttribute('aria-pressed', String(document.body.classList.contains('calm-mode')));
+  function syncCalmButtons() {
+    const on = document.body.classList.contains('calm-mode');
+    if (calmOffBtn) calmOffBtn.setAttribute('aria-pressed', String(!on));
+    if (calmOnBtn) calmOnBtn.setAttribute('aria-pressed', String(on));
   }
-  syncCalmButton();
+  syncCalmButtons();
 
   if (lightBtn) lightBtn.addEventListener('click', () => {
     if (window.__site && window.__site.setTheme) window.__site.setTheme('light');
@@ -285,13 +340,17 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     if (window.__site && window.__site.setTheme) window.__site.setTheme('dark');
     syncModeButtons();
   });
-  if (calmBtn) calmBtn.addEventListener('click', () => {
-    if (window.__site && window.__site.setCalmMode) window.__site.setCalmMode(!document.body.classList.contains('calm-mode'));
-    syncCalmButton();
+  if (calmOffBtn) calmOffBtn.addEventListener('click', () => {
+    if (window.__site && window.__site.setCalmMode) window.__site.setCalmMode(false);
+    syncCalmButtons();
+  });
+  if (calmOnBtn) calmOnBtn.addEventListener('click', () => {
+    if (window.__site && window.__site.setCalmMode) window.__site.setCalmMode(true);
+    syncCalmButtons();
   });
 
   function getFocusable() {
-    return [lightBtn, darkBtn, calmBtn, musicCheck, enterBtn].filter(Boolean);
+    return [lightBtn, darkBtn, calmOffBtn, calmOnBtn, musicCheck, enterBtn].filter(Boolean);
   }
 
   function trapKeydown(e) {
@@ -307,6 +366,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
   function open() {
     overlay.hidden = false;
+    // .wrap (site name/nav/content) hides behind the popup — only the
+    // animated scene (Chitra, her strands, the mountains) stays visible,
+    // softly blurred by the overlay's own backdrop-filter.
+    document.body.classList.add('welcome-active');
     requestAnimationFrame(() => {
       overlay.classList.add('open');
       const focusable = getFocusable();
@@ -321,6 +384,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   function close(startMusic) {
     try { localStorage.setItem(WELCOMED_KEY, '1'); } catch (e) {}
     overlay.classList.remove('open');
+    document.body.classList.remove('welcome-active');
     overlay.removeEventListener('keydown', trapKeydown);
     if (document.activeElement) document.activeElement.blur();
     setTimeout(() => { overlay.hidden = true; }, 400);
