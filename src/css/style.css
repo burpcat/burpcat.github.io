@@ -1,138 +1,15 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ───────────────────────────────────────
-   LIGHT THEME
-   ─────────────────────────────────────── */
-:root, [data-theme="light"] {
-  --bg:           #E7D3B8;
-  --bg-elevated:  #EEDCC4;
-  --text:         #2A2018;
-  --body:         #3A2E23;
-  --muted:        #6E5C48;
-  --faint:        #82705A;
-  --border:       #C4A883;
-  --dash:         #B69A76;
-  --accent:       #2F6E57;
-  --accent-hover: #245943;
-  --warm-accent:  #C25A2A;
-  --rss:          #B5501F;
-  --geo-yellow:   #D08A2E;
-  --geo-pink:     #A85440;
-
-  /* calm mode icon — "on" tuned for contrast against the toggle's filled
-     pressed state (var(--text)); "off" matches this theme's --muted value
-     (already proven legible at rest), copied literally rather than
-     `var(--muted)` so the icon keeps one consistent identity everywhere,
-     including pages (About) that locally override --muted for their own
-     palette. */
-  --calm-on:      #6FE3B4;
-  --calm-off:     #6E5C48;
-
-  --sky-top:      #F0D9B4;
-  --sky-bottom:   #E0B181;
-  --ridge-far:    #9C8460;
-  --ridge-near:   #5E4A34;
-  --ridge-trees:  #33261A;
-  --orb:          #E8913C;
-  --orb-glow:     rgba(232,145,60,0.34);
-  --spiral-line:  47,110,87;
-  --spiral-alpha: 0.42;
-
-  /* Chitra — the reading-mode star's color. Overridden inline in base.njk
-     from src/_data/weather.json (see scripts/fetch-weather.js); these are
-     just the static fallback (a clear-sky gold) for local dev before any
-     fetch has run. */
-  --chitra-color:     #F5D77A;
-  --chitra-color-rgb: 245,215,122;
-
-  --glass-tint:   rgba(231,211,184,0.52);
-  --glass-solid:  rgba(231,211,184,0.94);
-  --glass-edge:   rgba(42,32,24,0.20);
-
+/* All themed color tokens (light/dark/about + the 5-color system they're
+   built from) live in src/css/theme.css, loaded before this file. What
+   follows are non-color, theme-independent constants. */
+:root {
   --max-reading: 65ch;
   --tap-min: 44px;
 
   /* GitHub's monospace stack — used for code blocks / inline code so snippets
      read like GitHub. System fonts only, no webfont request. */
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
-}
-
-/* ───────────────────────────────────────
-   DARK THEME
-   ─────────────────────────────────────── */
-[data-theme="dark"] {
-  --bg:           #0C1512;
-  --bg-elevated:  #14211C;
-  --text:         #DCE4D6;
-  --body:         #C2CDBB;
-  --muted:        #93A08E;
-  --faint:        #7F8C7A;
-  --border:       #2A3A32;
-  --dash:         #23322B;
-  --accent:       #7FB59B;
-  --accent-hover: #9BCBB4;
-  --warm-accent:  #E9A23B;
-  --rss:          #E0975A;
-  --geo-yellow:   #E9A23B;
-  --geo-pink:     #B98090;
-
-  /* calm mode icon — see light theme above for the rationale */
-  --calm-on:      #1D6B4A;
-  --calm-off:     #93A08E;
-
-  --sky-top:      #0A130F;
-  --sky-bottom:   #1C3A34;
-  --ridge-far:    #16302A;
-  --ridge-near:   #0E211C;
-  --ridge-trees:  #060D0A;
-  --orb:          #E9A23B;
-  --orb-glow:     rgba(233,162,59,0.42);
-  --spiral-line:  127,181,155;
-  --spiral-alpha: 0.55;
-
-  --glass-tint:   rgba(12,21,18,0.42);
-  --glass-solid:  rgba(12,21,18,0.90);
-  --glass-edge:   rgba(220,228,214,0.14);
-}
-
-/* ───────────────────────────────────────
-   ABOUT PAGE — scoped fall-foliage override, same regardless of light/dark.
-   Adirondacks/White Mountains peak-foliage mountain park: ridge set C (warm
-   rose-dusk haze) + sugar maple red hillside line. Sky itself is animated —
-   spiral.js's aboutSkyColors() overrides the sky gradient every frame,
-   crossfading sunrise (orange/yellow) to sunset (golden red/orange) as the
-   reader scrolls; --sky-top/--sky-bottom below are just the static fallback
-   (also still used as-is for the orb's moon-bite shadow color).
-   ─────────────────────────────────────── */
-[data-page="about"] {
-  --bg:           #170D09;
-  --bg-elevated:  #221109;
-  --text:         #F1DBCB;
-  --body:         #E0C3B0;
-  --muted:        #B0846C;
-  --faint:        #966B54;
-  --border:       #4A2416;
-  --dash:         #3A1B10;
-  --accent:       #D9542A;
-  --accent-hover: #C15F3C;
-  --warm-accent:  #FF6A38;
-  --rss:          #E0662E;
-  --geo-yellow:   #E08A3C;
-  --geo-pink:     #C15F3C;
-
-  --sky-top:      #7A2E1D;
-  --sky-bottom:   #E8873C;
-  --ridge-far:    #C9A8A0;
-  --ridge-near:   #9C6B4A;
-  --ridge-trees:  #2A1D14;
-  --orb:          #DD3704;
-  --orb-glow:     rgba(221,55,4,0.50);
-  --spiral-line:  221,55,4;
-  --spiral-alpha: 0.50;
-
-  --glass-tint:   rgba(23,13,9,0.44);
-  --glass-solid:  rgba(23,13,9,0.90);
-  --glass-edge:   rgba(241,219,203,0.14);
 }
 
 /* v9: the about tile itself reads darker — ~20% light through — while the
@@ -301,16 +178,15 @@ body.calm-mode .construction { display: none !important; }
 }
 .dot {
   width: 9px; height: 9px;
-  background: #5C9A82;
+  background: var(--accent);
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(92, 154, 130, 0.20);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.20);
   animation: gentle-pulse 3s ease-in-out infinite;
 }
-[data-theme="dark"] .dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(123, 184, 156, 0.18); }
 @keyframes gentle-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(92, 154, 130, 0.20); }
-  50%      { box-shadow: 0 0 0 5px rgba(92, 154, 130, 0.12); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.20); }
+  50%      { box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.12); }
 }
 .status .label { color: var(--muted); }
 .status a {
@@ -418,7 +294,7 @@ body.calm-mode .construction { display: none !important; }
   font-size: 9px;
   letter-spacing: 0.12em;
   color: #1A1714;
-  background: var(--geo-yellow);
+  background: var(--warm-accent);
   padding: 6px 10px;
   transform: rotate(-2deg);
   border: 1px solid #1A1714;
@@ -491,10 +367,10 @@ nav a.active { color: var(--accent); font-weight: 600; }
 nav a:hover, nav a:focus { color: var(--accent); outline: none; }
 .rss-link {
   gap: 6px;
-  color: var(--rss) !important;
+  color: var(--warm-accent) !important;
   margin-left: auto;
 }
-.rss-icon { width: 14px; height: 14px; fill: var(--rss); }
+.rss-icon { width: 14px; height: 14px; fill: var(--warm-accent); }
 
 .auth-buttons {
   display: flex;
@@ -619,7 +495,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   max-width: var(--max-reading);
 }
 .empty-state code {
-  background: rgba(45, 84, 72, 0.08);
+  background: rgba(var(--muted-rgb), 0.08);
   padding: 1px 6px;
   font-size: 13px;
   font-style: normal;
@@ -673,7 +549,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 }
 .new-badge {
   display: inline-block;
-  background: var(--geo-pink); color: #fff;
+  background: var(--warm-accent); color: #fff;
   font-size: 10px; letter-spacing: 0.15em;
   padding: 3px 7px; margin-right: 8px;
   vertical-align: middle; font-weight: 700;
@@ -718,11 +594,10 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
 .guestbook-teaser {
   margin-top: 32px;
   padding: 20px 22px;
-  background: rgba(217, 164, 39, 0.10);
+  background: rgba(var(--warm-rgb), 0.08);
   border: 1px dashed var(--warm-accent);
   max-width: var(--max-reading);
 }
-[data-theme="dark"] .guestbook-teaser { background: rgba(232, 169, 81, 0.08); }
 .gb-label {
   font-size: 11px; color: var(--muted);
   letter-spacing: 0.12em; text-transform: uppercase;
@@ -770,7 +645,7 @@ html.reading-mode .post-excerpt { line-height: 1.85; }
   color: var(--accent-hover); text-decoration: underline; outline: none;
 }
 .blogroll-list .feed-link {
-  color: var(--rss); font-size: 12px;
+  color: var(--warm-accent); font-size: 12px;
   margin-left: 4px; padding: 8px 6px;
   min-height: var(--tap-min);
   display: inline-flex; align-items: center;
@@ -794,7 +669,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 /* ── modal ── */
 .modal-backdrop {
   position: fixed; inset: 0;
-  background: rgba(26, 23, 20, 0.55);
+  background: rgba(var(--scrim-rgb), 0.55);
   display: none;
   align-items: center; justify-content: center;
   z-index: 100; padding: 20px;
@@ -973,7 +848,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body code {
   font-family: var(--mono);
   font-size: 13.5px;
-  background: rgba(45, 84, 72, 0.08);
+  background: rgba(var(--muted-rgb), 0.08);
   padding: 2px 6px;
 }
 .post-body pre {
@@ -1117,7 +992,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   overflow-x: auto;
 }
 .post-body thead th {
-  background: rgba(45, 84, 72, 0.10);
+  background: rgba(var(--muted-rgb), 0.10);
   font-weight: 600;
   text-align: left;
 }
@@ -1126,7 +1001,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   padding: 8px 12px;
   vertical-align: top;
 }
-.post-body tbody tr:nth-child(even) { background: rgba(45, 84, 72, 0.03); }
+.post-body tbody tr:nth-child(even) { background: rgba(var(--muted-rgb), 0.03); }
 
 /* Heading anchor links (markdown-it-anchor). Hidden until the heading is
    hovered/focused so prose stays clean. */
@@ -1175,7 +1050,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   border-radius: 0;
   padding: 14px 18px;
   margin: 1.6em 0;
-  background: rgba(45, 84, 72, 0.04);
+  background: var(--callout-bg);
 }
 .post-body .callout > :last-child { margin-bottom: 0; }
 .post-body .callout-label {
@@ -1185,14 +1060,14 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   text-transform: uppercase;
   margin: 0 0 6px;
 }
-.post-body .callout-note { border-left-color: #7FB59B; }
-.post-body .callout-note .callout-label { color: #5B8F79; }
-.post-body .callout-tip { border-left-color: #8FBFA3; background: rgba(143, 191, 163, 0.08); }
-.post-body .callout-tip .callout-label { color: #4F8A6B; }
-.post-body .callout-warn { border-left-color: #E0975A; background: rgba(224, 151, 90, 0.08); }
-.post-body .callout-warn .callout-label { color: #C57A38; }
-.post-body .callout-info { border-left-color: #6FA8C7; background: rgba(111, 168, 199, 0.08); }
-.post-body .callout-info .callout-label { color: #4A83A2; }
+.post-body .callout-note { border-left-color: var(--callout-note); }
+.post-body .callout-note .callout-label { color: var(--callout-note-label); }
+.post-body .callout-tip { border-left-color: var(--callout-tip); background: var(--callout-tip-bg); }
+.post-body .callout-tip .callout-label { color: var(--callout-tip-label); }
+.post-body .callout-warn { border-left-color: var(--callout-warn); background: var(--callout-warn-bg); }
+.post-body .callout-warn .callout-label { color: var(--callout-warn-label); }
+.post-body .callout-info { border-left-color: var(--callout-info); background: var(--callout-info-bg); }
+.post-body .callout-info .callout-label { color: var(--callout-info-label); }
 
 /* Footnotes (markdown-it-footnote). */
 .post-body .footnote-ref a { text-decoration: none; font-weight: 600; }
@@ -1220,7 +1095,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
 .post-body kbd {
   font-family: var(--mono);
   font-size: 12px;
-  background: rgba(45, 84, 72, 0.10);
+  background: rgba(var(--muted-rgb), 0.10);
   border: 1px solid var(--border);
   border-bottom-width: 2px;
   border-radius: 0;
@@ -1283,7 +1158,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   text-decoration: none;
   color: var(--text);
 }
-.post-body .embed-repo:hover { background: rgba(45, 84, 72, 0.04); }
+.post-body .embed-repo:hover { background: rgba(var(--muted-rgb), 0.04); }
 .post-body .embed-repo-icon { color: var(--accent); }
 .post-body .embed-repo-name { font-weight: 600; }
 .post-body .embed-repo-host { margin-left: auto; font-size: 12px; color: var(--muted); }
@@ -1298,7 +1173,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   align-items: center;
   justify-content: center;
   padding: 4vmin;
-  background: rgba(12, 21, 18, 0.92);
+  background: rgba(var(--scrim-rgb), 0.92);
   cursor: zoom-out;
   opacity: 0;
   transition: opacity 0.18s ease;
@@ -1326,7 +1201,7 @@ footer a:hover, footer a:focus { text-decoration: underline; outline: none; }
   border-radius: 0; padding: 1px 8px;
 }
 a.tag-pill { text-decoration: none; transition: background 0.15s ease; }
-a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
+a.tag-pill:hover { background: rgba(var(--muted-rgb), 0.10); }
 
 .pagination {
   display: flex; align-items: center; justify-content: space-between;
@@ -1345,7 +1220,7 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 
 .series-nav {
   border: 1px solid var(--border); border-radius: 0;
-  padding: 16px 20px; margin: 40px 0 0; background: rgba(45, 84, 72, 0.03);
+  padding: 16px 20px; margin: 40px 0 0; background: rgba(var(--muted-rgb), 0.03);
 }
 .series-nav-label { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
 .series-nav ol { margin: 0; padding-left: 20px; font-size: 14px; }
@@ -1424,7 +1299,7 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 .newsletter {
   margin: 40px 0 0; padding: 20px 24px;
   border: 1px solid var(--border); border-radius: 0;
-  background: rgba(45, 84, 72, 0.03);
+  background: rgba(var(--muted-rgb), 0.03);
 }
 .newsletter-label { font-weight: 600; margin: 0 0 12px; }
 .newsletter-form { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -1511,8 +1386,8 @@ a.tag-pill:hover { background: rgba(45, 84, 72, 0.10); }
 /* While medium mode is on, the theme switch glows to signal that it drives the
    article's light/dark. */
 @keyframes theme-switch-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(233, 162, 59, 0); }
-  50%      { box-shadow: 0 0 0 3px rgba(233, 162, 59, 0.25), 0 0 14px 2px var(--warm-accent); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--warm-rgb), 0); }
+  50%      { box-shadow: 0 0 0 3px rgba(var(--warm-rgb), 0.25), 0 0 14px 2px var(--warm-accent); }
 }
 html.medium-mode #themeSwitch {
   animation: theme-switch-glow 1.8s ease-in-out infinite;

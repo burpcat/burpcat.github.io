@@ -409,8 +409,8 @@
       g.addColorStop(0, top);
       g.addColorStop(1, bottom);
     } else {
-      g.addColorStop(0, v('--sky-top') || '#DDE4D2');
-      g.addColorStop(1, v('--sky-bottom') || '#C4D0BA');
+      g.addColorStop(0, v('--sky-top') || '#F0EAD6');
+      g.addColorStop(1, v('--sky-bottom') || '#A28F9D');
     }
     ctx.globalAlpha = alpha;
     ctx.fillStyle = g;
@@ -422,7 +422,7 @@
   // page (see fetch-weather.js + base.njk), a bare "r,g,b" triplet like
   // --spiral-line already is.
   function chitraRgb() {
-    const raw = v('--chitra-color-rgb') || '245,215,122';
+    const raw = v('--chitra-color-rgb') || '214,40,40';
     return raw.split(',').map(Number);
   }
 
@@ -470,7 +470,7 @@
   // reading-mode's multiple strands (drawStrands, below) each paint in
   // their own harmonious color instead of --spiral-line.
   function strokeMorph(points, anchor, hum, style, rgbOverride) {
-    const rgb = rgbOverride || v('--spiral-line') || '62,107,84';
+    const rgb = rgbOverride || v('--spiral-line') || '214,40,40';
     const baseAlpha = parseFloat(v('--spiral-alpha')) || 0.42;
     const crispAlpha = baseAlpha * (style ? style.crispMult : 1);
     const underWidth = 11 + (style ? style.underWidthExtra : 0);
@@ -700,7 +700,7 @@
     const offsets = [-spreadRad / 2, spreadRad / 2];
     const strandHums = offsets.map((offset, i) => computeStrandHum(offset, i * Math.PI, hum));
 
-    const baseRgb = (v('--spiral-line') || '217,84,42').split(',').map(Number);
+    const baseRgb = (v('--spiral-line') || '221,55,4').split(',').map(Number);
     const [bh, bs, bl] = rgbToHsl(baseRgb[0], baseRgb[1], baseRgb[2]);
     const shadeDelta = 0.12;
     const colors = [
@@ -737,9 +737,9 @@
   // — it takes her live weather color instead of the sun/moon theming.
   function drawOrb(pulse) {
     const star = !isAboutPage();
-    const orbColor = star ? (v('--chitra-color') || '#E9A23B') : (v('--orb') || '#E9A23B');
-    const glow = star ? `rgba(${chitraRgb().join(',')},0.34)` : (v('--orb-glow') || 'rgba(233,162,59,0.3)');
-    const shadow = v('--sky-top') || '#0A130F';
+    const orbColor = star ? (v('--chitra-color') || '#D62828') : (v('--orb') || '#DD3704');
+    const glow = star ? `rgba(${chitraRgb().join(',')},0.34)` : (v('--orb-glow') || 'rgba(221,55,4,0.50)');
+    const shadow = v('--sky-top') || '#7A2E1D';
 
     ctx.save();
     // Reading mode's pulse boost is itself gated by musicGate — it fades to

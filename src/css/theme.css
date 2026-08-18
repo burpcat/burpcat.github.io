@@ -1,0 +1,232 @@
+/* ───────────────────────────────────────────────────────────────
+   THEME PACK — every themed color on the site flows through here.
+
+   Each theme (light / dark / about) defines exactly 5 master colors —
+   Background, Foreground (text), Accent, Muted, Warm — each with a hex
+   form (--x) and a bare "R,G,B" triplet form (--x-rgb) for rgba()
+   alpha-blending. Every other color token on the site is *derived* from
+   those 5 via color-mix()/rgba() below, rather than being independently
+   picked — see src/css/style.css for the ~150 component rules that
+   consume these variable names (unchanged by this file's existence).
+
+   Role-assignment rationale (WCAG contrast computed against each
+   theme's Background):
+   - Dark:  bg #1B1B1B · fg #FBFBFF (16.7:1) · accent #FF331F (4.71:1,
+     the theme's one vivid color — also reused as Warm, Orb, and
+     Spiral-line, see below) · muted #657ED4 (the remaining cool
+     mid-tone, 1.63:1 — too low for text, fine for low-alpha
+     borders/washes and the distant hazy ridge)
+   - Light: bg #F0EAD6 · fg #48483A (7.71:1) · accent #5C574F (5.95:1 —
+     best remaining contrast, since accent carries body-text-sized
+     links everywhere) · muted #74776B (3.80:1 — below AA text, fine
+     for de-emphasized borders/secondary text) · warm #A28F9D (2.51:1 —
+     decorative/badge use only, never body text)
+
+   The animated background scene (sky/ridge/orb/spiral-line/Chitra) is
+   fall-foliage themed for every page, not just About — mapped from the
+   same 5 colors per theme where a fit exists, plus one sourced color
+   (#D62828, light mode only) for the glowing orb/accent line neither
+   theme's original 5 could vividly cover on their own. See the
+   per-theme scene comments below for the specific reasoning.
+
+   Explicitly OUT of this 5-color system (pre-existing, intentional
+   exceptions, defined at the bottom): blog-post callouts, the modal/
+   lightbox dimming scrim, the GitHub-dark code-block/Mermaid palette
+   (see style.css), and Medium Mode's own palette (see style.css).
+   ─────────────────────────────────────────────────────────────── */
+
+/* ───────────────────────────────────────
+   LIGHT THEME
+   ─────────────────────────────────────── */
+:root, [data-theme="light"] {
+  /* the 5 master colors */
+  --bg:           #F0EAD6;
+  --bg-rgb:       240,234,214;
+  --text:         #48483A;
+  --text-rgb:     72,72,58;
+  --accent:       #5C574F;
+  --accent-rgb:   92,87,79;
+  --muted:        #74776B;
+  --muted-rgb:    116,119,107;
+  --warm-accent:  #A28F9D;
+  --warm-rgb:     162,143,157;
+
+  /* derived — formulas built from the 5 above, not independent picks */
+  --bg-elevated:  color-mix(in srgb, var(--bg), var(--text) 4%);
+  --body:         color-mix(in srgb, var(--text), var(--bg) 15%);
+  --faint:        color-mix(in srgb, var(--muted), var(--bg) 30%);
+  --border:       rgba(var(--muted-rgb), 0.35);
+  --dash:         rgba(var(--muted-rgb), 0.18);
+  --accent-hover: color-mix(in srgb, var(--accent), var(--text) 20%);
+
+  /* calm mode icon — "on" = accent, "off" = muted (see dark theme below
+     for the shared rationale; About page inherits this shape too) */
+  --calm-on:      var(--accent);
+  --calm-off:     var(--muted);
+
+  --glass-tint:   rgba(var(--bg-rgb), 0.52);
+  --glass-solid:  rgba(var(--bg-rgb), 0.94);
+  --glass-edge:   rgba(var(--text-rgb), 0.20);
+
+  /* animated background scene — fall-foliage mountain park, mapped from
+     the 5 given colors: sky-top/bottom + all 3 ridge layers come straight
+     from the set (ordered by lightness for atmospheric perspective — far
+     ridge palest/hazy, trees darkest). None of the 5 were vivid enough for
+     a glowing orb/accent line, so #D62828 (Fire Opal) was sourced
+     separately — the closest daytime hue-match to the dark theme's
+     #FF331F signature red, from a real published cream+fire palette. */
+  --sky-top:      #F0EAD6;
+  --sky-bottom:   #A28F9D;
+  --ridge-far:    #74776B;
+  --ridge-near:   #5C574F;
+  --ridge-trees:  #48483A;
+  --orb:          #D62828;
+  --orb-glow:     rgba(214,40,40,0.34);
+  --spiral-line:  214,40,40;
+  --spiral-alpha: 0.42;
+
+  /* Chitra — the reading-mode star's color. Overridden inline in base.njk
+     from src/_data/weather.json (see scripts/fetch-weather.js); these are
+     just the static fallback (now the same Fire Opal as --orb above, so
+     the scene reads coherently before any weather fetch has run). */
+  --chitra-color:     #D62828;
+  --chitra-color-rgb: 214,40,40;
+}
+
+/* ───────────────────────────────────────
+   DARK THEME
+   ─────────────────────────────────────── */
+[data-theme="dark"] {
+  /* the 5 master colors — of the theme's 5 given colors, only #FF331F
+     read as vivid/warm, so it does quadruple duty: Accent, Warm, Orb, and
+     Spiral-line all share it (a deliberate "signature color" reuse, not
+     an oversight — see the fall-foliage mapping pass). Muted takes the
+     one remaining cool mid-tone (#657ED4), which also serves as the
+     distant hazy ridge below. */
+  --bg:           #1B1B1B;
+  --bg-rgb:       27,27,27;
+  --text:         #FBFBFF;
+  --text-rgb:     251,251,255;
+  --accent:       #FF331F;
+  --accent-rgb:   255,51,31;
+  --muted:        #657ED4;
+  --muted-rgb:    101,126,212;
+  --warm-accent:  var(--accent);
+  --warm-rgb:     var(--accent-rgb);
+
+  /* derived */
+  --bg-elevated:  color-mix(in srgb, var(--bg), var(--text) 4%);
+  --body:         color-mix(in srgb, var(--text), var(--bg) 15%);
+  --faint:        color-mix(in srgb, var(--muted), var(--bg) 30%);
+  --border:       rgba(var(--muted-rgb), 0.35);
+  --dash:         rgba(var(--muted-rgb), 0.18);
+  --accent-hover: color-mix(in srgb, var(--accent), var(--text) 20%);
+
+  /* calm mode icon: "on" (accent) reads distinct against the toggle's
+     filled pressed state; "off" (muted) matches this theme's
+     de-emphasized default — same shape as light theme above */
+  --calm-on:      var(--accent);
+  --calm-off:     var(--muted);
+
+  --glass-tint:   rgba(var(--bg-rgb), 0.42);
+  --glass-solid:  rgba(var(--bg-rgb), 0.90);
+  --glass-edge:   rgba(var(--text-rgb), 0.14);
+
+  /* animated background scene — fall-foliage mountain park at night. All
+     5 given colors mapped straight to sky/ridges (near-black zenith into
+     an indigo dusk horizon); #FF331F (the theme's one vivid color, see
+     above) also covers the glowing orb and the dancing spiral-line.
+     Ridge-near is NOT the given #3626A7 — that's identical to sky-bottom,
+     and since ridge-near sits right in front of the sky-bottom region,
+     the two were rendering as one indistinguishable mass. #3D4C7F is a
+     darkened, less-violet step between ridge-far and ridge-trees instead
+     — same cool blue-purple family, but clearly separable from the sky
+     behind it. */
+  --sky-top:      #1B1B1B;
+  --sky-bottom:   #3626A7;
+  --ridge-far:    #657ED4;
+  --ridge-near:   #3D4C7F;
+  --ridge-trees:  #1B1B1B;
+  --orb:          #FF331F;
+  --orb-glow:     rgba(255,51,31,0.42);
+  --spiral-line:  255,51,31;
+  --spiral-alpha: 0.55;
+}
+
+/* ───────────────────────────────────────
+   ABOUT PAGE — own fixed identity, same regardless of light/dark,
+   reshaped into the same 5-role structure as light/dark above but with
+   its existing fall-foliage values unchanged.
+   ─────────────────────────────────────── */
+[data-page="about"] {
+  --bg:           #170D09;
+  --bg-rgb:       23,13,9;
+  --text:         #F1DBCB;
+  --text-rgb:     241,219,203;
+  --accent:       #D9542A;
+  --accent-rgb:   217,84,42;
+  --muted:        #B0846C;
+  --muted-rgb:    176,132,108;
+  --warm-accent:  #FF6A38;
+  --warm-rgb:     255,106,56;
+
+  --bg-elevated:  color-mix(in srgb, var(--bg), var(--text) 4%);
+  --body:         color-mix(in srgb, var(--text), var(--bg) 15%);
+  --faint:        color-mix(in srgb, var(--muted), var(--bg) 30%);
+  --border:       rgba(var(--muted-rgb), 0.35);
+  --dash:         rgba(var(--muted-rgb), 0.18);
+  --accent-hover: color-mix(in srgb, var(--accent), var(--text) 20%);
+
+  --calm-on:      var(--accent);
+  --calm-off:     var(--muted);
+
+  --glass-tint:   rgba(var(--bg-rgb), 0.44);
+  --glass-solid:  rgba(var(--bg-rgb), 0.90);
+  --glass-edge:   rgba(var(--text-rgb), 0.14);
+
+  /* animated background scene — Adirondacks/White Mountains peak-foliage
+     mountain park (ridge set C + sugar maple red hillside line); sky
+     itself is animated (spiral.js's aboutSkyColors() overrides the
+     gradient every frame, crossfading sunrise to sunset as the reader
+     scrolls) — --sky-top/--sky-bottom below are just the static
+     fallback, also still used as-is for the orb's moon-bite shadow color */
+  --sky-top:      #7A2E1D;
+  --sky-bottom:   #E8873C;
+  --ridge-far:    #C9A8A0;
+  --ridge-near:   #9C6B4A;
+  --ridge-trees:  #2A1D14;
+  --orb:          #DD3704;
+  --orb-glow:     rgba(221,55,4,0.50);
+  --spiral-line:  221,55,4;
+  --spiral-alpha: 0.50;
+}
+
+/* ───────────────────────────────────────
+   EXCEPTIONS — intentionally NOT part of the 5-color system above.
+   Same values regardless of theme (see style.css for GitHub-dark code
+   blocks / Mermaid and Medium Mode's own palette, two more exceptions
+   that live inline where they're used).
+   ─────────────────────────────────────── */
+:root {
+  /* blog-post callouts (:::note/:::tip/:::warn/:::info) — kept as their
+     own 4 distinct hues, same as before this retheme, just named. */
+  --callout-bg:          rgba(45, 84, 72, 0.04);
+  --callout-note:        #7FB59B;
+  --callout-note-label:  #5B8F79;
+  --callout-tip:         #8FBFA3;
+  --callout-tip-bg:      rgba(143, 191, 163, 0.08);
+  --callout-tip-label:   #4F8A6B;
+  --callout-warn:        #E0975A;
+  --callout-warn-bg:     rgba(224, 151, 90, 0.08);
+  --callout-warn-label:  #C57A38;
+  --callout-info:        #6FA8C7;
+  --callout-info-bg:     rgba(111, 168, 199, 0.08);
+  --callout-info-label:  #4A83A2;
+
+  /* modal/lightbox dimming — a neutral utility, not a themed brand color.
+     Bare triplet (not a fixed rgba) since each consumer needs its own
+     alpha: the modal backdrop is a lighter dim (0.55) behind a small
+     centered box, the lightbox is a near-opaque backdrop (0.92) behind a
+     full image viewer. */
+  --scrim-rgb: 26, 23, 20;
+}
