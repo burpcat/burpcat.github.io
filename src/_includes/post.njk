@@ -21,13 +21,13 @@ layout: base.njk
 
   <header>
     <div class="post-meta-row">
-      <time class="post-date" datetime="{{ page.date | isoDate }}">{{ page.date | dotDate }}</time>
-      <span class="reading-time">{{ content | readingTime }}</span>
+      <time class="post-date" datetime="{{ page.date | isoDate }}" data-pagefind-meta="date">{{ page.date | dotDate }}</time>
+      <span class="reading-time" data-pagefind-meta="reading_time">{{ content | readingTime }}</span>
       <button class="medium-btn" type="button" id="mediumToggle" data-pagefind-ignore aria-pressed="false" aria-label="Toggle Medium reading mode">
         <span class="md-label">medium mode</span>
       </button>
     </div>
-    <h1 class="post-full-title">{{ title }}</h1>
+    <h1 class="post-full-title" data-pagefind-meta="title">{{ title }}</h1>
     {% if tags and (tags | displayTags).length %}
     <div class="post-tags">
       {% for tag in tags | displayTags %}<span class="tag-pill">{{ tag }}</span>{% endfor %}
@@ -47,6 +47,14 @@ layout: base.njk
     {{ content | safe }}
     <p class="post-signature">sent from Aegon</p>
   </div>
+
+  {# Mermaid init lives here (inside #main) rather than base.njk: nav.js's
+     reviveScripts() only re-executes <script> tags inside the swapped
+     #main region on a soft navigation. From base.njk it only ever ran once,
+     on whichever page first loaded — soft-navigating into a later post with
+     diagrams left them as raw, unrendered source (Prism just syntax-
+     highlights the mermaid fence as code, which is all that showed). #}
+  <script src="/js/mermaid-init.js"></script>
 
   {%- if series and collections.seriesMap[series] -%}
   {%- set parts = collections.seriesMap[series] -%}
@@ -81,27 +89,6 @@ layout: base.njk
       <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
       <button type="submit">subscribe</button>
     </form>
-  </section>
-  {%- endif -%}
-
-  {%- if comments !== false and site.comments.repo -%}
-  <section class="post-comments" aria-label="Comments">
-    <p class="comments-label">Comments &amp; reactions</p>
-    <script src="https://giscus.app/client.js"
-      data-repo="{{ site.comments.repo }}"
-      data-repo-id="{{ site.comments.repoId }}"
-      data-category="{{ site.comments.category }}"
-      data-category-id="{{ site.comments.categoryId }}"
-      data-mapping="pathname"
-      data-strict="1"
-      data-reactions-enabled="1"
-      data-emit-metadata="0"
-      data-input-position="bottom"
-      data-theme="preferred_color_scheme"
-      data-lang="en"
-      crossorigin="anonymous"
-      async>
-    </script>
   </section>
   {%- endif -%}
 

@@ -12,29 +12,27 @@ permalink: "{% if pagination.pageNumber == 0 %}/blog/{% else %}/blog/page/{{ pag
 <section>
   <p class="section-label">— ALL WRITING</p>
 
-  {# ── search (Pagefind, generated into /pagefind/ at build) ── #}
-  <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
-  <div id="search" class="post-search"></div>
-  <script src="/pagefind/pagefind-ui.js"></script>
-  <script>
-    // On a soft navigation nav.js re-runs this inline block, but the re-inserted
-    // pagefind-ui.js loads async and often hasn't defined window.PagefindUI yet
-    // (which is why search used to appear only after a hard reload). Poll for it
-    // for a few seconds, and guard against double-initialising the widget.
-    (function () {
-      var el = document.getElementById("search");
-      if (!el) return;
-      var tries = 0;
-      (function initSearch() {
-        if (el.querySelector(".pagefind-ui__form")) return; // already initialised
-        if (window.PagefindUI) {
-          new PagefindUI({ element: "#search", showSubResults: true, showImages: false });
-          return;
-        }
-        if (tries++ < 60) setTimeout(initSearch, 50); // wait up to ~3s for pagefind-ui.js
-      })();
-    })();
-  </script>
+  {# ── search (Pagefind's low-level JS API, generated into /pagefind/ at
+     build — driven directly instead of the stock PagefindUI widget so the
+     results can be a custom spotlight overlay, see src/js/search.js) ── #}
+  <button class="search-trigger" id="searchTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="searchOverlay">
+    <svg class="search-trigger-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Search all writing…</span>
+  </button>
+
+  <div class="search-overlay" id="searchOverlay" role="presentation">
+    <div class="search-panel glass-surface" role="dialog" aria-modal="true" aria-label="Search all writing">
+      <div class="search-input-row">
+        <svg class="search-input-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input class="search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Search all writing…" aria-label="Search all writing">
+        <button class="search-clear" type="button" hidden>Clear</button>
+        <button class="search-close" type="button" aria-label="Close search">esc</button>
+      </div>
+      <div class="search-results" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script src="/js/search.js"></script>
 
   {% if posts.length %}
     {% for post in posts %}

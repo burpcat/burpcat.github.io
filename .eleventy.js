@@ -190,11 +190,11 @@ module.exports = function (eleventyConfig) {
         .trim(),
     }));
     if (headings.length < 2) return "";
-    let html = '<nav class="post-toc" aria-label="Table of contents" data-pagefind-ignore><p class="post-toc-label">On this page</p><ul>';
+    let html = '<nav class="post-toc" aria-label="Table of contents" data-pagefind-ignore><p class="post-toc-label">On this page</p><div class="post-toc-sections"><ul>';
     for (const h of headings) {
       html += `<li class="toc-h${h.level}"><a href="#${h.id}">${h.text}</a></li>`;
     }
-    html += "</ul></nav>";
+    html += "</ul></div></nav>";
     return html;
   });
 
