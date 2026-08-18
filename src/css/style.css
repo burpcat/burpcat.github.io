@@ -96,8 +96,13 @@
 }
 
 /* ───────────────────────────────────────
-   ABOUT PAGE — scoped warm-clay override, same regardless of light/dark.
-   Hot, watchful, Claude-adjacent clay — not a neon alarm.
+   ABOUT PAGE — scoped fall-foliage override, same regardless of light/dark.
+   Adirondacks/White Mountains peak-foliage mountain park: ridge set C (warm
+   rose-dusk haze) + sugar maple red hillside line. Sky itself is animated —
+   spiral.js's aboutSkyColors() overrides the sky gradient every frame,
+   crossfading sunrise (orange/yellow) to sunset (golden red/orange) as the
+   reader scrolls; --sky-top/--sky-bottom below are just the static fallback
+   (also still used as-is for the orb's moon-bite shadow color).
    ─────────────────────────────────────── */
 [data-page="about"] {
   --bg:           #170D09;
@@ -115,14 +120,14 @@
   --geo-yellow:   #E08A3C;
   --geo-pink:     #C15F3C;
 
-  --sky-top:      #120806;
-  --sky-bottom:   #3A1508;
-  --ridge-far:    #3A1A10;
-  --ridge-near:   #24110A;
-  --ridge-trees:  #150A06;
-  --orb:          #FF5A2C;
-  --orb-glow:     rgba(255,90,44,0.50);
-  --spiral-line:  217,84,42;
+  --sky-top:      #7A2E1D;
+  --sky-bottom:   #E8873C;
+  --ridge-far:    #C9A8A0;
+  --ridge-near:   #9C6B4A;
+  --ridge-trees:  #2A1D14;
+  --orb:          #DD3704;
+  --orb-glow:     rgba(221,55,4,0.50);
+  --spiral-line:  221,55,4;
   --spiral-alpha: 0.50;
 
   --glass-tint:   rgba(23,13,9,0.44);
@@ -221,6 +226,27 @@ body.calm-mode .construction { display: none !important; }
     3% 50%, 5% 60%, 7% 45%, 9% 55%, 12% 40%, 14% 55%, 17% 50%,
     92% 50%, 94% 40%, 96% 55%, 98% 45%, 100% 60%, 100% 100%
   );
+}
+
+/* Calm-mode-only mist, hugging whichever edge the scroll-driven star is
+   currently near (see updateMist() in spiral.js) — opacity is set inline
+   per-frame from scrollP, so the transition here just smooths that out. */
+.scene-mist {
+  position: absolute;
+  left: 0; right: 0;
+  height: 38vh;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+  filter: blur(20px);
+}
+.scene-mist-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.35), transparent 80%);
+}
+.scene-mist-top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35), transparent 80%);
 }
 
 .wrap {

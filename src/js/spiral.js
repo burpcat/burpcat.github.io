@@ -14,6 +14,8 @@
   const ctx = canvas.getContext('2d');
   const root = document.documentElement;
   const audioEl = document.getElementById('calmAudio'); // safe: base.njk defines it well before this script tag, same as #sceneSky
+  const mistBottom = document.querySelector('.scene-mist-bottom');
+  const mistTop = document.querySelector('.scene-mist-top');
   // baked in at build time from collections.posts.length — one dancing
   // strand per blog post, reading-mode only (see drawStrands below).
   const POST_COUNT = Math.max(1, parseInt(root.getAttribute('data-post-count'), 10) || 1);
@@ -24,6 +26,12 @@
   const CY_FACTOR = 0.52;         // orb's vertical position as a fraction of viewport height
   const EXT = 0.5;                // how far (normalized units) open ends bleed past the viewport
   const P = 256;                  // resampled point count shared by every keyframe
+
+  // About page only: the sky itself scrolls through a day, sunrise (orange/
+  // yellow) at the top of the page crossfading to sunset (golden red/
+  // orange) by the bottom — see aboutSkyColors(), used by paintSky().
+  const ABOUT_SUNRISE_SKY = ['#F2A65A', '#FCE29B']; // top, bottom
+  const ABOUT_SUNSET_SKY = ['#7A2E1D', '#E8873C'];  // top, bottom
 
   // Tempo data for the background track: E-flat major, Camelot 5B, 135 BPM.
   const BPM = 135;
@@ -61,6 +69,7 @@
   const HUE_MAX_SPREAD_DEG = 65;
   const MAX_STRANDS = 12; // safety cap on draw calls as the blog grows
   const BAND_ARM_POINTS = 32; // fixed point count per band-fill arm — cheap, and equal-length arms let any two arms pair up safely
+  const ABOUT_TWIN_SPREAD_DEG = 3; // About page's two strands: start together at the star, only barely apart by the screen edge
 
   // ── traced keyframes — the owner's sketch, pages 2 through 8 ──
   // Each is a y=f(x) profile: 40 samples, x = i/39 across the width,
@@ -241,10 +250,30 @@
     const base = H * CY_FACTOR;
     return base + (H * (0.90 - 0.80 * scrollP) - base) * calmBlend;
   }
+  // About page: the star always rides the scrollbar (its own sun-arc
+  // conceit, paired with the sunrise->sunset sky) — no calm-mode gating,
+  // unlike calmCy() above, since this is the page's baseline behavior, not
+  // an optional mode. Same low-to-high climb as calmCy() uses while calm.
+  function aboutCy() {
+    return H * (0.90 - 0.80 * scrollP);
+  }
+  function orbCy() {
+    return isAboutPage() ? aboutCy() : calmCy();
+  }
+  // Faint fog hugging whichever edge the star is currently near — driven
+  // directly off scrollP (no extra lerp) so it tracks scroll swiftly rather
+  // than lagging behind like the star's own eased calmBlend position.
+  // calmBlend gates it to calm mode, easing in/out with everything else.
+  function updateMist() {
+    if (!mistBottom || !mistTop) return;
+    mistBottom.style.opacity = calmBlend * (1 - scrollP);
+    mistTop.style.opacity = calmBlend * scrollP;
+  }
   function readScroll() {
     const max = (document.documentElement.scrollHeight || 0) - window.innerHeight;
     scrollP = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     scrollTicking = false;
+    updateMist();
     if (frozen) drawStatic(); // rAF loop is off under reduced-motion; redraw so the star still tracks
   }
   window.addEventListener('scroll', () => {
@@ -352,10 +381,37 @@
     if (frozen) drawStatic();
   }
 
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  function lerpHex(hexA, hexB, t) {
+    const a = hexToRgb(hexA), b = hexToRgb(hexB);
+    const r = Math.round(a[0] + (b[0] - a[0]) * t);
+    const g = Math.round(a[1] + (b[1] - a[1]) * t);
+    const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+  // scrollP=0 (top of page) reads as sunrise; scrollP=1 (bottom) as sunset —
+  // reading through the page plays out like a day turning toward dusk.
+  function aboutSkyColors() {
+    const t = Math.max(0, Math.min(1, scrollP));
+    return [
+      lerpHex(ABOUT_SUNRISE_SKY[0], ABOUT_SUNSET_SKY[0], t),
+      lerpHex(ABOUT_SUNRISE_SKY[1], ABOUT_SUNSET_SKY[1], t),
+    ];
+  }
+
   function paintSky(alpha) {
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, v('--sky-top') || '#DDE4D2');
-    g.addColorStop(1, v('--sky-bottom') || '#C4D0BA');
+    if (isAboutPage()) {
+      const [top, bottom] = aboutSkyColors();
+      g.addColorStop(0, top);
+      g.addColorStop(1, bottom);
+    } else {
+      g.addColorStop(0, v('--sky-top') || '#DDE4D2');
+      g.addColorStop(1, v('--sky-bottom') || '#C4D0BA');
+    }
     ctx.globalAlpha = alpha;
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
@@ -464,6 +520,22 @@
     return ((baseHue + offset) % 360 + 360) % 360;
   }
 
+  // The idle "dancing" wobble shared by every strand-like line on the site
+  // (ring strands and the About page's twin alike): a small breathing scale
+  // + rotation around `baseRotation`, phase-offset so multiple lines don't
+  // move in lockstep. This baseline ambient wobble always runs, music or
+  // not — only the coil-hold hum boost (`hum` set) is scaled by musicGate,
+  // since that boost specifically exists to read as "synced to live audio."
+  function computeStrandHum(baseRotation, phaseOffset, hum) {
+    const strandPhase = humPhaseAccum + phaseOffset;
+    const scaleAmp = hum ? HUM_SCALE_AMP * musicGate : IDLE_HUM_SCALE_AMP;
+    const rotAmp = hum ? HUM_ROT_AMP * musicGate : IDLE_HUM_ROT_AMP;
+    return {
+      scale: 1 + scaleAmp * Math.sin(strandPhase),
+      rot: baseRotation + rotAmp * Math.cos(strandPhase),
+    };
+  }
+
   // Rotates+scales an absolute screen point about (cx,cy) by the same
   // transform `hum` applies via ctx — used to build each strand's actual
   // on-screen points for the band fill below (fillBand needs real
@@ -559,17 +631,9 @@
     const strands = new Array(N);
     for (let i = 0; i < N; i++) {
       const rotation = (2 * Math.PI * i) / N;
-      const strandPhase = humPhaseAccum + (2 * Math.PI * i) / N;
-      // wobble amplitude (not the base fan-out angle above) is gated by
-      // musicGate — strands go still when music isn't audible
-      const scaleAmp = (hum ? HUM_SCALE_AMP : IDLE_HUM_SCALE_AMP) * musicGate;
-      const rotAmp = (hum ? HUM_ROT_AMP : IDLE_HUM_ROT_AMP) * musicGate;
-      const strandHum = {
-        scale: 1 + scaleAmp * Math.sin(strandPhase),
-        rot: rotation + rotAmp * Math.cos(strandPhase),
-      };
+      const strandHum = computeStrandHum(rotation, rotation, hum);
       const [r, g, b] = i === 0 ? [br, bg, bb] : hslToRgb(harmoniousHue(bh, i), bs, bl);
-      strands[i] = { hum: strandHum, rgb: `${r},${g},${b}`, phase: strandPhase };
+      strands[i] = { hum: strandHum, rgb: `${r},${g},${b}`, phase: humPhaseAccum + rotation };
     }
 
     if (N > 1) {
@@ -619,6 +683,49 @@
 
     for (let i = 0; i < N; i++) {
       strokeMorph(points, anchor, strands[i].hum, style, strands[i].rgb);
+    }
+  }
+
+  // About page's own scene: two strands off the same fixed warm-clay hue —
+  // a lighter and a darker shade of it, so the fill between them (below) is
+  // a real (if subtle) gradient rather than one flat tint — fanned only a
+  // couple degrees apart (ABOUT_TWIN_SPREAD_DEG) so they start together at
+  // the star and drift just barely apart by the screen edge. Same idle
+  // "dancing" wobble every other strand gets (computeStrandHum), and the
+  // same arm-split gradient-band fill drawStrands uses for ring strands —
+  // simpler here since a few-degree spread never needs the cross-arm
+  // pairing check large rotations require (see drawStrands).
+  function drawAboutStrands(points, anchor, hum, style, anchorParamVal) {
+    const spreadRad = (ABOUT_TWIN_SPREAD_DEG * Math.PI) / 180;
+    const offsets = [-spreadRad / 2, spreadRad / 2];
+    const strandHums = offsets.map((offset, i) => computeStrandHum(offset, i * Math.PI, hum));
+
+    const baseRgb = (v('--spiral-line') || '217,84,42').split(',').map(Number);
+    const [bh, bs, bl] = rgbToHsl(baseRgb[0], baseRgb[1], baseRgb[2]);
+    const shadeDelta = 0.12;
+    const colors = [
+      hslToRgb(bh, bs, Math.max(0, bl - shadeDelta)).join(','),
+      hslToRgb(bh, bs, Math.min(1, bl + shadeDelta)).join(','),
+    ];
+
+    const basePts = points.map((p) => [
+      cx + (p[0] - anchor[0]) * W * SCALE_X,
+      cy - (p[1] - anchor[1]) * H * SCALE_Y,
+    ]);
+    const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
+    const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
+    const arms = [
+      resamplePolyline(basePts.slice(0, anchorIdx + 1).reverse(), BAND_ARM_POINTS),
+      resamplePolyline(basePts.slice(anchorIdx), BAND_ARM_POINTS),
+    ];
+    for (const arm of arms) {
+      const ptsA = arm.map((p) => rotateScalePoint(p[0], p[1], strandHums[0]));
+      const ptsB = arm.map((p) => rotateScalePoint(p[0], p[1], strandHums[1]));
+      fillBand(ptsA, ptsB, colors[0], colors[1], 0.4);
+    }
+
+    for (let i = 0; i < offsets.length; i++) {
+      strokeMorph(points, anchor, strandHums[i], style, colors[i]);
     }
   }
 
@@ -776,7 +883,8 @@
     // glow is fattened/dimmed so the heavy CSS blur reads as soft light.
     paintSky(trailAlpha);
     calmBlend += ((calm ? 1 : 0) - calmBlend) * 0.08;
-    cy = calmCy();
+    cy = orbCy();
+    updateMist();
     let pts = pointsAtL(Lsmoothed);
     if (calmBlend > 0.001) {
       renderStyle = {
@@ -786,12 +894,12 @@
     }
     const aParam = anchorParam(Lsmoothed);
     const anchor = anchorPoint(pts, aParam);
-    // one strand per blog post, site-wide now (About keeps its single
-    // warm-clay strand for its own distinct palette).
+    // one strand per blog post, site-wide now (About keeps its own twin-
+    // strand scene, same warm-clay palette).
     if (!isAboutPage()) {
       drawStrands(pts, anchor, hum, renderStyle, aParam);
     } else {
-      strokeMorph(pts, anchor, hum, renderStyle);
+      drawAboutStrands(pts, anchor, hum, renderStyle, aParam);
     }
     drawOrb(beatPulse);
 
@@ -801,7 +909,8 @@
   function drawStatic() {
     cs = getComputedStyle(root);
     calmBlend = calm ? 1 : 0; // no rAF easing here — snap to target
-    cy = calmCy();            // still track the scrollbar under reduced-motion
+    cy = orbCy();              // still track the scrollbar under reduced-motion
+    updateMist();
     ctx.clearRect(0, 0, W, H);
     paintSky(1);
     const pts = KEYFRAMES[6]; // page 8, the balanced bell — exact keyframe, no interpolation, no hum
@@ -809,7 +918,7 @@
     if (!isAboutPage()) {
       drawStrands(pts, anchor, null, null, 0.5);
     } else {
-      strokeMorph(pts, anchor, null, null);
+      drawAboutStrands(pts, anchor, null, null, 0.5);
     }
     drawOrb();
   }
