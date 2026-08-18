@@ -1,23 +1,178 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-  <title>burpcat</title>
-  <subtitle>developer · philosopher · poet</subtitle>
-  <link href="https://burpcat.github.io/feed.xml" rel="self"/>
-  <link href="https://burpcat.github.io/"/>
-  <updated>2026-08-18T00:00:00.000Z</updated>
-  <id>https://burpcat.github.io/</id>
-  <author>
-    <name>Avinash Arutla</name>
-    <email>avarutla@gmail.com</email>
-  </author>
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-post-count="3" class="reading-mode">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <entry>
-    <title>running away from pip, and how it changed my life</title>
-    <link href="https://burpcat.github.io/blog/bye-pip/"/>
-    <updated>2026-08-18T00:00:00.000Z</updated>
-    <id>https://burpcat.github.io/blog/bye-pip/</id>
-    <summary>the experience of moving on</summary>
-    <content type="html"><![CDATA[<p>I told it no.</p>
+  <meta name="theme-color" content="#F0EAD6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1B1B" media="(prefers-color-scheme: dark)">
+  <title>running away from pip, and how it changed my life · burpcat</title>
+  <meta name="description" content="the experience of moving on">
+
+  <link rel="canonical" href="https://burpcat.github.io/blog/bye-pip/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="burpcat">
+  <meta property="og:title" content="running away from pip, and how it changed my life">
+  <meta property="og:description" content="the experience of moving on">
+  <meta property="og:url" content="https://burpcat.github.io/blog/bye-pip/">
+  <meta property="og:image" content="https://burpcat.github.io/og/bye-pip.png">
+  <meta property="article:published_time" content="2026-08-18T00:00:00.000Z">
+  <meta property="article:author" content="Avinash Arutla">
+  <meta property="article:tag" content="python">
+  <meta property="article:tag" content="tooling">
+  <meta property="article:tag" content="engineering">
+  <meta property="article:tag" content="process">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="running away from pip, and how it changed my life">
+  <meta name="twitter:description" content="the experience of moving on">
+  <meta name="twitter:image" content="https://burpcat.github.io/og/bye-pip.png">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="alternate" type="application/rss+xml" title="burpcat RSS" href="/feed.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  
+  <style>
+    :root {
+      --chitra-color: #F5D77A;
+      --chitra-color-rgb: 245,215,122;
+    }
+  </style>
+
+  
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body>
+
+
+<div class="scene" aria-hidden="true">
+  <canvas class="scene-sky" id="sceneSky"></canvas>
+  <div class="scene-ridge">
+    <div class="ridge-far"></div>
+    <div class="ridge-near"></div>
+    <div class="ridge-trees"></div>
+  </div>
+  <div class="scene-mist scene-mist-bottom"></div>
+  <div class="scene-mist scene-mist-top"></div>
+</div>
+
+<a href="#main" class="skip-link">skip to content</a>
+
+<div class="wrap">
+
+  
+  <div class="utility-strip glass-surface">
+    <div class="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="statusText" data-username="burpcat">
+        
+          <span class="label">currently building</span>
+          <a href="https://github.com/burpcat/burpcat.github.io" target="_blank" rel="noopener">burpcat.github.io</a>
+          <span class="label">— aegon built this</span>
+        
+      </span>
+    </div>
+    <div class="tools">
+      <span class="construction">★ under construction ★</span>
+      <button class="theme-switch" id="themeSwitch" aria-label="Toggle light and dark theme" type="button">
+        <span class="theme-switch-knob">
+          <span id="themeIcon" aria-hidden="true">☾</span>
+        </span>
+      </button>
+      <button class="calm-toggle" id="calmToggle" aria-pressed="false" aria-label="Toggle calm mode" type="button">
+        <span class="calm-icon" aria-hidden="true">◐</span>
+        <span class="calm-label">calm mode</span>
+      </button>
+      <button class="mute-toggle" id="muteToggle" type="button" aria-label="Toggle background music">♪</button>
+    </div>
+  </div>
+
+  
+  <header class="glass-surface">
+    <h1><a href="/"><em>Avinash</em></a></h1>
+    <p class="tagline">developer · philosopher · poet</p>
+    <p class="sub-tagline"><span class="star" aria-hidden="true">★</span> a personal site of &#39;Avinash Reddy Arutla&#39; on the open web, circa 2026 <span class="star" aria-hidden="true">★</span></p>
+
+    <div class="nav-row">
+      <nav aria-label="Main navigation">
+        <a href="/">home</a>
+        <a href="/blog/" class="active" aria-current="page">blog</a>
+        <a href="/about/">about</a>
+        <a href="/feeds/">feeds</a>
+        <a class="rss-link" href="/feed.xml" aria-label="RSS feed">
+          <svg class="rss-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1Z"></path></svg>
+          rss
+        </a>
+      </nav>
+      <div class="auth-buttons">
+        <button class="btn" type="button" onclick="openModal('login')">log in</button>
+        <button class="btn btn-primary" type="button" onclick="openModal('signup')">sign up</button>
+      </div>
+    </div>
+  </header>
+
+  
+  
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "running away from pip, and how it changed my life",
+  "description": "the experience of moving on",
+  "datePublished": "2026-08-18T00:00:00.000Z",
+  "dateModified": "2026-08-18T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Avinash Arutla" },
+  "publisher": { "@type": "Person", "name": "Avinash Arutla" },
+  "url": "https://burpcat.github.io/blog/bye-pip/",
+  "mainEntityOfPage": "https://burpcat.github.io/blog/bye-pip/"
+}
+</script>
+<main id="main">
+<article class="post-full" data-pagefind-body="">
+
+  <header>
+    <div class="post-meta-row">
+      <time class="post-date" datetime="2026-08-18T00:00:00.000Z" data-pagefind-meta="date">2026·08·18</time>
+      <span class="reading-time" data-pagefind-meta="reading_time">20 min read</span>
+      <button class="medium-btn" type="button" id="mediumToggle" data-pagefind-ignore="" aria-pressed="false" aria-label="Toggle Medium reading mode">
+        <span class="md-label">medium mode</span>
+      </button>
+    </div>
+    <h1 class="post-full-title" data-pagefind-meta="title">running away from pip, and how it changed my life</h1>
+    
+    <div class="post-tags">
+      <span class="tag-pill">python</span><span class="tag-pill">tooling</span><span class="tag-pill">engineering</span><span class="tag-pill">process</span>
+    </div>
+    
+  </header>
+
+  
+
+  <nav class="post-toc" aria-label="Table of contents" data-pagefind-ignore=""><p class="post-toc-label">On this page</p><div class="post-toc-sections"><ul><li class="toc-h2"><a href="#the-story">The Story</a></li><li class="toc-h3"><a href="#why-pip">Why pip?</a></li><li class="toc-h3"><a href="#the-thing-i-hated-before-i-needed-it">The thing I hated before I needed it</a></li><li class="toc-h3"><a href="#how-i-found-uv">How I found uv</a></li><li class="toc-h3"><a href="#why-i-resisted">Why I resisted</a></li><li class="toc-h3"><a href="#why-i-love-it-now">Why I love it now</a></li><li class="toc-h3"><a href="#the-pattern">The pattern</a></li><li class="toc-h2"><a href="#coming-from-pip-the-two-doors-into-uv">Coming from pip: the two doors into uv</a></li><li class="toc-h3"><a href="#door-one-uv-as-a-faster-pip">Door One: uv as a faster pip</a></li><li class="toc-h3"><a href="#what-door-one-quietly-gives-up">What Door One quietly gives up</a></li><li class="toc-h3"><a href="#door-two-the-project-model">Door Two: the project model</a></li><li class="toc-h3"><a href="#anatomy-of-a-pyprojecttoml">Anatomy of a pyproject.toml</a></li><li class="toc-h3"><a href="#the-lockfile-and-the-tradeoff-it-creates">The lockfile, and the tradeoff it creates</a></li><li class="toc-h3"><a href="#layer-three-python-versions-and-tools">Layer Three: Python versions and tools</a></li><li class="toc-h3"><a href="#which-door-to-walk-through">Which door to walk through</a></li><li class="toc-h2"><a href="#where-uv-stops-being-obvious">Where uv stops being obvious</a></li><li class="toc-h3"><a href="#containers-speed-makes-layering-matter-more-not-less">Containers: speed makes layering matter more, not less</a></li><li class="toc-h3"><a href="#ci-the-cache-you-should-not-keep">CI: the cache you should not keep</a></li><li class="toc-h3"><a href="#the-wall-conda-and-native-dependencies">The wall: conda and native dependencies</a></li><li class="toc-h3"><a href="#workspaces-one-lockfile-one-python-shared-blame">Workspaces: one lockfile, one Python, shared blame</a></li><li class="toc-h3"><a href="#the-shape-of-it">The shape of it</a></li><li class="toc-h2"><a href="#my-life-now">My life now</a></li></ul></div></nav>
+
+  <div class="post-body glass-surface">
+    <p>I told it no.</p>
 <p>That was the first thing I did when uv was suggested to me. Not “let me look into it.” Just no.</p>
 <hr>
 <h2 id="the-story" tabindex="-1">The Story <a class="header-anchor" href="#the-story" aria-hidden="true">#</a></h2>
@@ -99,15 +254,15 @@
 </table>
 <p><em>Same verbs, same flags, new engine underneath.</em></p>
 <p>Install uv once. It does not need Python to run, which is the first sign it is not a normal Python tool:</p>
-<pre class="language-bash"><code class="language-bash">$ <span class="token function">curl</span> <span class="token parameter variable">-LsSf</span> https://astral.sh/uv/install.sh <span class="token operator">|</span> <span class="token function">sh</span></code></pre>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ <span class="token function">curl</span> <span class="token parameter variable">-LsSf</span> https://astral.sh/uv/install.sh <span class="token operator">|</span> <span class="token function">sh</span></code></pre>
 <p>Make an environment:</p>
-<pre class="language-bash"><code class="language-bash">$ uv venv
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv venv
 Using CPython <span class="token number">3.12</span>.3 interpreter at: /usr/bin/python3.12
 Creating virtual environment at: .venv
 Activate with: <span class="token builtin class-name">source</span> .venv/bin/activate</code></pre>
 <p><em>uv tells you which interpreter it picked. pip’s venv never did. Small thing, saves real time later.</em></p>
 <p>Install something:</p>
-<pre class="language-bash"><code class="language-bash">$ uv pip <span class="token function">install</span> requests
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv pip <span class="token function">install</span> requests
 Resolved <span class="token number">5</span> packages <span class="token keyword">in</span> 12ms
 Installed <span class="token number">5</span> packages <span class="token keyword">in</span> 45ms
  + <span class="token assign-left variable">certifi</span><span class="token operator">==</span><span class="token number">2024.7</span>.4
@@ -135,23 +290,23 @@ Installed <span class="token number">5</span> packages <span class="token keywor
 </ul>
 <p>The lockfile is what replaces requirements.txt. <code>pyproject.toml</code> replaces the part of your brain that was trying to remember why <code>urllib3</code> was in the file.</p>
 <p><strong>Bringing an existing project across takes two commands.</strong></p>
-<pre class="language-bash"><code class="language-bash">$ uv init <span class="token parameter variable">--bare</span>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv init <span class="token parameter variable">--bare</span>
 $ uv <span class="token function">add</span> <span class="token parameter variable">-r</span> requirements.txt
 Resolved <span class="token number">5</span> packages <span class="token keyword">in</span> 8ms
 Installed <span class="token number">5</span> packages <span class="token keyword">in</span> 40ms</code></pre>
 <p><em><code>--bare</code> creates just the pyproject.toml — no sample code, no README you did not ask for.</em></p>
 <p>One behaviour to expect: <code>uv add</code> strips the pins on the way in. <code>requests==2.31.0</code> in your old file becomes plain <code>requests</code> in pyproject.toml, and the exact version gets captured in uv.lock instead. That looks like data loss the first time you see it. It isn’t. It is the split doing its job — the constraint lives in one file, the pin lives in the other. If you genuinely need a hard pin declared, pass it explicitly: <code>uv add 'requests==2.31.0'</code>.</p>
 <p>Dev-only packages come in through their own door and land in a separate group:</p>
-<pre class="language-bash"><code class="language-bash">$ uv <span class="token function">add</span> <span class="token parameter variable">--dev</span> <span class="token parameter variable">-r</span> requirements-dev.txt</code></pre>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv <span class="token function">add</span> <span class="token parameter variable">--dev</span> <span class="token parameter variable">-r</span> requirements-dev.txt</code></pre>
 <p><strong>Then three commands cover most days:</strong></p>
-<pre class="language-bash"><code class="language-bash">$ uv <span class="token function">add</span> pandas        <span class="token comment"># install, record in pyproject.toml, re-lock</span>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv <span class="token function">add</span> pandas        <span class="token comment"># install, record in pyproject.toml, re-lock</span>
 $ uv remove pandas     <span class="token comment"># uninstall, un-record, re-lock</span>
 $ uv run app.py        <span class="token comment"># sync the environment, then run</span></code></pre>
 <p>Each of those is one command doing what used to be three, and the third one is the one that changed my habits. Before every <code>uv run</code>, uv checks that the lockfile matches pyproject.toml and that the environment matches the lockfile. I stopped activating virtual environments. Not out of discipline — I just stopped needing to.</p>
 <hr>
 <h3 id="anatomy-of-a-pyprojecttoml" tabindex="-1">Anatomy of a pyproject.toml <a class="header-anchor" href="#anatomy-of-a-pyprojecttoml" aria-hidden="true">#</a></h3>
 <p>Worth reading field by field, because you will hand-edit this file eventually.</p>
-<pre class="language-toml"><code class="language-toml"><span class="token punctuation">[</span><span class="token table class-name">project</span><span class="token punctuation">]</span>
+<pre data-pagefind-ignore class="language-toml"><code class="language-toml"><span class="token punctuation">[</span><span class="token table class-name">project</span><span class="token punctuation">]</span>
 <span class="token key property">name</span> <span class="token punctuation">=</span> <span class="token string">"my-project"</span>
 <span class="token key property">version</span> <span class="token punctuation">=</span> <span class="token string">"0.1.0"</span>
 <span class="token key property">description</span> <span class="token punctuation">=</span> <span class="token string">"Add your description here"</span>
@@ -180,30 +335,30 @@ $ uv run app.py        <span class="token comment"># sync the environment, then 
 <p><code>uv.lock</code> is the reason reproducibility works. It is also the sharpest edge in the tool.</p>
 <p><strong>Commit it.</strong> Then everyone who clones your repo resolves to identical versions.</p>
 <p><strong>Know that it auto-relocks.</strong> In development, uv notices a stale lockfile and quietly re-resolves it for you. Convenient at your desk. In CI, that silent update defeats the entire point of having a lockfile. Two flags exist for this:</p>
-<pre class="language-bash"><code class="language-bash">$ uv <span class="token function">sync</span> <span class="token parameter variable">--locked</span>    <span class="token comment"># fail the build if uv.lock is out of date</span>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv <span class="token function">sync</span> <span class="token parameter variable">--locked</span>    <span class="token comment"># fail the build if uv.lock is out of date</span>
 $ uv <span class="token function">sync</span> <span class="token parameter variable">--frozen</span>    <span class="token comment"># install uv.lock as-is, skip checking pyproject.toml</span></code></pre>
 <p><em><code>--locked</code> asserts the lockfile is current. <code>--frozen</code> asserts nothing and just installs what’s there. Use <code>--locked</code> when you want drift to break the build.</em></p>
 <p><strong>And the real tradeoff: <code>uv.lock</code> is not a portable format.</strong> The format is specific to uv, which is what lets it support features requirements.txt cannot express. Anything downstream that expects a requirements file — an old Docker base image, a deploy target you do not control, a colleague who has not switched — cannot read it. There is an escape hatch: uv exports the lockfile to requirements.txt, PEP 751’s pylock.toml, or a CycloneDX SBOM.</p>
-<pre class="language-bash"><code class="language-bash">$ uv <span class="token builtin class-name">export</span> <span class="token parameter variable">--format</span> requirements-txt --no-dev <span class="token operator">></span> requirements.txt</code></pre>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv <span class="token builtin class-name">export</span> <span class="token parameter variable">--format</span> requirements-txt --no-dev <span class="token operator">></span> requirements.txt</code></pre>
 <p><em>The bridge back out. Useful in Docker builds, and useful the week you have to prove to someone that nothing is locked in.</em></p>
 <p><strong>One more sharp edge.</strong> Hand-editing a dependency in <code>pyproject.toml</code> does not update <code>uv.lock</code>. uv detects the mismatch and refuses to run, and the error message is not always obvious about why. Early users hit this hard enough to <a href="https://github.com/astral-sh/uv/issues/9923">file it as a footgun</a>. The habit that fixes it: after any manual edit to pyproject.toml, run <code>uv lock</code>. <code>uv add</code> and <code>uv remove</code> do it for you.</p>
 <hr>
 <h3 id="layer-three-python-versions-and-tools" tabindex="-1">Layer Three: Python versions and tools <a class="header-anchor" href="#layer-three-python-versions-and-tools" aria-hidden="true">#</a></h3>
 <p>This is the part with no pip equivalent at all, and it is where “uv replaced five tools” stops being marketing.</p>
 <p><strong>Python versions</strong> — what pyenv did:</p>
-<pre class="language-bash"><code class="language-bash">$ uv python <span class="token function">install</span> <span class="token number">3.12</span>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv python <span class="token function">install</span> <span class="token number">3.12</span>
 $ uv python pin <span class="token number">3.12</span>
 Pinned <span class="token variable"><span class="token variable">`</span>.python-version<span class="token variable">`</span></span> to <span class="token variable"><span class="token variable">`</span><span class="token number">3.12</span><span class="token variable">`</span></span></code></pre>
 <p>uv reads <code>.python-version</code> on every command, searching the working directory and each parent. Commit the file. Your team lands on the same interpreter without anyone being told to.</p>
 <p>One constraint to hold in your head: <code>.python-version</code> pins your development interpreter, <code>requires-python</code> in pyproject.toml declares the supported range, and the pin has to satisfy the range. Break that and uv reports an incompatibility rather than guessing. Two files, two jobs — the same split as pyproject.toml and uv.lock.</p>
 <p><strong>Global CLI tools</strong> — what pipx did:</p>
-<pre class="language-bash"><code class="language-bash">$ uv tool <span class="token function">install</span> ruff
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uv tool <span class="token function">install</span> ruff
 Resolved <span class="token number">1</span> package <span class="token keyword">in</span> 6ms
 Installed <span class="token number">1</span> package <span class="token keyword">in</span> 2ms
  + <span class="token assign-left variable">ruff</span><span class="token operator">==</span><span class="token number">0.5</span>.4
 Installed <span class="token number">1</span> executable: ruff</code></pre>
 <p><strong>Or skip installing entirely.</strong> <code>uvx</code> is an alias for <code>uv tool run</code>. It builds a temporary isolated environment, runs the tool, and throws the environment away.</p>
-<pre class="language-bash"><code class="language-bash">$ uvx pycowsay <span class="token string">'hello uv'</span>
+<pre data-pagefind-ignore class="language-bash"><code class="language-bash">$ uvx pycowsay <span class="token string">'hello uv'</span>
 Resolved <span class="token number">1</span> package <span class="token keyword">in</span> 167ms
 Installed <span class="token number">1</span> package <span class="token keyword">in</span> 9ms
  + <span class="token assign-left variable">pycowsay</span><span class="token operator">==</span><span class="token number">0.0</span>.0.2
@@ -232,7 +387,7 @@ Installed <span class="token number">1</span> package <span class="token keyword
 <h3 id="containers-speed-makes-layering-matter-more-not-less" tabindex="-1">Containers: speed makes layering matter more, not less <a class="header-anchor" href="#containers-speed-makes-layering-matter-more-not-less" aria-hidden="true">#</a></h3>
 <p>The intuition that trips people up: uv is so fast that Docker layering feels unnecessary. It is the opposite. When installs take 40ms, the <em>download</em> and the <em>layer invalidation</em> become the whole cost. Getting the layer order wrong now dominates your build time in a way it never did with pip, because there is nothing else left to blame.</p>
 <p><strong>Split the dependency install from the project install.</strong> <code>uv sync --no-install-project</code> installs your dependencies but not your project. Dependencies change rarely; your code changes constantly. Separating them means editing a source file does not re-resolve your dependency tree.</p>
-<pre class="language-dockerfile"><code class="language-dockerfile"><span class="token instruction"><span class="token keyword">FROM</span> python:3.12-slim</span>
+<pre data-pagefind-ignore class="language-dockerfile"><code class="language-dockerfile"><span class="token instruction"><span class="token keyword">FROM</span> python:3.12-slim</span>
 <span class="token instruction"><span class="token keyword">COPY</span> <span class="token options"><span class="token property">--from</span><span class="token punctuation">=</span><span class="token string">ghcr.io/astral-sh/uv:latest</span></span> /uv /uvx /bin/</span>
 
 <span class="token instruction"><span class="token keyword">WORKDIR</span> /app</span>
@@ -261,7 +416,7 @@ Installed <span class="token number">1</span> package <span class="token keyword
 <p>Why: restoring a cache is I/O, and uv’s download-plus-install path is fast enough to beat it. The cache stops being a shortcut and becomes overhead. uv ships a command for exactly this — <code>uv cache prune --ci</code> strips pre-built wheels and unzipped source distributions while keeping wheels that had to be <em>built</em> from source, since those are genuinely expensive to reproduce.</p>
 <p>Astral recommends running it at the end of the CI job. Worth noting the nuance: at least one third-party action leaves that pruning off by default, citing Charlie Marsh’s own research. The honest read is that the right answer depends on your dependency mix — how much of your tree needs compiling. Measure it rather than copying a config.</p>
 <p>A working baseline:</p>
-<pre class="language-yaml"><code class="language-yaml"><span class="token key atrule">jobs</span><span class="token punctuation">:</span>
+<pre data-pagefind-ignore class="language-yaml"><code class="language-yaml"><span class="token key atrule">jobs</span><span class="token punctuation">:</span>
   <span class="token key atrule">test</span><span class="token punctuation">:</span>
     <span class="token key atrule">runs-on</span><span class="token punctuation">:</span> ubuntu<span class="token punctuation">-</span>latest
     <span class="token key atrule">steps</span><span class="token punctuation">:</span>
@@ -311,7 +466,7 @@ Installed <span class="token number">1</span> package <span class="token keyword
 <hr>
 <h3 id="workspaces-one-lockfile-one-python-shared-blame" tabindex="-1">Workspaces: one lockfile, one Python, shared blame <a class="header-anchor" href="#workspaces-one-lockfile-one-python-shared-blame" aria-hidden="true">#</a></h3>
 <p>uv borrows workspaces from Cargo: a collection of packages managed together, each with its own pyproject.toml, all sharing a single lockfile.</p>
-<pre class="language-toml"><code class="language-toml"><span class="token punctuation">[</span><span class="token table class-name">project</span><span class="token punctuation">]</span>
+<pre data-pagefind-ignore class="language-toml"><code class="language-toml"><span class="token punctuation">[</span><span class="token table class-name">project</span><span class="token punctuation">]</span>
 <span class="token key property">name</span> <span class="token punctuation">=</span> <span class="token string">"albatross"</span>
 <span class="token key property">dependencies</span> <span class="token punctuation">=</span> <span class="token punctuation">[</span><span class="token string">"bird-feeder"</span><span class="token punctuation">,</span> <span class="token string">"tqdm>=4,&lt;5"</span><span class="token punctuation">]</span>
 
@@ -340,149 +495,80 @@ Installed <span class="token number">1</span> package <span class="token keyword
 <blockquote>
 <p>who pip?</p>
 </blockquote>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title>What drives quality agentic code?</title>
-    <link href="https://burpcat.github.io/blog/spec-v-feat/"/>
-    <updated>2026-07-24T00:00:00.000Z</updated>
-    <id>https://burpcat.github.io/blog/spec-v-feat/</id>
-    <summary>I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.</summary>
-    <content type="html"><![CDATA[<p><em>I built two projects a few weeks apart, one spec-first and one feature-first. The labels inverted, and neither predicted where the work paid off. Verifiability did.</em></p>
-<p><code>shrutz</code> is a macOS wallpaper rotator that advances on active input time instead of the wall clock: about 2,300 lines of bash daemon plus a Swift menu-bar app. <code>slap</code> is a cold-outreach CLI over the GMass API: about 7,165 lines of Python across 19 modules, 796 test functions, a local dashboard. I built the first spec-driven and the second feature-driven. That was the plan.</p>
-<h2 id="the-labels-inverted" tabindex="-1">The labels inverted <a class="header-anchor" href="#the-labels-inverted" aria-hidden="true">#</a></h2>
-<p><code>slap</code>, the feature-driven one, opened against a 468-line numbered build brief (sections 0 to 14, ending in a literal Build Order) with a read-only review pass gating every commit from hour one. <code>shrutz</code>, the spec-driven one, spent two weeks as direct-to-master commits titled things like <code>FULL POWER</code>; its only spec-like document was written <em>after</em> the engine, weather, gallery, and JSON API had already shipped.</p>
-<pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">gantt</span>
-    dateFormat YYYY-MM-DD
-    title Both projects drifted off their labels
-    section shrutz <span class="token text string">(spec-driven?)</span>
-    Organic, no spec, direct to master    <span class="token operator">:</span>2026-06-05, 18d
-    Worktrees, PRs, visual audit loop      <span class="token operator">:</span>2026-07-14, 10d
-    section slap <span class="token text string">(feature-driven?)</span>
-    468-line brief, review before commit   <span class="token operator">:</span>2026-07-02, 12d
-    Branch + PR per feature                <span class="token operator">:</span>2026-07-14, 10d</code></pre>
-<p>So the label decided little. One question decided a lot: can this result be verified any other way?</p>
-<pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> TD
-    A<span class="token text string">[New surface to build]</span> <span class="token arrow operator">--></span> B<span class="token text string">{Can a normal test&lt;br/>verify the result?}</span>
-    B <span class="token arrow operator">--></span><span class="token label property">|Yes|</span> C<span class="token text string">[Iterate. Tests + review suffice.&lt;br/>A spec just adds docs to keep in sync.]</span>
-    B <span class="token arrow operator">--></span><span class="token label property">|No|</span> D<span class="token text string">[Build the verification harness FIRST:&lt;br/>screenshot audit, API probe, fault injection]</span>
-    D <span class="token arrow operator">--></span> E<span class="token text string">[Then build the feature against it]</span></code></pre>
-<p>Both projects, independently, aimed their heaviest upfront rigor at the surfaces where the answer was <em>no</em>.</p>
-<h2 id="rigor-concentrated-on-the-unverifiable-surfaces" tabindex="-1">Rigor concentrated on the unverifiable surfaces <a class="header-anchor" href="#rigor-concentrated-on-the-unverifiable-surfaces" aria-hidden="true">#</a></h2>
-<p>In <code>shrutz</code> that surface was the rendered UI. The repo’s only real spec-conformance loop drove the menu-bar app’s visual design: approved mockups, a live screenshot captured from the window server, then a written audit diffing pixel dimensions and source constants against the reference. It caught a class of bug tests structurally cannot. Version 2.5 shipped a redesign that still rendered as a flat, dusty taupe. Two compounding color-math bugs: the wallpaper sampler averaged raw RGB per region (which collapses toward grey when saturated and desaturated pixels mix), and five ambient blobs composited with ordinary alpha blending under <code>.ultraThinMaterial</code> (which regresses further toward grey on overlap). The fix was saturation-weighted HSB extraction with <em>circular</em> hue averaging:</p>
-<pre class="language-swift"><code class="language-swift"><span class="token comment">// simplified: circular mean hue, so reds near 0°/360° don't average to cyan</span>
-<span class="token keyword">func</span> <span class="token function-definition function">meanHue</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> hues<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Double</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token class-name">Double</span> <span class="token punctuation">{</span>
-    <span class="token keyword">let</span> x <span class="token operator">=</span> hues<span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token function">cos</span><span class="token punctuation">(</span><span class="token short-argument">$0</span> <span class="token operator">*</span> <span class="token punctuation">.</span>pi <span class="token operator">/</span> <span class="token number">180</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">+</span><span class="token punctuation">)</span>
-    <span class="token keyword">let</span> y <span class="token operator">=</span> hues<span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token function">sin</span><span class="token punctuation">(</span><span class="token short-argument">$0</span> <span class="token operator">*</span> <span class="token punctuation">.</span>pi <span class="token operator">/</span> <span class="token number">180</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">+</span><span class="token punctuation">)</span>
-    <span class="token keyword">return</span> <span class="token function">atan2</span><span class="token punctuation">(</span>y<span class="token punctuation">,</span> x<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">180</span> <span class="token operator">/</span> <span class="token punctuation">.</span>pi   <span class="token comment">// naive (350 + 10) / 2 = 180° (cyan); this gives ~0° (red)</span>
-<span class="token punctuation">}</span>
-<span class="token comment">// plus compositing: .compositingGroup().blendMode(.plusLighter) then .saturation(1.3)</span></code></pre>
-<p>In <code>slap</code> the unverifiable surface was a third party’s live behavior. Before any dependent code existed, probe scripts hit the real GMass API and found the docs wrong three ways:</p>
-<pre class="language-text"><code class="language-text"># probes/, run 2026-07-02, pinned in CONTROL_SHEET.md
-stop-on-reply : per-stage (stageOneAction..stageEightAction), NOT one global flag
-send endpoint : POST /api/campaigns/{campaignDraftId}   # ID in path; body-field form -> HTTP 400
-attachments   : JSON {fileName, contentType, base64Content} only  # multipart -> HTTP 415</code></pre>
-<p>The same sheet records what can <em>never</em> be verified: stop-on-reply is write-only, no read-back, so a 200 on send is the strongest signal obtainable. Naming that limit explicitly is the spec doing its actual job.</p>
-<p>Everywhere the result <em>was</em> testable, both codebases grew by accretion. <code>slap</code>’s core files show churn ratios near 1.0 (nearly every line ever written is still present) and zero reverts in the entire history.</p>
-<h2 id="where-it-broke-invariants-across-call-sites" tabindex="-1">Where it broke: invariants across call sites <a class="header-anchor" href="#where-it-broke-invariants-across-call-sites" aria-hidden="true">#</a></h2>
-<p>GMass rewrites <code>&lt;a href&gt;</code> targets for click tracking. A plain-text body has no anchor to rewrite, so <code>clickTracking: true</code> is inert. I fixed it once in the draft path by converting to minimal HTML. Three weeks later the identical root cause resurfaced in the follow-up-message path, a different function carrying the same invariant that never got the conversion.</p>
-<p><code>shrutz</code> hit the same shape as a naming drift: the installer created the set at <code>wallpapers/hassan/</code> but seeded state with <code>ACTIVE_SET=default</code>, so the daemon searched a directory that never existed, and <code>launchd</code>’s <code>KeepAlive</code> turned that into a crash loop on every fresh install. The fix removes the ability to drift by deriving both from one source:</p>
-<pre class="language-diff"><code class="language-diff"><span class="token unchanged"><span class="token prefix unchanged"> </span>WALLS_DEFAULT="$LIB/wallpapers/hassan"
-</span><span class="token inserted-sign inserted"><span class="token prefix inserted">+</span>ACTIVE_SET_DEFAULT="$(basename "$WALLS_DEFAULT")"   # state's ACTIVE_SET can't diverge from the dir we create
-</span><span class="token unchanged"><span class="token prefix unchanged"> </span>...
-</span><span class="token deleted-sign deleted"><span class="token prefix deleted">-</span>    printf 'CURRENT_INDEX=0\nACTIVE_SECONDS=0\nACTIVE_SET=default\n'      > "$LIB/state"
-</span><span class="token inserted-sign inserted"><span class="token prefix inserted">+</span>    printf 'CURRENT_INDEX=0\nACTIVE_SECONDS=0\nACTIVE_SET=%s\n' "$ACTIVE_SET_DEFAULT" > "$LIB/state"
-</span></code></pre>
-<p>Diff-scoped review, human or automated, is blind to a rule that must hold across call sites: the defect isn’t <em>in</em> the diff. The durable fix is structural. One source of truth, or a written invariant with a grep over every site that touches it.</p>
-<h2 id="where-it-broke-atomicity" tabindex="-1">Where it broke: atomicity <a class="header-anchor" href="#where-it-broke-atomicity" aria-hidden="true">#</a></h2>
-<p><code>slap</code> needed a new value in a SQLite <code>CHECK</code> constraint, which means rebuilding the table. The first attempt used <code>executescript()</code>, which force-commits any pending transaction before it runs, <em>including the <code>BEGIN</code> the same function just opened</em>. A crash between the rename and the drop would permanently strand the append-only event log, the app’s single source of truth.</p>
-<pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">_migrate_events_check_constraint</span><span class="token punctuation">(</span>conn<span class="token punctuation">:</span> sqlite3<span class="token punctuation">.</span>Connection<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token boolean">None</span><span class="token punctuation">:</span>
-    row <span class="token operator">=</span> conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>
-        <span class="token string">"SELECT sql FROM sqlite_master WHERE type='table' AND name='events'"</span>
-    <span class="token punctuation">)</span><span class="token punctuation">.</span>fetchone<span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">if</span> row <span class="token keyword">is</span> <span class="token boolean">None</span> <span class="token keyword">or</span> <span class="token string">"'stopped'"</span> <span class="token keyword">in</span> row<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
-        <span class="token keyword">return</span>  <span class="token comment"># fresh db, or already migrated</span>
-    conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span><span class="token string">"BEGIN"</span><span class="token punctuation">)</span>
-    <span class="token keyword">try</span><span class="token punctuation">:</span>
-        conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span><span class="token string">"ALTER TABLE events RENAME TO events_pre_stopped_migration"</span><span class="token punctuation">)</span>
-        conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span>_EVENTS_TABLE_SQL<span class="token punctuation">)</span>          <span class="token comment"># execute(), NEVER executescript()</span>
-        conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span><span class="token string">"INSERT INTO events (...) SELECT ... FROM events_pre_stopped_migration"</span><span class="token punctuation">)</span>
-        conn<span class="token punctuation">.</span>execute<span class="token punctuation">(</span><span class="token string">"DROP TABLE events_pre_stopped_migration"</span><span class="token punctuation">)</span>
-        conn<span class="token punctuation">.</span>commit<span class="token punctuation">(</span><span class="token punctuation">)</span>
-    <span class="token keyword">except</span> BaseException<span class="token punctuation">:</span>
-        conn<span class="token punctuation">.</span>rollback<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        <span class="token keyword">raise</span></code></pre>
-<p>The regression test (simplified) injects a crash right after the rename and asserts the DB is left in its original, unmigrated state:</p>
-<pre class="language-python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">_FlakyConnection</span><span class="token punctuation">(</span>sqlite3<span class="token punctuation">.</span>Connection<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    _armed <span class="token operator">=</span> <span class="token boolean">False</span>
-    <span class="token keyword">def</span> <span class="token function">execute</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> sql<span class="token punctuation">,</span> <span class="token operator">*</span>a<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token keyword">if</span> sql<span class="token punctuation">.</span>startswith<span class="token punctuation">(</span><span class="token string">"ALTER TABLE events RENAME"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-            self<span class="token punctuation">.</span>_armed <span class="token operator">=</span> <span class="token boolean">True</span>                       <span class="token comment"># arm on the rename</span>
-        <span class="token keyword">elif</span> self<span class="token punctuation">.</span>_armed<span class="token punctuation">:</span>
-            <span class="token keyword">raise</span> sqlite3<span class="token punctuation">.</span>OperationalError<span class="token punctuation">(</span><span class="token string">"injected crash"</span><span class="token punctuation">)</span>  <span class="token comment"># blow up on the next statement</span>
-        <span class="token keyword">return</span> <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>execute<span class="token punctuation">(</span>sql<span class="token punctuation">,</span> <span class="token operator">*</span>a<span class="token punctuation">)</span>
 
-<span class="token keyword">def</span> <span class="token function">test_migration_rolls_back_cleanly_on_a_mid_migration_failure</span><span class="token punctuation">(</span>tmp_path<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    conn <span class="token operator">=</span> sqlite3<span class="token punctuation">.</span>connect<span class="token punctuation">(</span>tmp_path <span class="token operator">/</span> <span class="token string">"e.db"</span><span class="token punctuation">,</span> factory<span class="token operator">=</span>_FlakyConnection<span class="token punctuation">)</span>
-    <span class="token comment"># ...seed the old schema, run the migration, expect the raise...</span>
-    <span class="token comment"># assert the live `events` table is intact and still unmigrated</span></code></pre>
-<p>That is a correctness <em>guarantee</em>, not a happy-path check, and it exists only because the migration was reviewed before it shipped, not after it corrupted something.</p>
-<h2 id="where-it-broke-the-platform-underneath" tabindex="-1">Where it broke: the platform underneath <a class="header-anchor" href="#where-it-broke-the-platform-underneath" aria-hidden="true">#</a></h2>
-<p><code>shrutz</code>’s daemon blocked on a foreground <code>sleep</code>. Bash defers trap handling until the foreground command returns, so <code>next</code>, <code>pause</code>, and <code>resume</code> could take up to <code>CHECK_EVERY</code> seconds (30 by default) to apply. Backgrounding the sleep and <code>wait</code>-ing on it lets a signal interrupt immediately:</p>
-<pre class="language-bash"><code class="language-bash"><span class="token comment"># before: SIGUSR1 is queued until sleep returns (up to CHECK_EVERY seconds later)</span>
-<span class="token keyword">while</span> <span class="token builtin class-name">:</span><span class="token punctuation">;</span> <span class="token keyword">do</span> tick<span class="token punctuation">;</span> <span class="token function">sleep</span> <span class="token string">"<span class="token variable">$CHECK_EVERY</span>"</span><span class="token punctuation">;</span> <span class="token keyword">done</span>
+    <p class="post-signature">sent from Aegon</p>
+  </div>
 
-<span class="token comment"># after: wait is interruptible, so the trap fires the instant the signal lands</span>
-<span class="token builtin class-name">trap</span> <span class="token string">'apply_now'</span> USR1
-<span class="token keyword">while</span> <span class="token builtin class-name">:</span><span class="token punctuation">;</span> <span class="token keyword">do</span>
-    tick
-    <span class="token function">sleep</span> <span class="token string">"<span class="token variable">$CHECK_EVERY</span>"</span> <span class="token operator">&amp;</span>
-    <span class="token function">wait</span> <span class="token string">"<span class="token variable">$!</span>"</span>
-<span class="token keyword">done</span></code></pre>
-<p>And one fix spawned the next: a Redis lock added around dashboard GMass polling left the old direct-poll path live for the case where Redis was <em>unreachable</em>, so a Redis outage with concurrent dashboard loads could fire multiple uncoordinated GMass sweeps, discovered three days later. Iteration fixes the failure in front of you and leaves the adjacent one running.</p>
-<h2 id="the-verifiable-side-is-only-as-good-as-its-adversary" tabindex="-1">The verifiable side is only as good as its adversary <a class="header-anchor" href="#the-verifiable-side-is-only-as-good-as-its-adversary" aria-hidden="true">#</a></h2>
-<p>On surfaces you <em>can</em> test, both projects earned trust by testing adversarially rather than happily. <code>shrutz</code>’s gallery installer is proven against a real zip-slip payload:</p>
-<pre class="language-python"><code class="language-python"><span class="token comment"># guard, shrutz:1938: resolve every member and reject anything escaping the set dir</span>
-dest_real <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>realpath<span class="token punctuation">(</span>dest_dir<span class="token punctuation">)</span>
-target    <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>realpath<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>dest_real<span class="token punctuation">,</span> rel<span class="token punctuation">)</span><span class="token punctuation">)</span>
-<span class="token keyword">if</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>commonpath<span class="token punctuation">(</span><span class="token punctuation">[</span>dest_real<span class="token punctuation">,</span> target<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">!=</span> dest_real<span class="token punctuation">:</span>
-    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"error: unsafe path in zip: </span><span class="token interpolation"><span class="token punctuation">{</span>member<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">,</span> <span class="token builtin">file</span><span class="token operator">=</span>sys<span class="token punctuation">.</span>stderr<span class="token punctuation">)</span><span class="token punctuation">;</span> sys<span class="token punctuation">.</span>exit<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span></code></pre>
-<pre class="language-bash"><code class="language-bash">@test <span class="token string">"gallery install: rejects a zip-slip attempt and writes nothing outside the set dir"</span> <span class="token punctuation">{</span>
-    run <span class="token string">"<span class="token variable">$SHRUTZ</span>"</span> gallery <span class="token function">install</span> evilset          <span class="token comment"># zip contains ../../../../tmp/pwned.txt</span>
-    <span class="token punctuation">[</span> <span class="token string">"<span class="token variable">$status</span>"</span> <span class="token parameter variable">-ne</span> <span class="token number">0</span> <span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">[</span> <span class="token operator">!</span> <span class="token parameter variable">-f</span> <span class="token string">"/tmp/shrutz-zipslip-pwned.txt"</span> <span class="token punctuation">]</span>
-<span class="token punctuation">}</span></code></pre>
-<p>Some architecture only exists to keep a surface testable at all. <code>shrutz</code> splits wallpaper application into a correct-but-expensive path and a fast-but-partial one, and the daemon picks per event:</p>
-<pre class="language-mermaid"><code class="language-mermaid"><span class="token keyword">flowchart</span> TD
-    T<span class="token text string">[Daemon tick / manual skip]</span> <span class="token arrow operator">--></span> Q<span class="token text string">{advance rotation&lt;br/>or cheap correction?}</span>
-    Q <span class="token arrow operator">--></span><span class="token label property">|advance|</span> F<span class="token text string">[Rewrite Index.plist:&lt;br/>every Space, per-display override, default]</span>
-    F <span class="token arrow operator">--></span> FR<span class="token text string">[Restart wallpaper agent]</span>
-    FR <span class="token arrow operator">--></span> FC<span class="token text string">[Fully correct, expensive]</span>
-    Q <span class="token arrow operator">--></span><span class="token label property">|per-tick|</span> A<span class="token text string">[AppleScript: what does the&lt;br/>visible Space think it shows?]</span>
-    A <span class="token arrow operator">--></span> AC<span class="token text string">{stale?}</span>
-    AC <span class="token arrow operator">--></span><span class="token label property">|yes|</span> AF<span class="token text string">[Fix just this Space, instantly]</span>
-    AC <span class="token arrow operator">--></span><span class="token label property">|no|</span> AN<span class="token text string">[Do nothing]</span></code></pre>
-<h2 id="what-i’m-keeping" tabindex="-1">What I’m keeping <a class="header-anchor" href="#what-i’m-keeping" aria-hidden="true">#</a></h2>
-<p>Spend spec effort only where the result resists a normal test: rendered pixels, a third party’s live API, hardware behavior. Build the check <em>before</em> the feature. Everywhere else, tests plus review beat more prose.</p>
-<p>Don’t hand-maintain docs; they go stale fastest exactly when the code moves fastest. <code>slap</code>’s context doc still claims a shipped feature isn’t built, and the fix for that staleness sits on a branch that was never merged. <code>shrutz</code> still carries a CI config that auto-merges to master with no review gate, a fossil of a commit titled “removed PR necessity.” Prefer a spec that verifies itself: a screenshot audit, an API probe, a failing test.</p>
-<p>Review before the commit, not after. Folding a fix into the commit that introduced the problem is why <code>slap</code>’s rework was only 4.3% of lines changed despite being 17.5% of commits.</p>
-<p>Treat cross-call-site invariants as first-class: one source of truth, or a documented rule plus a grep over every site. That, more than any methodology name, is what “spec-driven” should have meant all along.</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title>The pattern repeats</title>
-    <link href="https://burpcat.github.io/blog/the-pattern-repeats/"/>
-    <updated>2026-06-26T00:00:00.000Z</updated>
-    <id>https://burpcat.github.io/blog/the-pattern-repeats/</id>
-    <summary>A welcome note, and a small argument that today&#39;s expensive AI is just early compute wearing a new coat.</summary>
-    <content type="html"><![CDATA[<p>Welcome. This is where I’ll think out loud.</p>
-<p>Here’s the thought I want to start with. Before computers were cheap, <em>computer</em> was a job title — a person, usually a room full of people, doing arithmetic by hand. When the machines arrived they were rare and absurdly expensive, so you didn’t waste them. Time on a mainframe was rationed. You batched your work, handed only the hard problems to the machine, and did the rest yourself. Plenty of smart people looked at that and concluded compute would always be scarce — something you borrowed carefully, never something you spilled.</p>
-<p>They were wrong, but not because they misjudged the machine. They were wrong because spending all that money on scarce compute is exactly what bought the abundance that came after. The expensive version had to exist first.</p>
-<p>Agents and AI are sitting in that same room right now. Tokens cost money. A capable agent is something you ration, something you hand the hard problems to while you do the cheap parts yourself. It <em>feels</em> like a ceiling. It’s a floor.</p>
-<p>So that’s the lens I’ll be writing through — not magic, not hype, just a pattern that’s run before and is running again. If it costs too much or runs too slow today, that’s not the end of the story. It’s the part where someone decides it’s worth paying for anyway.</p>
-<p>Glad you’re here. Pull up a chair.</p>
-]]></content>
-  </entry>
-  
-</feed>
+  <script src="/js/mermaid-init.js"></script><section class="related-posts" aria-label="Related posts">
+    <p class="related-label">Related reading</p>
+    <ul>
+      <li><a href="/blog/spec-v-feat/">What drives quality agentic code?</a> <span class="related-date">2026·07·24</span></li>
+    </ul>
+  </section><div class="post-footer">
+    <a class="back-link" href="/blog/">← back to all writing</a>
+  </div>
+
+</article>
+</main>
+
+
+  <footer class="glass-surface">
+    <p> coded on aegon · no analytics OR tracking </p>
+    <p><a href="/feed.xml">rss</a></p>
+  </footer>
+
+</div>
+
+
+<div class="modal-backdrop" id="authModal" onclick="if(event.target===this)closeModal()" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal glass-surface">
+    <h3 id="modalTitle">log in</h3>
+    <p id="modalDesc">Welcome back. Pick up where you left off.</p>
+    <input type="email" placeholder="email" aria-label="Email">
+    <input type="password" placeholder="password" aria-label="Password">
+    <div class="modal-actions">
+      <button class="btn btn-primary" type="button">continue</button>
+      <button class="modal-close" type="button" onclick="closeModal()">cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<button id="mediumExit" type="button" aria-label="Exit Medium Mode">✕</button>
+<button id="mediumDarkToggle" type="button" aria-label="Toggle Medium Mode's light/dark">☾</button>
+
+<audio id="calmAudio" src="/audio/flowers-of-the-forest.mp3" loop="" preload="none"></audio>
+
+
+<div class="welcome-overlay" id="welcome" hidden="">
+  <div class="welcome-card glass-surface" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-orb" aria-hidden="true"></div>
+    <h2 id="welcome-title" class="welcome-title">Hello boss, howzya</h2>
+    <div class="welcome-theme">
+      <div class="welcome-modes">
+        <button type="button" data-mode="light" id="wm-light">light mode</button>
+        <button type="button" data-mode="dark" id="wm-dark">dark mode</button>
+      </div>
+    </div>
+    <div class="welcome-theme">
+      <div class="welcome-modes">
+        <button type="button" id="wm-calm-off">calm mode: off</button>
+        <button type="button" id="wm-calm-on">calm mode: on</button>
+      </div>
+    </div>
+    <label class="welcome-music">
+      <input type="checkbox" id="welcome-music-check">
+      <span>music</span>
+    </label>
+    <button type="button" class="welcome-enter" id="welcome-enter">continue (with defaults) →</button>
+  </div>
+</div>
+
+<script src="/js/site.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/spiral.js"></script>
+<script src="/js/embeds.js" defer=""></script>
+<script src="/js/lightbox.js" defer=""></script>
+</body>
+</html>
