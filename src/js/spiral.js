@@ -75,8 +75,14 @@
   // which size the *traced curve itself* (originally tuned for one hillside
   // silhouette bleeding off both screen edges) and were never a good proxy
   // for "how long a ray reads as" once that same curve is reused, rotated,
-  // once per strand (see reachIndexRange, used by both drawStrands variants).
-  const STRAND_REACH_FRAC = 0.24;
+  // once per strand (see reachIndexRange, used by drawStrands). Scaled by N
+  // rather than fixed: a flat clamp tuned to avoid clutter at MAX_STRANDS
+  // also stunted visible motion at today's low post counts, clamping the
+  // morph to a tiny stub near the star. Linear interpolation is exact at
+  // both ends: N=1 bleeds generously (matching drawAboutStrands' unclamped
+  // twin strands); N=MAX_STRANDS reproduces the original tuned worst case.
+  const STRAND_REACH_FRAC_MAX = 1.5;  // N=1
+  const STRAND_REACH_FRAC_MIN = 0.24; // N=MAX_STRANDS
 
   // ── traced keyframes — the owner's sketch, pages 2 through 8 ──
   // Each is a y=f(x) profile: 40 samples, x = i/39 across the width,
@@ -666,12 +672,15 @@
     ]);
 
     // same index formula anchorPoint() uses — where in `basePts` the anchor
-    // itself actually falls — then clamp every ray to STRAND_REACH_FRAC of
-    // the viewport from that point (see reachIndexRange), so Chitra always
-    // keeps clear background around her regardless of curve zoom or N.
+    // itself actually falls — then clamp every ray to a reach that scales
+    // with N (see STRAND_REACH_FRAC_MAX/MIN above) from that point (see
+    // reachIndexRange), so Chitra always keeps clear background around her
+    // regardless of curve zoom, while lower post counts still get to show
+    // off the curve's actual morph instead of a barely-moving stub.
     const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
     const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
-    const reachPx = STRAND_REACH_FRAC * Math.min(W, H);
+    const reachFrac = STRAND_REACH_FRAC_MAX - (STRAND_REACH_FRAC_MAX - STRAND_REACH_FRAC_MIN) * (N - 1) / (MAX_STRANDS - 1);
+    const reachPx = reachFrac * Math.min(W, H);
     const [startIdx, endIdx] = reachIndexRange(basePts, anchorIdx, reachPx);
     const trimmedPoints = points.slice(startIdx, endIdx + 1);
     const trimmedBasePts = basePts.slice(startIdx, endIdx + 1);
@@ -740,7 +749,7 @@
   // same arm-split gradient-band fill drawStrands uses for ring strands —
   // simpler here since a few-degree spread never needs the cross-arm
   // pairing check large rotations require (see drawStrands). Unlike
-  // drawStrands, these twin strands are never STRAND_REACH_FRAC-clamped —
+  // drawStrands, these twin strands are never reach-clamped (STRAND_REACH_FRAC_MAX/MIN) —
   // there's only ever two of them, so there's no risk of tiling the whole
   // background, and the design calls for them bleeding all the way to the
   // screen edges.
