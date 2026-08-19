@@ -41,6 +41,13 @@
   const BEAT_PULSE_SCALE_AMP = 0.03; // orb's beat pulse, ~3% (within the 2-4% range)
   const BEAT_PULSE_SCALE_AMP_READING = 0.06; // reading-mode-only boost — the star's clearest "synced to real audio" cue
 
+  // Chitra's vertical-axis "spin" — an orthographic-projection illusion
+  // (width foreshortened by cos(theta), like a coin turning edge-on), not a
+  // real 3D rotation. Bar-locked like the rest of the site's tempo'd motion,
+  // slow enough to read as dreamy rather than mechanical.
+  const SPIN_PERIOD_S = 6 * BAR; // ~10.67s per full rotation
+  const SPIN_OMEGA = (2 * Math.PI) / SPIN_PERIOD_S;
+
   const LEG_SECONDS = 10 * BAR;    // forward travel time (page2 -> spiral), holds excluded — 10 bars, ~17.8s
   const LEG_SECONDS_BACK = 5 * BAR; // return leg: fast, flat unwind (before the low-pass lag) — 5 bars, ~8.9s
   const HOLD_BELL_S = 2.5 * BEAT;   // brief near-stop breath at the page-8 bell — 2.5 beats, ~1.11s
@@ -309,6 +316,8 @@
   // Hum phase: accumulated by delta each frame so a mid-hold frequency
   // change (calm/reading toggling) changes its rate, not its value.
   let humPhaseAccum = 0;
+  // Chitra's spin phase — same delta-accumulation reasoning as humPhaseAccum.
+  let spinTheta = 0;
   // Music gate: how much of reading-mode's "dancing" (strand wobble, boosted
   // star pulse) should show, 0..1. Slewed rather than snapped so muting mid-
   // read fades the motion out instead of freezing it instantly.
@@ -817,9 +826,32 @@
     ctx.arc(cx, cy, 30, 0, Math.PI * 2);
     ctx.fill();
 
+    // Chitra-only vertical-axis "spin": an orthographic-projection illusion
+    // (width foreshortened by cos(spinTheta), like a coin turning edge-on)
+    // wrapping just the core disc + highlight below, not the glow — an
+    // elliptical glow would look wrong. Nested inside the beat-pulse save
+    // rather than merged into one scale call, since the glow above must
+    // keep the beat pulse without the spin squash.
+    if (star) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(Math.abs(Math.cos(spinTheta)), 1);
+      ctx.translate(-cx, -cy);
+    }
+
     ctx.beginPath();
     ctx.arc(cx, cy, 6.5, 0, Math.PI * 2);
-    ctx.fillStyle = orbColor;
+    // Chitra's "far side" (spun past the edge-on point) reads as a slightly
+    // darker shade — with no surface texture to fake a real rotation, the
+    // squash alone would read as breathing rather than spinning.
+    const facingBack = star && Math.cos(spinTheta) < 0;
+    if (facingBack) {
+      const [chR, chG, chB] = chitraRgb();
+      const [chH, chS, chL] = rgbToHsl(chR, chG, chB);
+      ctx.fillStyle = `rgb(${hslToRgb(chH, chS, Math.max(0, chL - 0.15)).join(',')})`;
+    } else {
+      ctx.fillStyle = orbColor;
+    }
     ctx.fill();
 
     // moon: a soft darker rim bite, faded in/out with the theme crossfade —
@@ -837,6 +869,7 @@
     ctx.arc(cx - 1.5, cy - 1.5, 1.4, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.fill();
+    if (star) ctx.restore();
     ctx.restore();
   }
 
@@ -879,6 +912,11 @@
     // About page's twin strands dance 50% faster than everywhere else.
     const humFreqHz = ((calm || readingMode()) ? 1 / (4 * BAR) : 3 / (4 * BAR)) * (isAboutPage() ? 1.5 : 1);
     humPhaseAccum = (humPhaseAccum + dtSec * humFreqHz * 2 * Math.PI) % (2 * Math.PI);
+
+    // Spin slows under calm/reading mode, same as the hum above — a fast
+    // mechanical-looking spin would clash with those slower, dreamier modes.
+    const spinOmega = SPIN_OMEGA * ((calm || readingMode()) ? 0.25 : 1);
+    spinTheta = (spinTheta + dtSec * spinOmega) % (2 * Math.PI);
 
     let hum = null;
     let trailAlpha = 0.30;
