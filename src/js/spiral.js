@@ -21,8 +21,8 @@
   const POST_COUNT = Math.max(1, parseInt(root.getAttribute('data-post-count'), 10) || 1);
 
   // ── tuning knobs ──
-  const SCALE_X = 0.45;           // curve width as a fraction of viewport width
-  const SCALE_Y = 0.36;           // curve height as a fraction of viewport height
+  const SCALE_X = 0.9;            // curve width as a fraction of viewport width
+  const SCALE_Y = 0.72;           // curve height as a fraction of viewport height
   const CY_FACTOR = 0.52;         // orb's vertical position as a fraction of viewport height
   const EXT = 0.5;                // how far (normalized units) open ends bleed past the viewport
   const P = 256;                  // resampled point count shared by every keyframe
@@ -70,6 +70,13 @@
   const MAX_STRANDS = 12; // safety cap on draw calls as the blog grows
   const BAND_ARM_POINTS = 32; // fixed point count per band-fill arm — cheap, and equal-length arms let any two arms pair up safely
   const ABOUT_TWIN_SPREAD_DEG = 3; // About page's two strands: start together at the star, only barely apart by the screen edge
+  // How far a ray may extend from Chitra before it's cut off, as a fraction
+  // of min(viewport width, height) — deliberately independent of SCALE_X/Y,
+  // which size the *traced curve itself* (originally tuned for one hillside
+  // silhouette bleeding off both screen edges) and were never a good proxy
+  // for "how long a ray reads as" once that same curve is reused, rotated,
+  // once per strand (see reachIndexRange, used by both drawStrands variants).
+  const STRAND_REACH_FRAC = 0.24;
 
   // ── traced keyframes — the owner's sketch, pages 2 through 8 ──
   // Each is a y=f(x) profile: 40 samples, x = i/39 across the width,
@@ -570,6 +577,24 @@
     return dx * dx + dy * dy;
   }
 
+  // Finds how far (array-index-wise) a ray can extend from anchorIdx before
+  // its on-screen distance from Chitra (cx,cy) exceeds reachPx, walking
+  // outward on each side independently and stopping at the first point past
+  // the limit. `screenPts` are pre-hum, anchor-centered screen coordinates
+  // (rotation/scale from `hum` barely changes distance-from-center, so it's
+  // fine to measure before that's applied). Assumes distance from the anchor
+  // grows roughly monotonically moving outward, true for these gently traced
+  // curves — a stray wiggle right at the cutoff just costs a slightly early
+  // or late trim, never a visual glitch.
+  function reachIndexRange(screenPts, anchorIdx, reachPx) {
+    const distFromCenter = (p) => Math.hypot(p[0] - cx, p[1] - cy);
+    let startIdx = anchorIdx;
+    while (startIdx > 0 && distFromCenter(screenPts[startIdx - 1]) <= reachPx) startIdx--;
+    let endIdx = anchorIdx;
+    while (endIdx < screenPts.length - 1 && distFromCenter(screenPts[endIdx + 1]) <= reachPx) endIdx++;
+    return [startIdx, endIdx];
+  }
+
   // Fills the wedge/petal-shaped region between two ring-adjacent strands
   // with a gradient from one's color to the other's — the space *between*
   // the dancing strands reads as a solid color wash, not just two flat
@@ -640,6 +665,18 @@
       cy - (p[1] - anchor[1]) * H * SCALE_Y,
     ]);
 
+    // same index formula anchorPoint() uses — where in `basePts` the anchor
+    // itself actually falls — then clamp every ray to STRAND_REACH_FRAC of
+    // the viewport from that point (see reachIndexRange), so Chitra always
+    // keeps clear background around her regardless of curve zoom or N.
+    const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
+    const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
+    const reachPx = STRAND_REACH_FRAC * Math.min(W, H);
+    const [startIdx, endIdx] = reachIndexRange(basePts, anchorIdx, reachPx);
+    const trimmedPoints = points.slice(startIdx, endIdx + 1);
+    const trimmedBasePts = basePts.slice(startIdx, endIdx + 1);
+    const trimmedAnchorIdx = anchorIdx - startIdx;
+
     const strands = new Array(N);
     for (let i = 0; i < N; i++) {
       const rotation = (2 * Math.PI * i) / N;
@@ -649,17 +686,13 @@
     }
 
     if (N > 1) {
-      // same index formula anchorPoint() uses — where in `basePts` the
-      // anchor itself actually falls, so the split lands exactly there.
-      const idxF = MID_ARRAY_INDEX + (INNER_ARRAY_INDEX - MID_ARRAY_INDEX) * (anchorParamVal - 0.5) / 0.5;
-      const anchorIdx = Math.max(0, Math.min(basePts.length - 1, Math.round(idxF)));
       // Both arms are ordered center-first, tip-last (armStart's natural
       // slice order is tip-first, so it's reversed) — fillBand needs matching
       // directionality on both sides of a pairing, or its start/end edges
       // connect the wrong ends (a near-center point to a far-tip point).
       const arms = [
-        resamplePolyline(basePts.slice(0, anchorIdx + 1).reverse(), BAND_ARM_POINTS),
-        resamplePolyline(basePts.slice(anchorIdx), BAND_ARM_POINTS),
+        resamplePolyline(trimmedBasePts.slice(0, trimmedAnchorIdx + 1).reverse(), BAND_ARM_POINTS),
+        resamplePolyline(trimmedBasePts.slice(trimmedAnchorIdx), BAND_ARM_POINTS),
       ];
       const bandAlpha = isLightMode() ? 0.32 : 0.5;
       const edgeCount = N === 2 ? 1 : N; // a 2-strand ring has one seam, not two
@@ -694,7 +727,7 @@
     }
 
     for (let i = 0; i < N; i++) {
-      strokeMorph(points, anchor, strands[i].hum, style, strands[i].rgb);
+      strokeMorph(trimmedPoints, anchor, strands[i].hum, style, strands[i].rgb);
     }
   }
 
@@ -706,7 +739,11 @@
   // "dancing" wobble every other strand gets (computeStrandHum), and the
   // same arm-split gradient-band fill drawStrands uses for ring strands —
   // simpler here since a few-degree spread never needs the cross-arm
-  // pairing check large rotations require (see drawStrands).
+  // pairing check large rotations require (see drawStrands). Unlike
+  // drawStrands, these twin strands are never STRAND_REACH_FRAC-clamped —
+  // there's only ever two of them, so there's no risk of tiling the whole
+  // background, and the design calls for them bleeding all the way to the
+  // screen edges.
   function drawAboutStrands(points, anchor, hum, style, anchorParamVal) {
     const spreadRad = (ABOUT_TWIN_SPREAD_DEG * Math.PI) / 180;
     const offsets = [-spreadRad / 2, spreadRad / 2];
@@ -830,7 +867,8 @@
     // Hum frequency locks to the bar (not the raw beat — a full-speed
     // beat-locked hum reads as a flutter, not a breath); calm/reading mode
     // drops to every 4th bar, close to the original ~0.15Hz slow breathing.
-    const humFreqHz = (calm || readingMode()) ? 1 / (4 * BAR) : 3 / (4 * BAR);
+    // About page's twin strands dance 50% faster than everywhere else.
+    const humFreqHz = ((calm || readingMode()) ? 1 / (4 * BAR) : 3 / (4 * BAR)) * (isAboutPage() ? 1.5 : 1);
     humPhaseAccum = (humPhaseAccum + dtSec * humFreqHz * 2 * Math.PI) % (2 * Math.PI);
 
     let hum = null;

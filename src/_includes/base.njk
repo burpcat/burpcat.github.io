@@ -105,12 +105,14 @@
       </span>
     </div>
     <div class="tools">
+      {% if page.url != "/about/" %}
       <span class="construction">★ under construction ★</span>
       <button class="theme-switch" id="themeSwitch" aria-label="Toggle light and dark theme" type="button">
         <span class="theme-switch-knob">
           <span id="themeIcon" aria-hidden="true">☾</span>
         </span>
       </button>
+      {% endif %}
       <button class="calm-toggle" id="calmToggle" aria-pressed="false" aria-label="Toggle calm mode" type="button">
         <span class="calm-icon" aria-hidden="true">◐</span>
         <span class="calm-label">calm mode</span>
