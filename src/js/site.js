@@ -181,7 +181,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   function setMedium(on) {
     const wasOn = root.classList.contains(MED);
     setFlag(MED, on);
-    if (on) setFlag(DARK, false); // always start light, like Medium
+    if (on) setFlag(DARK, root.getAttribute('data-theme') === 'dark'); // match the site's current theme on entry
     sync();
     if (on && !wasOn) showHint();
     if (!on) hideHint();
