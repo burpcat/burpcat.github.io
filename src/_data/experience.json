@@ -1,28 +1,34 @@
 {
   "work": [
     {
-      "role": "Data Scientist",
+      "role": "Founder-Developer",
+      "company": "Organic Systems",
+      "dates": "2026–present",
+      "description": "Independent, self-directed engineering — building open-source systems and developer tooling under github.com/organic-systems."
+    },
+    {
+      "role": "AI Engineer",
       "company": "SmartPac",
       "dates": "2026",
-      "description": "Sole data function across four pilot customers. Shipped an agentic onboarding agent and the eval harness keeping it honest."
+      "description": "Sole data and AI function at a four-person pre-seed, taking a campaign-analytics platform from concept to production. Built an autonomous observe–decide–act agent and an LLM-as-judge evaluation harness that held factual accuracy above 90% before any output reached customers."
     },
     {
       "role": "Data Scientist",
       "company": "Mass General Brigham",
       "dates": "2025",
-      "description": "Fixed a stalled electrophysiology pipeline — 94% faster, $200K saved. Shipped an air-gapped clinical RAG on CPU."
+      "description": "Rebuilt a stalled electrophysiology analysis pipeline, cutting runtime 9 times via incremental recompute and avoiding ~$200K in estimated hardware cost. Shipped a fully air-gapped clinical RAG assistant over 500+ biomedical papers."
     },
     {
       "role": "Data Software Engineer",
       "company": "Shiryam Technologies",
       "dates": "2021–2023",
-      "description": "Three teams' funnel metrics were lying to them. Fixed the tracking, wrote the spec, ran the tests."
+      "description": "Re-mapped Segment tracking across 15+ product touchpoints and authored the canonical event spec, improving event-capture reliability 40%. Ran onboarding and retention A/B tests that lifted 30-day retention 22%, and owned the AWS product-data pipeline end to end."
     },
     {
-      "role": "Junior Engineer",
+      "role": "Junior Data Engineer",
       "company": "Aapoon",
       "dates": "2021",
-      "description": "My first real role. Mapped a funnel, lifted adoption 28%, automated the weekly report nobody enjoyed writing."
+      "description": "Mapped the mobile onboarding funnel in Mixpanel and SQL to pinpoint drop-off, shipping fixes that lifted feature adoption 28%. Replaced manual weekly reporting with an Airflow-orchestrated pipeline, cutting analyst effort threefold."
     }
   ],
   "projects": [
